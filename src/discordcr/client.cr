@@ -11,6 +11,7 @@ module Discordcr
 
     def run
       url = gateway.url
+      url += "?v=6&encoding=json"
       @websocket = HTTP::WebSocket.new(URI.parse(url))
     end
 
