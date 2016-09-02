@@ -10,9 +10,14 @@ module Discordcr
     end
 
     def run
-      url = gateway.url
-      url += "?v=6&encoding=json"
-      @websocket = websocket = HTTP::WebSocket.new(URI.parse(url))
+      url = URI.parse(gateway.url)
+      @websocket = websocket = HTTP::WebSocket.new(
+        host: url.host.not_nil!,
+        path: "#{url.path}/?encoding=json&v=6",
+        port: 443,
+        tls: true
+      )
+
       websocket.on_message(&->on_message(String))
       websocket.on_close(&->on_close(String))
       websocket.run
@@ -24,6 +29,7 @@ module Discordcr
     end
 
     private def on_message(message : String)
+      puts message
     end
   end
 end
