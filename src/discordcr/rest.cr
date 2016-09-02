@@ -7,7 +7,7 @@ module Discordcr
   module REST
     SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
 
-    def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers | Nil, body : String | Nil)
+    def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String | Nil)
       HTTP::Client.exec(method: method, url: url, headers: headers, body: body, tls: SSL_CONTEXT)
     end
 
