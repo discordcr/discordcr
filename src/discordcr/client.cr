@@ -12,9 +12,9 @@ module Discordcr
     def run
       url = gateway.url
       url += "?v=6&encoding=json"
-      @websocket = HTTP::WebSocket.new(URI.parse(url))
-      @websocket.not_nil!.on_message(&->on_message(String)) # TODO: better error handling
-      @websocket.not_nil!.run
+      @websocket = websocket = HTTP::WebSocket.new(URI.parse(url))
+      websocket.on_message(&->on_message(String))
+      websocket.run
     end
 
     private def on_message(message : String)
