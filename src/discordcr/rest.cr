@@ -24,7 +24,7 @@ module Discordcr
         nil
       )
 
-      GatewayResponse.from_json(response.body_io)
+      GatewayResponse.from_json(response.body)
     end
   end
 end
