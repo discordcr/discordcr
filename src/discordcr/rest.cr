@@ -13,7 +13,7 @@ module Discordcr
 
     API_BASE = "https://discordapp.com/api/v6"
 
-    GET = "get"
+    GET = "GET"
 
     def gateway
       response = request(
