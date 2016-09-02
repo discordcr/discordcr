@@ -84,5 +84,8 @@ module Discordcr
         puts "Unsupported dispatch: #{type} #{data}"
       end
     end
+
+    def on_message(&@on_message : String ->)
+    end
   end
 end
