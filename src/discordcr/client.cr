@@ -72,7 +72,7 @@ module Discordcr
             large_threshold: 100
           }
         }.to_json
-        websocket.send(packet)
+        @websocket.not_nil!.send(packet)
       end
     end
 
