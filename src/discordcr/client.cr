@@ -14,7 +14,13 @@ module Discordcr
       url += "?v=6&encoding=json"
       @websocket = websocket = HTTP::WebSocket.new(URI.parse(url))
       websocket.on_message(&->on_message(String))
+      websocket.on_close(&->on_close(String))
       websocket.run
+    end
+
+    private def on_close(message : String)
+      # TODO: make more sophisticated
+      puts "Closed with: " + message
     end
 
     private def on_message(message : String)
