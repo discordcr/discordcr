@@ -36,9 +36,19 @@ module Discordcr
 
       case json["op"]
       when OP_HELLO
-        puts "Hello received"
+        handle_hello(json["d"]["heartbeat_interval"])
       else
         puts "Unsupported message: #{message}"
+      end
+    end
+
+    private def handle_hello(heartbeat_interval)
+      spawn do
+        loop do
+          puts "Sending heartbeat"
+          @websocket.not_nil!.send({op: 1, d: 0}.to_json)
+          sleep heartbeat_interval.milliseconds
+        end
       end
     end
   end
