@@ -8,6 +8,7 @@ module Discordcr
     end
 
     def run
+      url = gateway.url
     end
   end
 end
