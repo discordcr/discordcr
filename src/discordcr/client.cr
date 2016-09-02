@@ -1,3 +1,5 @@
+require "http/websocket"
+
 require "./rest"
 
 module Discordcr
@@ -9,6 +11,7 @@ module Discordcr
 
     def run
       url = gateway.url
+      @websocket = HTTP::WebSocket.new(URI.parse(url))
     end
   end
 end
