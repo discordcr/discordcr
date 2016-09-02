@@ -80,6 +80,9 @@ module Discordcr
       case type
       when "READY"
         puts "Received READY, v: #{data["v"]}"
+      when "MESSAGE_CREATE"
+        puts "Received message with content #{data["content"]}"
+        @on_message.try &.call(data["content"].to_s)
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
