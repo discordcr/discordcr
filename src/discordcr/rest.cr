@@ -24,6 +24,7 @@ module Discordcr
         nil
       )
 
+      # TODO: Investigate failed nil assertion with body_io
       GatewayResponse.from_json(response.body)
     end
   end
