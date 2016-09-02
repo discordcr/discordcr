@@ -15,7 +15,7 @@ module Discordcr
       @websocket = HTTP::WebSocket.new(URI.parse(url))
     end
 
-    private def on_message(String)
+    private def on_message(message : String)
     end
   end
 end
