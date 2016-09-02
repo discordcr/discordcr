@@ -55,6 +55,25 @@ module Discordcr
           sleep heartbeat_interval.as_i.milliseconds
         end
       end
+
+      spawn do
+        packet = {
+          op: 2,
+          d: {
+            token: @token,
+            properties: {
+              :"$os" => "Crystal",
+              :"$browser" => "discordcr",
+              :"$device" => "discordcr",
+              :"$referrer" => "",
+              :"$referring_domain" => ""
+            },
+            compress: false,
+            large_threshold: 100
+          }
+        }.to_json
+        websocket.send(packet)
+      end
     end
 
     private def handle_dispatch(type, data)
