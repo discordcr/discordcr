@@ -1,4 +1,4 @@
-require "http/websocket"
+require "http/web_socket"
 
 require "./rest"
 
