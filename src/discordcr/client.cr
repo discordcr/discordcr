@@ -1,4 +1,5 @@
 require "http/web_socket"
+require "json"
 
 require "./rest"
 
@@ -28,8 +29,17 @@ module Discordcr
       puts "Closed with: " + message
     end
 
+    OP_HELLO = 10
+
     private def on_message(message : String)
-      puts message
+      json = JSON.parse(message)
+
+      case json["op"]
+      when OP_HELLO
+        puts "Hello received"
+      else
+        puts "Unsupported message: #{message}"
+      end
     end
   end
 end
