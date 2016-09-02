@@ -29,6 +29,7 @@ module Discordcr
       puts "Closed with: " + message
     end
 
+    OP_DISPATCH = 0
     OP_HELLO = 10
 
     private def on_message(message : String)
@@ -37,6 +38,8 @@ module Discordcr
       case json["op"]
       when OP_HELLO
         handle_hello(json["d"]["heartbeat_interval"])
+      when OP_DISPATCH
+        handle_dispatch(json["t"], json["d"])
       else
         puts "Unsupported message: #{message}"
       end
@@ -52,6 +55,9 @@ module Discordcr
           sleep heartbeat_interval.as_i.milliseconds
         end
       end
+    end
+
+    private def handle_dispatch(type, data)
     end
   end
 end
