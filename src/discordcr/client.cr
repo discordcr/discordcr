@@ -58,6 +58,12 @@ module Discordcr
     end
 
     private def handle_dispatch(type, data)
+      case type
+      when "READY"
+        puts "Received READY, v: #{data["v"]}"
+      else
+        puts "Unsupported dispatch: #{type} #{data}"
+      end
     end
   end
 end
