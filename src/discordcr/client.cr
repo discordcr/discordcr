@@ -47,7 +47,7 @@ module Discordcr
         loop do
           puts "Sending heartbeat"
           @websocket.not_nil!.send({op: 1, d: 0}.to_json)
-          sleep heartbeat_interval.milliseconds
+          sleep heartbeat_interval.as_i.milliseconds
         end
       end
     end
