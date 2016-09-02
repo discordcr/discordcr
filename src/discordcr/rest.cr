@@ -14,6 +14,7 @@ module Discordcr
     API_BASE = "https://discordapp.com/api/v6"
 
     GET = "GET"
+    POST = "POST"
 
     def gateway
       response = request(
@@ -26,6 +27,16 @@ module Discordcr
 
       # TODO: Investigate failed nil assertion with body_io
       GatewayResponse.from_json(response.body)
+    end
+
+    def send_message(channel_id, content)
+      response = request(
+        :send_message,
+        POST,
+        API_BASE + "/channels/#{channel_id}/messages",
+        HTTP::Headers{ "Content-Type" => "application/json" },
+        { content: content }.to_json
+      )
     end
   end
 end
