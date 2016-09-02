@@ -40,6 +40,8 @@ module Discordcr
       else
         puts "Unsupported message: #{message}"
       end
+
+      nil
     end
 
     private def handle_hello(heartbeat_interval)
