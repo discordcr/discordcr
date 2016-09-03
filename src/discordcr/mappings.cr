@@ -128,6 +128,13 @@ module Discord
     )
   end
 
+  struct EmbedProvider
+    JSON.mapping(
+      name: String,
+      url: String
+    )
+  end
+
   struct VoiceState
     JSON.mapping(
       guild_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
