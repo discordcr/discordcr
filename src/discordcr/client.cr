@@ -95,7 +95,7 @@ module Discord
       spawn do
         loop do
           puts "Sending heartbeat"
-          @websocket.not_nil!.send({op: 1, d: 0}.to_json)
+          @websocket.send({op: 1, d: 0}.to_json)
           sleep heartbeat_interval.milliseconds
         end
       end
@@ -118,7 +118,7 @@ module Discord
             large_threshold: 100,
           },
         }.to_json
-        @websocket.not_nil!.send(packet)
+        @websocket.send(packet)
       end
     end
 
