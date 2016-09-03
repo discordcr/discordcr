@@ -7,7 +7,8 @@ module Discord
       str.not_nil!.to_u64
     end
 
-    def self.to_json(value : String, io : IO)
+    def self.to_json(value : UInt64, io : IO)
+      io.puts(value.to_s)
     end
   end
 
