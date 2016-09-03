@@ -4,6 +4,15 @@ require "json"
 require "./rest"
 
 module Discordcr
+  struct GatewayPacket
+    JSON.mapping(
+      op: UInt8,
+      d: JSON::Any,
+      s: UInt32 | Nil,
+      t: String | Nil
+    )
+  end
+
   class Client
     include REST
 
