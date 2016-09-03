@@ -119,6 +119,17 @@ module Discord
     )
   end
 
+  struct Embed
+    JSON.mapping(
+      title: String,
+      type: String,
+      description: String,
+      url: String,
+      thumbnail: EmbedThumbnail,
+      provider: EmbedProvider
+    )
+  end
+
   struct EmbedThumbnail
     JSON.mapping(
       url: String,
