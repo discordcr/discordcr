@@ -133,6 +133,26 @@ module Discord
     )
   end
 
+  struct Guild
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      name: String,
+      icon: String | Nil,
+      splash: String | Nil,
+      owner_id: {type: UInt64, converter: SnowflakeConverter},
+      region: String,
+      afk_channel_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
+      afk_timeout: Int32 | Nil,
+      embed_enabled: Bool | Nil,
+      embed_channel_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
+      verification_level: UInt8,
+      voice_states: Array(VoiceState),
+      roles: Array(Role),
+      emoji: {type: Array(Emoji), key: "emojis"},
+      features: Array(String)
+    )
+  end
+
   struct UnavailableGuild
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
