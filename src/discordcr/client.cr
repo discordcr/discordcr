@@ -130,13 +130,13 @@ module Discordcr
       when "MESSAGE_CREATE"
         payload = Gateway::MessageCreatePayload.from_json(data)
         puts "Received message with content #{payload.content}"
-        @on_message.try &.call(payload.content)
+        @on_message.try &.call(payload)
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
     end
 
-    def on_message(&@on_message : String ->)
+    def on_message(&@on_message : Gateway::MessageCreatePayload ->)
     end
   end
 end
