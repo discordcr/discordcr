@@ -48,6 +48,8 @@ module Discordcr
     end
 
     private def handle_hello(heartbeat_interval)
+      setup_heartbeats
+
       spawn do
         packet = {
           op: 2,
