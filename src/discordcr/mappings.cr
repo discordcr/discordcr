@@ -20,4 +20,13 @@ module Discordcr
       )
     end
   end
+
+  struct User
+    JSON.mapping(
+      username: String,
+      id: String,
+      discriminator: String,
+      avatar: String
+    )
+  end
 end
