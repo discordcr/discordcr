@@ -112,5 +112,7 @@ module Discord
 
       Message.from_json(response.body)
     end
+
+    # TODO: Add the upload file endpoint when the multipart PR is merged
   end
 end
