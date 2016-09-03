@@ -214,5 +214,17 @@ module Discord
         nil
       )
     end
+
+    def get_pinned_messages(channel_id : UInt64)
+      response = request(
+        :get_pinned_messages,
+        "GET",
+        "/channels/#{channel_id}/pins",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Message).from_json(response.body)
+    end
   end
 end
