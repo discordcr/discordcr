@@ -1,6 +1,14 @@
 require "json"
 
 module Discord
+  module SnowflakeConverter
+    def self.from_json(parser : JSON::PullParser) : UInt64
+    end
+
+    def self.to_json(value : String, io : IO)
+    end
+  end
+
   module REST
     # A response to the Get Gateway REST API call.
     struct GatewayResponse
