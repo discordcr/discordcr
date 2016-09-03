@@ -9,4 +9,12 @@ module Discordcr
       )
     end
   end
+
+  struct GatewayPacket
+    JSON.mapping(
+      op: UInt8,
+      d: Nil,
+      s: UInt32 | Nil,
+      t: String | Nil
+    )
 end
