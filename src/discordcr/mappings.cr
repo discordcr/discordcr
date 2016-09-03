@@ -121,4 +121,16 @@ module Discord
       channel_id: {type: UInt64, converter: SnowflakeConverter}
     )
   end
+
+  struct Role
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      name: String,
+      colour: {type: UInt32, key: color},
+      hoist: Bool,
+      position: Int32,
+      managed: Bool,
+      mentionable: Bool
+    )
+  end
 end
