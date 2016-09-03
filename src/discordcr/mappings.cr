@@ -49,7 +49,7 @@ module Discord
 
   struct Message
     JSON.mapping(
-      type: UInt8,
+      type: UInt8 | Nil,
       content: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
