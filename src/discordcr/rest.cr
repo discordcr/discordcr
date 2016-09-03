@@ -31,9 +31,9 @@ module Discord
       GatewayResponse.from_json(response.body)
     end
 
-    def send_message(channel_id, content)
+    def create_message(channel_id, content)
       response = request(
-        :send_message,
+        :create_message,
         "POST",
         API_BASE + "/channels/#{channel_id}/messages",
         HTTP::Headers{"Content-Type" => "application/json"},
