@@ -18,13 +18,10 @@ module Discord
 
     API_BASE = "https://discordapp.com/api/v6"
 
-    GET  = "GET"
-    POST = "POST"
-
     def gateway
       response = request(
         :gateway,
-        GET,
+        "GET",
         API_BASE + "/gateway",
         HTTP::Headers.new,
         nil
@@ -37,7 +34,7 @@ module Discord
     def send_message(channel_id, content)
       response = request(
         :send_message,
-        POST,
+        "POST",
         API_BASE + "/channels/#{channel_id}/messages",
         HTTP::Headers{"Content-Type" => "application/json"},
         {content: content}.to_json
