@@ -246,5 +246,17 @@ module Discord
         nil
       )
     end
+
+    def get_guild(guild_id : UInt64)
+      response = request(
+        :get_guild,
+        "GET",
+        "/guilds/#{guild_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Guild.from_json(response.body)
+    end
   end
 end
