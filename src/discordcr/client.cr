@@ -129,8 +129,8 @@ module Discordcr
         puts "Received READY, v: #{payload.v}"
       when "MESSAGE_CREATE"
         payload = Gateway::MessageCreatePayload.from_json(data)
-        puts "Received message with content #{data.content}"
-        @on_message.try &.call(data.content)
+        puts "Received message with content #{payload.content}"
+        @on_message.try &.call(payload.content)
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
