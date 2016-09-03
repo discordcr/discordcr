@@ -122,6 +122,17 @@ module Discord
     )
   end
 
+  struct GuildMember
+    JSON.mapping(
+      user: User,
+      nick: String | Nil,
+      roles: Array(Role),
+      joined_at: {type: Time | Nil, converter: Time::Format::ISO_8601_DATE},
+      deaf: Bool,
+      mute: Bool
+    )
+  end
+
   struct Role
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
