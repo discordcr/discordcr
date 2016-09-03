@@ -358,5 +358,19 @@ module Discord
 
       GuildMember.from_json(response.body)
     end
+
+    def list_guild_members(guild_id : UInt64, limit : UInt8 = 1, after : UInt64 = 0)
+      path = "/guilds/#{guild_id}/members?limit=#{limit}&after=#{after}"
+
+      response = request(
+        :list_guild_members,
+        "GET",
+        path,
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(GuildMember).from_json(response.body)
+    end
   end
 end
