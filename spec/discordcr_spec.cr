@@ -25,6 +25,7 @@ describe Discord do
 
       obj = StructWithSnowflake.from_json(json)
       obj.data.should eq 10000000000
+      obj.data.should be_a UInt64
     end
   end
 
@@ -34,6 +35,7 @@ describe Discord do
 
       obj = StructWithMaybeSnowflake.from_json(json)
       obj.data.should eq 10000000000
+      obj.data.should be_a UInt64
     end
 
     it "converts null to nil" do
