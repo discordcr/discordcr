@@ -29,7 +29,7 @@ module Discord
       GatewayResponse.from_json(response.body)
     end
 
-    def get_channel(channel_id)
+    def get_channel(channel_id : UInt64)
       response = request(
         :get_channel,
         "GET",
@@ -41,7 +41,7 @@ module Discord
       Channel.from_json(response.body)
     end
 
-    def create_message(channel_id, content)
+    def create_message(channel_id : UInt64, content : String)
       response = request(
         :create_message,
         "POST",
