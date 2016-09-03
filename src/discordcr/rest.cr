@@ -126,5 +126,15 @@ module Discord
 
       Message.from_json(response.body)
     end
+
+    def delete_message(channel_id : UInt64, message_id : UInt64)
+      response = request(
+        :delete_message,
+        "DELETE",
+        "/channels/#{channel_id}/messages/#{message_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
