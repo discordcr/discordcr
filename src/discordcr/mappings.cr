@@ -135,6 +135,18 @@ module Discord
     )
   end
 
+  struct Attachment
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      filename: String,
+      size: UInt32,
+      url: String,
+      proxy_url: String,
+      height: UInt32 | Nil,
+      width: UInt32 | Nil
+    )
+  end
+
   struct VoiceState
     JSON.mapping(
       guild_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
