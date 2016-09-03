@@ -40,7 +40,7 @@ module Discord
     JSON.mapping(
       user: User,
       nick: String?,
-      roles: Array(Role),
+      roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
       deaf: Bool,
       mute: Bool
