@@ -133,6 +133,7 @@ module Discord
     end
   end
 
+  # :nodoc:
   struct GatewayPacket
     getter opcode, sequence, data, event_type
 
