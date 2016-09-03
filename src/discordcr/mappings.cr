@@ -13,7 +13,7 @@ module Discordcr
   struct GatewayPacket
     JSON.mapping(
       op: UInt8,
-      d: Nil,
+      d: JSON::Any,
       s: UInt32 | Nil,
       t: String | Nil
     )
