@@ -1,4 +1,5 @@
 require "json"
+require "time/format"
 
 module Discord
   module SnowflakeConverter
@@ -51,7 +52,12 @@ module Discord
       type: UInt8,
       content: String,
       id: {type: UInt64, converter: SnowflakeConverter},
-      author: User
+      channel_id: {type: UInt64, converter: SnowflakeConverter},
+      author: User,
+      timestamp: {type: Time, converter: Time::Format::ISO_8601_DATE},
+      tts: Bool,
+      mention_everyone: Bool,
+      mentions: Array(User)
     )
   end
 end
