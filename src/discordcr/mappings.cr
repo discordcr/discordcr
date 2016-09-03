@@ -167,6 +167,16 @@ module Discord
     )
   end
 
+  struct Emoji
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      name: String,
+      roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+      require_colons: Bool,
+      managed: Bool
+    )
+  end
+
   struct Role
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
