@@ -38,7 +38,7 @@ module Discord
   # Converts an array of strings to an array of UInt64s.
   module SnowflakeArrayConverter
     def self.from_json(parser : JSON::PullParser) : Array(UInt64)
-      Array.new(parser).map &.to_u64
+      Array(String).new(parser).map &.to_u64
     end
 
     def self.to_json(value : Array(UInt64), io : IO)
