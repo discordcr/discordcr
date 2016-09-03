@@ -19,6 +19,13 @@ module Discordcr
         author: User
       )
     end
+
+    struct HelloPayload
+      JSON.mapping(
+        heartbeat_interval: UInt32,
+        _trace: Array(String)
+      )
+    end
   end
 
   struct User
