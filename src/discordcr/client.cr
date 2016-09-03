@@ -82,7 +82,7 @@ module Discordcr
       # Rewind to beginning of JSON
       data.rewind
 
-      GatewayPacket.new(opcode, sequence, event_type, data)
+      GatewayPacket.new(opcode, sequence, data, event_type)
     end
 
     private def handle_hello(heartbeat_interval)
