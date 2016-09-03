@@ -60,4 +60,13 @@ module Discord
       mentions: Array(User)
     )
   end
+
+  struct Overwrite
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      type: String,
+      allow: UInt64,
+      deny: UInt64
+    )
+  end
 end
