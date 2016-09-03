@@ -204,5 +204,15 @@ module Discord
         nil
       )
     end
+
+    def trigger_typing_indicator(channel_id : UInt64)
+      response = request(
+        :trigger_typing_indicator,
+        "POST",
+        "/channels/#{channel_id}/typing",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
