@@ -136,5 +136,15 @@ module Discord
         nil
       )
     end
+
+    def bulk_delete_messages(channel_id : UInt64, message_ids : Array(UInt64))
+      response = request(
+        :bulk_delete_messages,
+        "POST",
+        "/channels/#{channel_id}/messages/bulk_delete",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        message_ids.to_json
+      )
+    end
   end
 end
