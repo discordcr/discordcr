@@ -1,4 +1,5 @@
 require "./converters"
+require "./user"
 
 module Discord
   struct Invite
@@ -6,6 +7,21 @@ module Discord
       code: String,
       guild: InviteGuild,
       channel: InviteChannel
+    )
+  end
+
+  struct InviteMetadata
+    JSON.mapping(
+      code: String,
+      guild: InviteGuild,
+      channel: InviteChannel,
+      inviter: User,
+      users: UInt32,
+      max_uses: UInt32,
+      max_age: UInt32,
+      temporary: Bool,
+      created_at: {type: Time, converter: Time::Format::ISO_8601_DATE},
+      revoked: Bool
     )
   end
 
