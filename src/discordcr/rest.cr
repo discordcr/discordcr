@@ -8,7 +8,7 @@ module Discord
   module REST
     SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
-    API_BASE = "https://discordapp.com/api/v6"
+    API_BASE    = "https://discordapp.com/api/v6"
 
     def request(endpoint_key : Symbol, method : String, path : String, headers : HTTP::Headers, body : String?)
       headers["Authorization"] = @token
