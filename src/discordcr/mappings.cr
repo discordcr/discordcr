@@ -90,7 +90,12 @@ module Discord
       timestamp: {type: Time, converter: Time::Format::ISO_8601_DATE},
       tts: Bool,
       mention_everyone: Bool,
-      mentions: Array(User)
+      mentions: Array(User),
+      mention_roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+      attachments: Array(Attachment),
+      embeds: Array(Embed),
+      nonce: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
+      pinned: Bool | Nil
     )
   end
 
