@@ -114,4 +114,11 @@ module Discord
       unavailable: Bool
     )
   end
+
+  struct GuildEmbed
+    JSON.mapping(
+      enabled: Bool,
+      channel_id: {type: UInt64, converter: SnowflakeConverter}
+    )
+  end
 end
