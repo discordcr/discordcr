@@ -16,7 +16,7 @@ module Discord
   # Converts a value that may be a snowflake, but might also be nil, to a
   # UInt64.
   module MaybeSnowflakeConverter
-    def self.from_json(parser : JSON::PullParser) : UInt64 | Nil
+    def self.from_json(parser : JSON::PullParser) : UInt64?
       str = parser.read_string_or_null
 
       if str
@@ -26,7 +26,7 @@ module Discord
       end
     end
 
-    def self.to_json(value : UInt64 | Nil, io : IO)
+    def self.to_json(value : UInt64?, io : IO)
       if value
         io.puts(value.to_s)
       else

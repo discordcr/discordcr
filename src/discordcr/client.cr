@@ -7,7 +7,7 @@ module Discord
   struct GatewayPacket
     getter opcode, sequence, data, event_type
 
-    def initialize(@opcode : Int64 | Nil, @sequence : Int64 | Nil, @data : MemoryIO, @event_type : String | Nil)
+    def initialize(@opcode : Int64?, @sequence : Int64?, @data : MemoryIO, @event_type : String?)
     end
   end
 

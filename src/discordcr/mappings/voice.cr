@@ -3,7 +3,7 @@ require "./converters"
 module Discord
   struct VoiceState
     JSON.mapping(
-      guild_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
+      guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
       user_id: {type: UInt64, converter: SnowflakeConverter},
       session_id: String,

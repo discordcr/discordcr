@@ -9,7 +9,7 @@ module Discord
     SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
 
-    def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String | Nil)
+    def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String?)
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
 

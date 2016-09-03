@@ -3,7 +3,7 @@ require "./converters"
 module Discord
   struct Message
     JSON.mapping(
-      type: UInt8 | Nil,
+      type: UInt8?,
       content: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
@@ -15,8 +15,8 @@ module Discord
       mention_roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       attachments: Array(Attachment),
       embeds: Array(Embed),
-      nonce: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
-      pinned: Bool | Nil
+      nonce: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      pinned: Bool?
     )
   end
 
@@ -24,15 +24,15 @@ module Discord
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       type: UInt8,
-      guild_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
-      name: String | Nil,
-      is_private: Bool | Nil,
-      permission_overwrites: Array(Overwrite) | Nil,
-      topic: String | Nil,
-      last_message_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
-      bitrate: UInt32 | Nil,
-      user_limit: UInt32 | Nil,
-      recipients: Array(User) | Nil
+      guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      name: String?,
+      is_private: Bool?,
+      permission_overwrites: Array(Overwrite)?,
+      topic: String?,
+      last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      bitrate: UInt32?,
+      user_limit: UInt32?,
+      recipients: Array(User)?
     )
   end
 
@@ -79,8 +79,8 @@ module Discord
       size: UInt32,
       url: String,
       proxy_url: String,
-      height: UInt32 | Nil,
-      width: UInt32 | Nil
+      height: UInt32?,
+      width: UInt32?
     )
   end
 end
