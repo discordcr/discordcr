@@ -15,20 +15,20 @@ module Discord
     include REST
 
     def initialize(@token : String, @client_id : UInt64)
-    end
-
-    def run
       url = URI.parse(gateway.url)
-      @websocket = websocket = HTTP::WebSocket.new(
+      @websocket = HTTP::WebSocket.new(
         host: url.host.not_nil!,
         path: "#{url.path}/?encoding=json&v=6",
         port: 443,
         tls: true
       )
 
-      websocket.on_message(&->on_message(String))
-      websocket.on_close(&->on_close(String))
-      websocket.run
+      @websocket.on_message(&->on_message(String))
+      @websocket.on_close(&->on_close(String))
+    end
+
+    def run
+      @websocket.run
     end
 
     private def on_close(message : String)
