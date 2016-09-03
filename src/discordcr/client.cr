@@ -3,7 +3,7 @@ require "json"
 
 require "./rest"
 
-module Discordcr
+module Discord
   struct GatewayPacket
     getter opcode, sequence, data, event_type
 

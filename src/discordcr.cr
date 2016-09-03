@@ -1,5 +1,5 @@
 require "./discordcr/*"
 
-module Discordcr
+module Discord
   # TODO Put your code here
 end

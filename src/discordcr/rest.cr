@@ -4,10 +4,10 @@ require "openssl/ssl/context"
 require "./mappings"
 require "./version"
 
-module Discordcr
+module Discord
   module REST
     SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
-    USER_AGENT = "DiscordBot (discordcr - no URL yet, #{Discordcr::VERSION})"
+    USER_AGENT = "DiscordBot (discordcr - no URL yet, #{Discord::VERSION})"
 
     def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String | Nil)
       headers["Authorization"] = @token

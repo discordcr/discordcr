@@ -1,6 +1,6 @@
 require "json"
 
-module Discordcr
+module Discord
   module REST
     # A response to the Get Gateway REST API call.
     struct GatewayResponse

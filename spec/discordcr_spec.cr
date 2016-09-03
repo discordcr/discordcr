@@ -1,6 +1,6 @@
 require "./spec_helper"
 
-describe Discordcr do
+describe Discord do
   # TODO: Write tests
 
   it "works" do
