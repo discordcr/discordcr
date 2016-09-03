@@ -1,6 +1,14 @@
 require "./converters"
 
 module Discord
+  struct Invite
+    JSON.mapping(
+      code: String,
+      guild: InviteGuild,
+      channel: InviteChannel
+    )
+  end
+
   struct InviteGuild
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
