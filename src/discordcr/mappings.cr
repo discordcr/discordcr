@@ -29,15 +29,6 @@ module Discord
       )
     end
 
-    struct MessageCreatePayload
-      JSON.mapping(
-        type: UInt8,
-        content: String,
-        id: {type: UInt64, converter: SnowflakeConverter},
-        author: User
-      )
-    end
-
     struct HelloPayload
       JSON.mapping(
         heartbeat_interval: UInt32,
@@ -52,6 +43,15 @@ module Discord
       id: {type: UInt64, converter: SnowflakeConverter},
       discriminator: String,
       avatar: String
+    )
+  end
+
+  struct Message
+    JSON.mapping(
+      type: UInt8,
+      content: String,
+      id: {type: UInt64, converter: SnowflakeConverter},
+      author: User
     )
   end
 end
