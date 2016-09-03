@@ -7,7 +7,7 @@ require "./version"
 module Discord
   module REST
     SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
-    USER_AGENT = "DiscordBot (discordcr - no URL yet, #{Discord::VERSION})"
+    USER_AGENT  = "DiscordBot (discordcr - no URL yet, #{Discord::VERSION})"
 
     def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String | Nil)
       headers["Authorization"] = @token
@@ -17,7 +17,7 @@ module Discord
 
     API_BASE = "https://discordapp.com/api/v6"
 
-    GET = "GET"
+    GET  = "GET"
     POST = "POST"
 
     def gateway
@@ -38,8 +38,8 @@ module Discord
         :send_message,
         POST,
         API_BASE + "/channels/#{channel_id}/messages",
-        HTTP::Headers{ "Content-Type" => "application/json" },
-        { content: content }.to_json
+        HTTP::Headers{"Content-Type" => "application/json"},
+        {content: content}.to_json
       )
     end
   end

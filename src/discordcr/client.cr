@@ -36,8 +36,8 @@ module Discord
       puts "Closed with: " + message
     end
 
-    OP_DISPATCH = 0
-    OP_HELLO = 10
+    OP_DISPATCH =  0
+    OP_HELLO    = 10
 
     private def on_message(message : String)
       packet = parse_message(message)
@@ -76,7 +76,7 @@ module Discord
           event_type = parser.read_string_or_null
         else
           # Unknown field
-        	parser.skip
+          parser.skip
         end
       end
 
@@ -105,18 +105,18 @@ module Discord
       spawn do
         packet = {
           op: 2,
-          d: {
-            token: @token,
+          d:  {
+            token:      @token,
             properties: {
-              :"$os" => "Crystal",
-              :"$browser" => "discordcr",
-              :"$device" => "discordcr",
-              :"$referrer" => "",
-              :"$referring_domain" => ""
+              :"$os"               => "Crystal",
+              :"$browser"          => "discordcr",
+              :"$device"           => "discordcr",
+              :"$referrer"         => "",
+              :"$referring_domain" => "",
             },
-            compress: false,
-            large_threshold: 100
-          }
+            compress:        false,
+            large_threshold: 100,
+          },
         }.to_json
         @websocket.not_nil!.send(packet)
       end
