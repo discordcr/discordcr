@@ -346,5 +346,17 @@ module Discord
 
       Channel.from_json(response.body)
     end
+
+    def get_guild_member(guild_id : UInt64, user_id : UInt64)
+      response = request(
+        :get_guild_member,
+        "GET",
+        "/guilds/#{guild_id}/members/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      GuildMember.from_json(response.body)
+    end
   end
 end
