@@ -1,7 +1,7 @@
 require "http/client"
 require "openssl/ssl/context"
 
-require "./mappings"
+require "./mappings/*"
 require "./version"
 
 module Discord
