@@ -48,7 +48,7 @@ module Discordcr
     end
 
     private def handle_hello(heartbeat_interval)
-      setup_heartbeats
+      setup_heartbeats(heartbeat_interval)
       identify
     end
 
