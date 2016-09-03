@@ -49,7 +49,7 @@ describe Discord do
       json = %({"data":["1", "2", "10000000000"]})
 
       obj = StructWithSnowflakeArray.from_json(json)
-      obj.data.should be_a Array
+      obj.data.should be_a Array(UInt64)
       obj.data[0].should eq 1
       obj.data[1].should eq 2
       obj.data[2].should eq 10000000000
