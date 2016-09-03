@@ -392,5 +392,15 @@ module Discord
         json
       )
     end
+
+    def remove_guild_member(guild_id : UInt64, user_id : UInt64)
+      response = request(
+        :remove_guild_member,
+        "DELETE",
+        "/guilds/#{guild_id}/members/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
