@@ -18,9 +18,9 @@ module Discord
 
     API_BASE = "https://discordapp.com/api/v6"
 
-    def gateway
+    def get_gateway
       response = request(
-        :gateway,
+        :get_gateway,
         "GET",
         API_BASE + "/gateway",
         HTTP::Headers.new,

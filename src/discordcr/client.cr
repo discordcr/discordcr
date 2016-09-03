@@ -15,7 +15,7 @@ module Discord
     include REST
 
     def initialize(@token : String, @client_id : UInt64)
-      url = URI.parse(gateway.url)
+      url = URI.parse(get_gateway.url)
       @websocket = HTTP::WebSocket.new(
         host: url.host.not_nil!,
         path: "#{url.path}/?encoding=json&v=6",
