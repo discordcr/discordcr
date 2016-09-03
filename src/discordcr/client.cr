@@ -128,7 +128,7 @@ module Discord
       when "MESSAGE_CREATE"
         payload = Gateway::MessageCreatePayload.from_json(data)
         puts "Received message with content #{payload.content}"
-        @on_message.try &.call(payload)
+        spawn { @on_message.try &.call(payload) }
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
