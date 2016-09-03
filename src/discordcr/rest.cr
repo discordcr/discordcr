@@ -296,5 +296,17 @@ module Discord
 
       Guild.from_json(response.body)
     end
+
+    def get_guild_channels(guild_id : UInt64)
+      response = request(
+        :get_guild_channels,
+        "GET",
+        "/guilds/#{channel_id}/channels",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Channel).from_json(response.body)
+    end
   end
 end
