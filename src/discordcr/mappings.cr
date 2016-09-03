@@ -133,6 +133,13 @@ module Discord
     )
   end
 
+  struct IntegrationAccount
+    JSON.mapping(
+      id: String,
+      name: String
+    )
+  end
+
   struct Role
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
