@@ -115,7 +115,7 @@ module Discord
 
     # TODO: Add the upload file endpoint when the multipart PR is merged
 
-    def edit_message(channel_id : UInt64, message_id : UInt64)
+    def edit_message(channel_id : UInt64, message_id : UInt64, content : String)
       response = request(
         :edit_message,
         "PATCH",
