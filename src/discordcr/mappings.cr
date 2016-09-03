@@ -83,6 +83,22 @@ module Discord
     )
   end
 
+  struct Channel
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      type: UInt8,
+      guild_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
+      name: String | Nil,
+      is_private: Bool | Nil,
+      permission_overwrites: Array(Overwrite) | Nil,
+      topic: String | Nil,
+      last_message_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
+      bitrate: UInt32 | Nil,
+      user_limit: UInt32 | Nil,
+      recipients: Array(User) | Nil
+    )
+  end
+
   struct Overwrite
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
