@@ -7,7 +7,7 @@ require "./version"
 module Discord
   module REST
     SSL_CONTEXT = OpenSSL::SSL::Context::Client.new
-    USER_AGENT  = "DiscordBot (discordcr - no URL yet, #{Discord::VERSION})"
+    USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
 
     def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String | Nil)
       headers["Authorization"] = @token
