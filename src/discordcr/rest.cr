@@ -372,5 +372,25 @@ module Discord
 
       Array(GuildMember).from_json(response.body)
     end
+
+    def modify_guild_member(guild_id : UInt64, user_id : UInt64, nick : String?,
+                            roles : Array(UInt64)?, mute : Bool?, deaf : Bool?,
+                            channel_id : UInt64?)
+      json = {
+        nick:       nick,
+        roles:      roles,
+        mute:       mute,
+        deaf:       deaf,
+        channel_id: channel_id,
+      }.to_json
+
+      response = request(
+        :modify_guild_member,
+        "PATCH",
+        "/guilds/#{guild_id}/members/#{user_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+    end
   end
 end
