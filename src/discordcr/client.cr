@@ -33,13 +33,13 @@ module Discordcr
     OP_HELLO = 10
 
     private def on_message(message : String)
-      json = JSON.parse(message)
+      packet = GatewayPacket.from_json(message)
 
-      case json["op"]
+      case packet.op
       when OP_HELLO
-        handle_hello(json["d"]["heartbeat_interval"])
+        handle_hello(packet.d["heartbeat_interval"])
       when OP_DISPATCH
-        handle_dispatch(json["t"], json["d"])
+        handle_dispatch(packet.t, packet.d)
       else
         puts "Unsupported message: #{message}"
       end
