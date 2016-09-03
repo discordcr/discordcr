@@ -13,7 +13,7 @@ module Discord
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
 
-      spawn HTTP::Client.exec(method: method, url: url, headers: headers, body: body, tls: SSL_CONTEXT)
+      spawn { HTTP::Client.exec(method: method, url: url, headers: headers, body: body, tls: SSL_CONTEXT) }
     end
 
     API_BASE = "https://discordapp.com/api/v6"
