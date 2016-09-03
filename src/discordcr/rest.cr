@@ -175,5 +175,24 @@ module Discord
 
       Array(InviteMetadata).from_json(response.body)
     end
+
+    def create_channel_invite(channel_id : UInt64, max_age : UInt32 = 0,
+                              max_uses : UInt32 = 0, temporary : Bool = false)
+      json = {
+        max_age:   max_age,
+        max_uses:  max_uses,
+        temporary: temporary,
+      }.to_json
+
+      response = request(
+        :create_channel_invite,
+        "POST",
+        "/channels/#{channel_id}/invites",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Invite.from_json(response.body)
+    end
   end
 end
