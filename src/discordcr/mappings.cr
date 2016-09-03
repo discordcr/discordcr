@@ -133,6 +133,22 @@ module Discord
     )
   end
 
+  struct Integration
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      name: String,
+      type: String,
+      enabled: Bool,
+      syncing: Bool,
+      role_id: {type: UInt64, converter: SnowflakeConverter},
+      expire_behaviour: {type: UInt8, key: "expire_behavior"},
+      expire_grace_period: Int32,
+      user: User,
+      account: IntegrationAccount,
+      synced_at: {type: Time, converter: Time::EpochConverter}
+    )
+  end
+
   struct IntegrationAccount
     JSON.mapping(
       id: String,
