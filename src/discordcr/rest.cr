@@ -226,5 +226,15 @@ module Discord
 
       Array(Message).from_json(response.body)
     end
+
+    def add_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
+      response = request(
+        :add_pinned_channel_message,
+        "PUT",
+        "/channels/#{channel_id}/pins/#{message_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
