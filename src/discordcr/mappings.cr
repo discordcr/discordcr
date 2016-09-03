@@ -10,21 +10,23 @@ module Discordcr
     end
   end
 
-  struct GatewayPacket
-    JSON.mapping(
-      op: UInt8,
-      d: JSON::Any,
-      s: UInt32 | Nil,
-      t: String | Nil
-    )
-  end
+  module Gateway
+    struct GatewayPacket
+      JSON.mapping(
+        op: UInt8,
+        d: JSON::Any,
+        s: UInt32 | Nil,
+        t: String | Nil
+      )
+    end
 
-  struct MessageCreatePayload
-    JSON.mapping(
-      type: UInt8,
-      content: String,
-      id: String,
-      author: User
-    )
+    struct MessageCreatePayload
+      JSON.mapping(
+        type: UInt8,
+        content: String,
+        id: String,
+        author: User
+      )
+    end
   end
 end
