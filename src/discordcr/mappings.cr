@@ -33,7 +33,7 @@ module Discord
       JSON.mapping(
         type: UInt8,
         content: String,
-        id: String,
+        id: {type: UInt64, converter: SnowflakeConverter},
         author: User
       )
     end
@@ -49,7 +49,7 @@ module Discord
   struct User
     JSON.mapping(
       username: String,
-      id: String,
+      id: {type: UInt64, converter: SnowflakeConverter},
       discriminator: String,
       avatar: String
     )
