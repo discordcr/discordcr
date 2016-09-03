@@ -114,5 +114,17 @@ module Discord
     end
 
     # TODO: Add the upload file endpoint when the multipart PR is merged
+
+    def edit_message(channel_id : UInt64, message_id : UInt64)
+      response = request(
+        :edit_message,
+        "PATCH",
+        "/channels/#{channel_id}/messages/#{message_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        {content: content}.to_json
+      )
+
+      Message.from_json(response.body)
+    end
   end
 end
