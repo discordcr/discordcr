@@ -194,5 +194,15 @@ module Discord
 
       Invite.from_json(response.body)
     end
+
+    def delete_channel_permission(channel_id : UInt64, overwrite_id : UInt64)
+      response = request(
+        :delete_channel_permission,
+        "DELETE",
+        "/channels/#{channel_id}/permissions/#{overwrite_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
