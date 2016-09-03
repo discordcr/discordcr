@@ -163,5 +163,17 @@ module Discord
         json
       )
     end
+
+    def get_channel_invites(channel_id : UInt64)
+      response = request(
+        :get_channel_invites,
+        "GET",
+        "/channels/#{channel_id}/invites",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(InviteMetadata).from_json(response.body)
+    end
   end
 end
