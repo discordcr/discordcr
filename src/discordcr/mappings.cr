@@ -17,4 +17,5 @@ module Discordcr
       s: UInt32 | Nil,
       t: String | Nil
     )
+  end
 end
