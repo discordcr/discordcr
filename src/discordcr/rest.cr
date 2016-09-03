@@ -258,5 +258,31 @@ module Discord
 
       Guild.from_json(response.body)
     end
+
+    def modify_guild(guild_id : UInt64, name : String?, region : String?,
+                     verification_level : UInt8?, afk_channel_id : UInt64?,
+                     afk_timeout : Int32?, icon : String?, owner_id : UInt64?,
+                     splash : String?)
+      json = {
+        name:               name,
+        region:             region,
+        verification_level: verification_level,
+        afk_channel_id:     afk_channel_id,
+        afk_timeout:        afk_timeout,
+        icon:               icon,
+        owner_id:           owner_id,
+        splash:             splash,
+      }.to_json
+
+      response = request(
+        :modify_guild,
+        "PATCH",
+        "/guilds/#{guild_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Guild.from_json(response.body)
+    end
   end
 end
