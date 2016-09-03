@@ -2,6 +2,7 @@ require "json"
 require "time/format"
 
 module Discord
+  # :nodoc:
   module SnowflakeConverter
     def self.from_json(parser : JSON::PullParser) : UInt64
       parser.read_string.to_u64
@@ -12,8 +13,7 @@ module Discord
     end
   end
 
-  # Converts a value that may be a snowflake, but might also be nil, to a
-  # UInt64.
+  # :nodoc:
   module MaybeSnowflakeConverter
     def self.from_json(parser : JSON::PullParser) : UInt64?
       str = parser.read_string_or_null
@@ -34,7 +34,7 @@ module Discord
     end
   end
 
-  # Converts an array of strings to an array of UInt64s.
+  # :nodoc:
   module SnowflakeArrayConverter
     def self.from_json(parser : JSON::PullParser) : Array(UInt64)
       Array(String).new(parser).map &.to_u64
