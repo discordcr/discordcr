@@ -12,6 +12,12 @@ struct StructWithMaybeSnowflake
   )
 end
 
+struct StructWithSnowflakeArray
+  JSON.mapping(
+    data: {type: Array(UInt64), converter: Discord::SnowflakeArrayConverter}
+  )
+end
+
 describe Discord do
   describe Discord::SnowflakeConverter do
     it "converts a string to u64" do
@@ -35,6 +41,18 @@ describe Discord do
 
       obj = StructWithMaybeSnowflake.from_json(json)
       obj.data.should eq nil
+    end
+  end
+
+  describe Discord::SnowflakeArrayConverter do
+    it "converts an array of strings to u64s" do
+      json = %({"data":["1", "2", "10000000000"]})
+
+      obj = StructWithSnowflakeArray.from_json(json)
+      obj.data.should be_a Array
+      obj.data[0].should eq 1
+      obj.data[1].should eq 2
+      obj.data[2].should eq 10000000000
     end
   end
 end
