@@ -308,5 +308,25 @@ module Discord
 
       Array(Channel).from_json(response.body)
     end
+
+    def create_guild_channel(guild_id : UInt64, name : String, type : UInt8,
+                             bitrate : UInt32?, user_limit : UInt32?)
+      json = {
+        name:       name,
+        type:       type,
+        bitrate:    bitrate,
+        user_limit: user_limit,
+      }.to_json
+
+      response = request(
+        :create_guild_channel,
+        "POST",
+        "/guilds/#{guild_id}/channels",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Channel.from_json(response.body)
+    end
   end
 end
