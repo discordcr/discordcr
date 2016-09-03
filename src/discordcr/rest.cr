@@ -39,6 +39,8 @@ module Discord
         HTTP::Headers{"Content-Type" => "application/json"},
         {content: content}.to_json
       )
+
+      Message.from_json(response.body)
     end
   end
 end
