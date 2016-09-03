@@ -42,11 +42,12 @@ module Discordcr
     private def on_message(message : String)
       packet = parse_message(message)
 
-      case packet.op
+      case packet.opcode
       when OP_HELLO
-        handle_hello(packet.d["heartbeat_interval"])
+        payload = Gateway::HelloPayload.from_json(packet.data)
+        handle_hello(payload.heartbeat_interval)
       when OP_DISPATCH
-        handle_dispatch(packet.t, packet.d)
+        handle_dispatch(packet.event_type, packet.data)
       else
         puts "Unsupported message: #{message}"
       end
