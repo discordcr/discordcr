@@ -41,6 +41,27 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    def modify_channel(channel_id : UInt64, name : String?, position : UInt32?,
+                       topic : String?, bitrate : UInt32?, user_limit : UInt32?)
+      json = {
+        name:       name,
+        position:   position,
+        topic:      topic,
+        bitrate:    bitrate,
+        user_limit: user_limit,
+      }.to_json
+
+      response = request(
+        :modify_channel,
+        "PATCH",
+        "/channels/#{channel_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Channel.from_json(response.body)
+    end
+
     def create_message(channel_id : UInt64, content : String)
       response = request(
         :create_message,
