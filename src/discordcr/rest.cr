@@ -72,6 +72,23 @@ module Discord
       )
     end
 
+    def get_channel_messages(channel_id : UInt64, limit : UInt8 = 50, before : UInt64? = nil, after : UInt64? = nil, around : UInt64? = nil)
+      path = "/channels/#{channel_id}/messages?limit=#{limit}"
+      path += "&before=#{before}" if before
+      path += "&after=#{after}" if after
+      path += "&around=#{around}" if around
+
+      response = request(
+        :get_channel_messages,
+        "GET",
+        path,
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Message).from_json(response.body)
+    end
+
     def create_message(channel_id : UInt64, content : String)
       response = request(
         :create_message,
