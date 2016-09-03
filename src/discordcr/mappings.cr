@@ -119,6 +119,15 @@ module Discord
     )
   end
 
+  struct EmbedThumbnail
+    JSON.mapping(
+      url: String,
+      proxy_url: String,
+      height: UInt32,
+      width: UInt32
+    )
+  end
+
   struct VoiceState
     JSON.mapping(
       guild_id: {type: UInt64 | Nil, converter: MaybeSnowflakeConverter},
