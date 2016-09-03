@@ -71,9 +71,9 @@ module Discordcr
           # Read the raw JSON into memory
           parser.read_raw(data)
         when "s"
-          sequence = parser.read_int
+          sequence = parser.read_int_or_null
         when "t"
-          event_type = parser.read_string
+          event_type = parser.read_string_or_null
         else
           # Unknown field
         	parser.skip
