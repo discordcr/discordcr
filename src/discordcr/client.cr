@@ -33,6 +33,7 @@ module Discordcr
     OP_HELLO = 10
 
     private def on_message(message : String)
+      # TODO: Optimise parsing more
       packet = GatewayPacket.from_json(message)
 
       case packet.op
