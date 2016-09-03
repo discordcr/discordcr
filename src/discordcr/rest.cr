@@ -12,7 +12,8 @@ module Discord
     def request(endpoint_key : Symbol, method : String, url : String | URI, headers : HTTP::Headers, body : String | Nil)
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
-      HTTP::Client.exec(method: method, url: url, headers: headers, body: body, tls: SSL_CONTEXT)
+
+      spawn HTTP::Client.exec(method: method, url: url, headers: headers, body: body, tls: SSL_CONTEXT)
     end
 
     API_BASE = "https://discordapp.com/api/v6"
