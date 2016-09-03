@@ -18,4 +18,13 @@ module Discordcr
       t: String | Nil
     )
   end
+
+  struct MessageCreatePayload
+    JSON.mapping(
+      type: UInt8,
+      content: String,
+      id: String,
+      author: User
+    )
+  end
 end
