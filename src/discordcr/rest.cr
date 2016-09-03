@@ -89,6 +89,18 @@ module Discord
       Array(Message).from_json(response.body)
     end
 
+    def get_channel_message(channel_id : UInt64, message_id : UInt64)
+      response = request(
+        :get_channel_message,
+        "GET",
+        "/channels/#{channel_id}/messages/#{message_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Message.from_json(response.body)
+    end
+
     def create_message(channel_id : UInt64, content : String)
       response = request(
         :create_message,
