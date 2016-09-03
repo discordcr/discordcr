@@ -5,12 +5,10 @@ require "./rest"
 
 module Discordcr
   struct GatewayPacket
-    JSON.mapping(
-      op: UInt8,
-      d: JSON::Any,
-      s: UInt32 | Nil,
-      t: String | Nil
-    )
+    getter opcode, sequence, data, event_type
+
+    def initialize(@opcode : UInt8, @sequence : UInt32, @data : MemoryIO, @event_type : String)
+    end
   end
 
   class Client
