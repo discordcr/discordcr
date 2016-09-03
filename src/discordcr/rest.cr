@@ -29,6 +29,18 @@ module Discord
       GatewayResponse.from_json(response.body)
     end
 
+    def get_channel(channel_id)
+      response = request(
+        :get_channel,
+        "GET",
+        "/channels/#{channel_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Channel.from_json(response.body)
+    end
+
     def create_message(channel_id, content)
       response = request(
         :create_message,
