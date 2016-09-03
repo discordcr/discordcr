@@ -107,4 +107,11 @@ module Discord
       deny: UInt64
     )
   end
+
+  struct UnavailableGuild
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      unavailable: Bool
+    )
+  end
 end
