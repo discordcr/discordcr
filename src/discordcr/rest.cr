@@ -328,5 +328,23 @@ module Discord
 
       Channel.from_json(response.body)
     end
+
+    def modify_guild_channel(guild_id : UInt64, channel_id : UInt64,
+                             position : UInt64)
+      json = {
+        id:       channel_id,
+        position: position,
+      }.to_json
+
+      response = request(
+        :modify_guild_channel,
+        "PATCH",
+        "/guilds/#{guild_id}/channels",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Channel.from_json(response.body)
+    end
   end
 end
