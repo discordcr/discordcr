@@ -146,5 +146,22 @@ module Discord
         message_ids.to_json
       )
     end
+
+    def edit_channel_permissions(channel_id : UInt64, overwrite_id : UInt64,
+                                 type : String, allow : UInt64, deny : UInt64)
+      json = {
+        allow: allow,
+        deny:  deny,
+        type:  type,
+      }.to_json
+
+      response = request(
+        :edit_channel_permissions,
+        "PUT",
+        "/channels/#{channel_id}/permissions/#{overwrite_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+    end
   end
 end
