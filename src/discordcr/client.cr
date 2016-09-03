@@ -49,14 +49,6 @@ module Discordcr
 
     private def handle_hello(heartbeat_interval)
       spawn do
-        loop do
-          puts "Sending heartbeat"
-          @websocket.not_nil!.send({op: 1, d: 0}.to_json)
-          sleep heartbeat_interval.as_i.milliseconds
-        end
-      end
-
-      spawn do
         packet = {
           op: 2,
           d: {
@@ -73,6 +65,16 @@ module Discordcr
           }
         }.to_json
         @websocket.not_nil!.send(packet)
+      end
+    end
+
+    private def setup_heartbeats(heartbeat_interval)
+      spawn do
+        loop do
+          puts "Sending heartbeat"
+          @websocket.not_nil!.send({op: 1, d: 0}.to_json)
+          sleep heartbeat_interval.as_i.milliseconds
+        end
       end
     end
 
