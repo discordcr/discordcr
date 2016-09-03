@@ -4,13 +4,6 @@ require "json"
 require "./rest"
 
 module Discord
-  struct GatewayPacket
-    getter opcode, sequence, data, event_type
-
-    def initialize(@opcode : Int64 | Nil, @sequence : Int64 | Nil, @data : MemoryIO, @event_type : String | Nil)
-    end
-  end
-
   class Client
     include REST
 
@@ -137,6 +130,13 @@ module Discord
     end
 
     def on_message(&@on_message : Message ->)
+    end
+  end
+
+  struct GatewayPacket
+    getter opcode, sequence, data, event_type
+
+    def initialize(@opcode : Int64 | Nil, @sequence : Int64 | Nil, @data : MemoryIO, @event_type : String | Nil)
     end
   end
 end
