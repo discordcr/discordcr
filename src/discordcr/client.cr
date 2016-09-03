@@ -40,16 +40,18 @@ module Discord
     OP_HELLO    = 10
 
     private def on_message(message : String)
-      packet = parse_message(message)
+      spawn do
+        packet = parse_message(message)
 
-      case packet.opcode
-      when OP_HELLO
-        payload = Gateway::HelloPayload.from_json(packet.data)
-        handle_hello(payload.heartbeat_interval)
-      when OP_DISPATCH
-        handle_dispatch(packet.event_type, packet.data)
-      else
-        puts "Unsupported message: #{message}"
+        case packet.opcode
+        when OP_HELLO
+          payload = Gateway::HelloPayload.from_json(packet.data)
+          handle_hello(payload.heartbeat_interval)
+        when OP_DISPATCH
+          handle_dispatch(packet.event_type, packet.data)
+        else
+          puts "Unsupported message: #{message}"
+        end
       end
 
       nil
@@ -128,7 +130,7 @@ module Discord
       when "MESSAGE_CREATE"
         payload = Gateway::MessageCreatePayload.from_json(data)
         puts "Received message with content #{payload.content}"
-        spawn { @on_message.try &.call(payload) }
+        @on_message.try &.call(payload)
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
