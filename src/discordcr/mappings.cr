@@ -3,6 +3,8 @@ require "json"
 module Discord
   module SnowflakeConverter
     def self.from_json(parser : JSON::PullParser) : UInt64
+      str = parser.read_string_or_null
+      str.not_nil!.to_u64
     end
 
     def self.to_json(value : String, io : IO)
