@@ -102,24 +102,22 @@ module Discord
     end
 
     private def identify
-      spawn do
-        packet = {
-          op: 2,
-          d:  {
-            token:      @token,
-            properties: {
-              :"$os"               => "Crystal",
-              :"$browser"          => "discordcr",
-              :"$device"           => "discordcr",
-              :"$referrer"         => "",
-              :"$referring_domain" => "",
-            },
-            compress:        false,
-            large_threshold: 100,
+      packet = {
+        op: 2,
+        d:  {
+          token:      @token,
+          properties: {
+            :"$os"               => "Crystal",
+            :"$browser"          => "discordcr",
+            :"$device"           => "discordcr",
+            :"$referrer"         => "",
+            :"$referring_domain" => "",
           },
-        }.to_json
-        @websocket.send(packet)
-      end
+          compress:        false,
+          large_threshold: 100,
+        },
+      }.to_json
+      @websocket.send(packet)
     end
 
     private def handle_dispatch(type, data)
