@@ -40,8 +40,7 @@ module Discordcr
     OP_HELLO = 10
 
     private def on_message(message : String)
-      # TODO: Optimise parsing more
-      packet = GatewayPacket.from_json(message)
+      packet = parse_message(message)
 
       case packet.op
       when OP_HELLO
@@ -53,6 +52,37 @@ module Discordcr
       end
 
       nil
+    end
+
+    private def parse_message(message : String)
+      parser = JSON::PullParser.new(message)
+
+      opcode = nil
+      sequence = nil
+      event_type = nil
+      data = MemoryIO.new
+
+      parser.read_object do |key|
+        case key
+        when "op"
+          opcode = parser.read_int
+        when "d"
+          # Read the raw JSON into memory
+          parser.read_raw(data)
+        when "s"
+          sequence = parser.read_int
+        when "t"
+          event_type = parser.read_string
+        else
+          # Unknown field
+        	parser.skip
+        end
+      end
+
+      # Rewind to beginning of JSON
+      data.rewind
+
+      GatewayPacket.new(opcode, sequence, event_type, data)
     end
 
     private def handle_hello(heartbeat_interval)
