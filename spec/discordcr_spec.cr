@@ -8,7 +8,7 @@ end
 
 struct StructWithMaybeSnowflake
   JSON.mapping(
-    data: {type: UInt64 | Nil, converter: Discord::MaybeSnowflakeConverter}
+    data: {type: UInt64?, converter: Discord::MaybeSnowflakeConverter}
   )
 end
 
