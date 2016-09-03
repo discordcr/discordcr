@@ -62,6 +62,16 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    def delete_channel(channel_id : UInt64)
+      response = request(
+        :delete_channel,
+        "DELETE",
+        "/channels/#{channel_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
     def create_message(channel_id : UInt64, content : String)
       response = request(
         :create_message,
