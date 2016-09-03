@@ -11,6 +11,13 @@ module Discordcr
   end
 
   module Gateway
+    # TODO: Expand this
+    struct ReadyPayload
+      JSON.mapping(
+        v: UInt8
+      )
+    end
+
     struct MessageCreatePayload
       JSON.mapping(
         type: UInt8,
