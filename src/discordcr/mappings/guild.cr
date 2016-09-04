@@ -6,13 +6,13 @@ module Discord
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       name: String,
-      icon: String?,
-      splash: String?,
+      icon: {type: String, nilable: true},
+      splash: {type: String, nilable: true},
       owner_id: {type: UInt64, converter: SnowflakeConverter},
       region: String,
       afk_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      afk_timeout: Int32?,
-      embed_enabled: Bool?,
+      afk_timeout: {type: Int32, nilable: true},
+      embed_enabled: {type: Bool, nilable: true},
       embed_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       verification_level: UInt8,
       voice_states: Array(VoiceState),
@@ -39,7 +39,7 @@ module Discord
   struct GuildMember
     JSON.mapping(
       user: User,
-      nick: String?,
+      nick: {type: String, nilable: true},
       roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
       deaf: Bool,

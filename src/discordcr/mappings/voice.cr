@@ -21,7 +21,7 @@ module Discord
       name: String,
       sample_hostname: String,
       sample_port: UInt16,
-      custom: Bool?,
+      custom: {type: Bool, nilable: true},
       vip: Bool,
       optimal: Bool
     )

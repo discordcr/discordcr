@@ -3,7 +3,7 @@ require "./converters"
 module Discord
   struct Message
     JSON.mapping(
-      type: UInt8?,
+      type: {type: UInt8, nilable: true},
       content: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
@@ -16,7 +16,7 @@ module Discord
       attachments: Array(Attachment),
       embeds: Array(Embed),
       nonce: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      pinned: Bool?
+      pinned: {type: Bool, nilable: true}
     )
   end
 
@@ -25,14 +25,14 @@ module Discord
       id: {type: UInt64, converter: SnowflakeConverter},
       type: UInt8,
       guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      name: String?,
-      is_private: Bool?,
-      permission_overwrites: Array(Overwrite)?,
-      topic: String?,
+      name: {type: String, nilable: true},
+      is_private: {type: Bool, nilable: true},
+      permission_overwrites: {type: Array(Overwrite), nilable: true},
+      topic: {type: String, nilable: true},
       last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      bitrate: UInt32?,
-      user_limit: UInt32?,
-      recipients: Array(User)?
+      bitrate: {type: UInt32, nilable: true},
+      user_limit: {type: UInt32, nilable: true},
+      recipients: {type: Array(User), nilable: true}
     )
   end
 
@@ -56,12 +56,12 @@ module Discord
 
   struct Embed
     JSON.mapping(
-      title: String?,
+      title: {type: String, nilable: true},
       type: String,
-      description: String?,
+      description: {type: String, nilable: true},
       url: String,
-      thumbnail: EmbedThumbnail?,
-      provider: EmbedProvider?
+      thumbnail: {type: EmbedThumbnail, nilable: true},
+      provider: {type: EmbedProvider, nilable: true}
     )
   end
 
@@ -88,8 +88,8 @@ module Discord
       size: UInt32,
       url: String,
       proxy_url: String,
-      height: UInt32?,
-      width: UInt32?
+      height: {type: UInt32, nilable: true},
+      width: {type: UInt32, nilable: true}
     )
   end
 end

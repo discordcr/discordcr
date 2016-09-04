@@ -7,8 +7,8 @@ module Discord
       id: {type: UInt64, converter: SnowflakeConverter},
       discriminator: String,
       avatar: String,
-      email: String?,
-      bot: Bool?
+      email: {type: String, nilable: true},
+      bot: {type: Bool, nilable: true}
     )
   end
 

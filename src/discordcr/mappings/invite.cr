@@ -29,7 +29,7 @@ module Discord
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       name: String,
-      splash_hash: String?
+      splash_hash: {type: String, nilable: true}
     )
   end
 
