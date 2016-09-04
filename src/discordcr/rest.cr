@@ -555,5 +555,24 @@ module Discord
         json
       )
     end
+
+    def modify_guild_integration(guild_id : UInt64, integration_id : UInt64,
+                                 expire_behaviour : UInt8,
+                                 expire_grace_period : Int32,
+                                 enable_emoticons : Bool)
+      json = {
+        expire_behavior: expire_behaviour,
+        expire_grace_period: expire_grace_period,
+        enable_emoticons: enable_emoticons
+      }.to_json
+
+      response = request(
+        :modify_guild_integration,
+        "PATCH",
+        "/guilds/#{guild_id}/integrations/#{integration_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+    end
   end
 end
