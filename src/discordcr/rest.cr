@@ -689,5 +689,15 @@ module Discord
 
       Array(UserGuild).from_json(response.body)
     end
+
+    def leave_guild(guild_id : UInt64)
+      response = request(
+        :leave_guild,
+        "DELETE",
+        "/users/@me/guilds/#{guild_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
