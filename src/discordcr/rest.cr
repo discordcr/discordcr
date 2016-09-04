@@ -528,5 +528,17 @@ module Discord
 
       Array(VoiceRegion).from_json(response.body)
     end
+
+    def get_guild_integrations(guild_id : UInt64)
+      response = request(
+        :get_guild_integrations,
+        "GET",
+        "/guilds/#{guild_id}/integrations",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Integration).from_json(response.body)
+    end
   end
 end
