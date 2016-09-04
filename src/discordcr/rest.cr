@@ -492,5 +492,17 @@ module Discord
 
       Role.from_json(response.body)
     end
+
+    def get_guild_prune_count(guild_id : UInt64, days : UInt32)
+      response = request(
+        :get_guild_prune_count,
+        "GET",
+        "/guilds/#{guild_id}/prune?days=#{days}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      PruneCountResponse.new(response.body)
+    end
   end
 end
