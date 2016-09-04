@@ -648,5 +648,17 @@ module Discord
 
       Array(User).from_json(response.body)
     end
+
+    def get_current_user
+      response = request(
+        :get_current_user,
+        "GET",
+        "/users/@me",
+        HTTP::Headers.new,
+        nil
+      )
+
+      User.from_json(response.body)
+    end
   end
 end
