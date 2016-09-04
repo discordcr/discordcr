@@ -594,5 +594,17 @@ module Discord
         nil
       )
     end
+
+    def get_guild_embed(guild_id : UInt64)
+      response = request(
+        :get_guild_embed,
+        "GET",
+        "/guilds/#{guild_id}/embed",
+        HTTP::Headers.new,
+        nil
+      )
+
+      GuildEmbed.from_json(response.body)
+    end
   end
 end
