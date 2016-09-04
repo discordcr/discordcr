@@ -745,5 +745,17 @@ module Discord
 
       Invite.from_json(response.body)
     end
+
+    def delete_invite(code : String)
+      response = request(
+        :delete_invite,
+        "DELETE",
+        "/invites/#{code}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Invite.from_json(response.body)
+    end
   end
 end
