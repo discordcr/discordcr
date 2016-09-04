@@ -414,5 +414,15 @@ module Discord
 
       Array(User).from_json(response.body)
     end
+
+    def create_guild_ban(guild_id : UInt64, user_id : UInt64)
+      response = request(
+        :create_guild_ban,
+        "PUT",
+        "/guilds/#{guild_id}/bans/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
