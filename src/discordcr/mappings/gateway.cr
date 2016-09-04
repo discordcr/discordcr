@@ -1,11 +1,16 @@
 require "./converters"
+require "./user"
+require "./channel"
 
 module Discord
   module Gateway
-    # TODO: Expand this
     struct ReadyPayload
       JSON.mapping(
-        v: UInt8
+        v: UInt8,
+        user: User,
+        private_channels: Array(PrivateChannel),
+        guilds: Array(UnavailableGuild),
+        session_id: String
       )
     end
 
