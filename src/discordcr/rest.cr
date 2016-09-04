@@ -561,9 +561,9 @@ module Discord
                                  expire_grace_period : Int32,
                                  enable_emoticons : Bool)
       json = {
-        expire_behavior: expire_behaviour,
+        expire_behavior:     expire_behaviour,
         expire_grace_period: expire_grace_period,
-        enable_emoticons: enable_emoticons
+        enable_emoticons:    enable_emoticons,
       }.to_json
 
       response = request(
@@ -602,6 +602,24 @@ module Discord
         "/guilds/#{guild_id}/embed",
         HTTP::Headers.new,
         nil
+      )
+
+      GuildEmbed.from_json(response.body)
+    end
+
+    def modify_guild_embed(guild_id : UInt64, enabled : Bool,
+                           channel_id : UInt64)
+      json = {
+        enabled:    enabled,
+        channel_id: channel_id,
+      }.to_json
+
+      response = request(
+        :modify_guild_embed,
+        "PATCH",
+        "/guilds/#{guild_id}/embed",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
       )
 
       GuildEmbed.from_json(response.body)
