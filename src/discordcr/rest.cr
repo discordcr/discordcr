@@ -660,5 +660,22 @@ module Discord
 
       User.from_json(response.body)
     end
+
+    def modify_current_user(username : String, avatar : String)
+      json = {
+        username: username,
+        avatar:   avatar,
+      }.to_json
+
+      response = request(
+        :modify_current_user,
+        "PATCH",
+        "/users/@me",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      User.from_json(response.body)
+    end
   end
 end
