@@ -699,5 +699,17 @@ module Discord
         nil
       )
     end
+
+    def get_user_dms
+      response = request(
+        :get_user_dms,
+        "GET",
+        "/users/@me/channels",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Channel).from_json(response.body)
+    end
   end
 end
