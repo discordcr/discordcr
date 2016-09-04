@@ -624,5 +624,17 @@ module Discord
 
       GuildEmbed.from_json(response.body)
     end
+
+    def get_user(user_id : UInt64)
+      response = request(
+        :get_user,
+        "GET",
+        "/users/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      User.from_json(response.body)
+    end
   end
 end
