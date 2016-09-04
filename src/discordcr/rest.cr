@@ -709,7 +709,7 @@ module Discord
         nil
       )
 
-      Array(Channel).from_json(response.body)
+      Array(PrivateChannel).from_json(response.body)
     end
 
     def create_dm(recipient_id : UInt64)
