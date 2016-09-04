@@ -516,5 +516,17 @@ module Discord
 
       PruneCountResponse.new(response.body)
     end
+
+    def get_guild_voice_regions(guild_id : UInt64)
+      response = request(
+        :get_guild_voice_regions,
+        "GET",
+        "/guilds/#{guild_id}/regions",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(VoiceRegion).from_json(response.body)
+    end
   end
 end
