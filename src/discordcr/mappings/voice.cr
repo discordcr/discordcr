@@ -14,4 +14,16 @@ module Discord
       suppress: Bool
     )
   end
+
+  struct VoiceRegion
+    JSON.mapping(
+      id: String,
+      name: String,
+      sample_hostname: String,
+      sample_port: UInt16,
+      custom: Bool?,
+      vip: Bool,
+      optimal: Bool
+    )
+  end
 end
