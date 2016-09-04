@@ -584,5 +584,15 @@ module Discord
         nil
       )
     end
+
+    def sync_guild_integration(guild_id : UInt64, integration_id : UInt64)
+      response = request(
+        :sync_guild_integration,
+        "POST",
+        "/guilds/#{guild_id}/integrations/#{integration_id}/sync",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
