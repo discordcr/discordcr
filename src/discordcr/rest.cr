@@ -458,5 +458,27 @@ module Discord
 
       Role.from_json(response.body)
     end
+
+    def modify_guild_role(guild_id : UInt64, role_id : UInt64, name : String?,
+                          permissions : UInt64?, colour : UInt32?,
+                          position : Int32?, hoist : Bool?)
+      json = {
+        name:        name,
+        permissions: permissions,
+        colour:      colour,
+        position:    position,
+        hoist:       hoist,
+      }.to_json
+
+      response = request(
+        :modify_guild_role,
+        "PATCH",
+        "/guilds/#{guild_id}/roles/#{role_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Role.from_json(response.body)
+    end
   end
 end
