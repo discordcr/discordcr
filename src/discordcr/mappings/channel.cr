@@ -56,12 +56,12 @@ module Discord
 
   struct Embed
     JSON.mapping(
-      title: String,
+      title: String?,
       type: String,
-      description: String,
+      description: String?,
       url: String,
-      thumbnail: EmbedThumbnail,
-      provider: EmbedProvider
+      thumbnail: EmbedThumbnail?,
+      provider: EmbedProvider?
     )
   end
 
