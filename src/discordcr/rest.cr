@@ -711,5 +711,15 @@ module Discord
 
       Array(Channel).from_json(response.body)
     end
+
+    def create_dm(recipient_id : UInt64)
+      response = request(
+        :create_dm,
+        "POST",
+        "/users/@me/channels",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        {recipient_id: recipient_id}
+      )
+    end
   end
 end
