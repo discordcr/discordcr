@@ -19,4 +19,13 @@ module Discord
       permissions: UInt64
     )
   end
+
+  struct Connection
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      name: String,
+      type: String,
+      revoked: Bool
+    )
+  end
 end
