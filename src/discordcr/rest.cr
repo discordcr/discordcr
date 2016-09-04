@@ -504,5 +504,17 @@ module Discord
 
       PruneCountResponse.new(response.body)
     end
+
+    def begin_guild_prune(guild_id : UInt64, days : UInt32)
+      response = request(
+        :begin_guild_prune,
+        "POST",
+        "/guilds/#{guild_id}/prune?days=#{days}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      PruneCountResponse.new(response.body)
+    end
   end
 end
