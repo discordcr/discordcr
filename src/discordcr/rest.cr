@@ -480,5 +480,17 @@ module Discord
 
       Role.from_json(response.body)
     end
+
+    def delete_guild_role(guild_id : UInt64, role_id : UInt64)
+      response = request(
+        :delete_guild_role,
+        "DELETE",
+        "/guilds/#{guild_id}/roles/#{role_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Role.from_json(response.body)
+    end
   end
 end
