@@ -720,6 +720,8 @@ module Discord
         HTTP::Headers{"Content-Type" => "application/json"},
         {recipient_id: recipient_id}
       )
+
+      PrivateChannel.from_json(response.body)
     end
 
     def get_users_connections
