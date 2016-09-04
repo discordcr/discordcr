@@ -540,5 +540,20 @@ module Discord
 
       Array(Integration).from_json(response.body)
     end
+
+    def create_guild_integration(guild_id : UInt64, type : String, id : UInt64)
+      json = {
+        type: type,
+        id:   id,
+      }.to_json
+
+      response = request(
+        :create_guild_integration,
+        "POST",
+        "/guilds/#{guild_id}/integrations",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+    end
   end
 end
