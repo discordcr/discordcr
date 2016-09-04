@@ -636,5 +636,17 @@ module Discord
 
       User.from_json(response.body)
     end
+
+    def query_users(query : String, limit : Int32 = 25)
+      response = request(
+        :query_users,
+        "GET",
+        "/users?q=#{query}&limit=#{limit}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(User).from_json(response.body)
+    end
   end
 end
