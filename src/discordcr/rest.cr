@@ -574,5 +574,15 @@ module Discord
         json
       )
     end
+
+    def delete_guild_integration(guild_id : UInt64, integration_id : UInt64)
+      response = request(
+        :delete_guild_integration,
+        "DELETE",
+        "/guilds/#{guild_id}/integrations/#{integration_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
