@@ -36,6 +36,15 @@ module Discord
     )
   end
 
+  struct PrivateChannel
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      type: UInt8,
+      recipients: Array(User),
+      last_message_id: UInt64
+    )
+  end
+
   struct Overwrite
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
