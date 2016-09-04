@@ -9,4 +9,14 @@ module Discord
       avatar: String
     )
   end
+
+  struct UserGuild
+    JSON.mapping(
+      id: {type: UInt64, converter: SnowflakeConverter},
+      name: String,
+      icon: String,
+      owner: Bool,
+      permissions: UInt64
+    )
+  end
 end
