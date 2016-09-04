@@ -6,7 +6,8 @@ module Discord
       username: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       discriminator: String,
-      avatar: String
+      avatar: String,
+      email: String?
     )
   end
 
