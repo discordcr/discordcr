@@ -424,5 +424,15 @@ module Discord
         nil
       )
     end
+
+    def remove_guild_ban(guild_id : UInt64, user_id : UInt64)
+      response = request(
+        :remove_guild_ban,
+        "DELETE",
+        "/guilds/#{guild_id}/bans/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
   end
 end
