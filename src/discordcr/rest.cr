@@ -721,5 +721,17 @@ module Discord
         {recipient_id: recipient_id}
       )
     end
+
+    def get_users_connections
+      response = request(
+        :get_users_connections,
+        "GET",
+        "/users/@me/connections",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Connection).from_json(response.body)
+    end
   end
 end
