@@ -733,5 +733,17 @@ module Discord
 
       Array(Connection).from_json(response.body)
     end
+
+    def get_invite(code : String)
+      response = request(
+        :get_invite,
+        "GET",
+        "/invites/#{code}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Invite.from_json(response.body)
+    end
   end
 end
