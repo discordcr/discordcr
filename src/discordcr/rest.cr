@@ -757,5 +757,17 @@ module Discord
 
       Invite.from_json(response.body)
     end
+
+    def accept_invite(code : String)
+      response = request(
+        :accept_invite,
+        "POST",
+        "/invites/#{code}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Invite.from_json(response.body)
+    end
   end
 end
