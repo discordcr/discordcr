@@ -465,7 +465,7 @@ module Discord
       json = {
         name:        name,
         permissions: permissions,
-        colour:      colour,
+        color:       colour,
         position:    position,
         hoist:       hoist,
       }.to_json
