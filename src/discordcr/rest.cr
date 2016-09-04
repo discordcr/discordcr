@@ -434,5 +434,17 @@ module Discord
         nil
       )
     end
+
+    def get_guild_roles(guild_id : UInt64)
+      response = request(
+        :get_guild_roles,
+        "GET",
+        "/guilds/#{guild_id}/roles",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Role).from_json(response.body)
+    end
   end
 end
