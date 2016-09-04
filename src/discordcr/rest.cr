@@ -402,5 +402,17 @@ module Discord
         nil
       )
     end
+
+    def get_guild_bans(guild_id : UInt64)
+      response = request(
+        :get_guild_bans,
+        "GET",
+        "/guilds/#{guild_id}/bans",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(User).from_json(response.body)
+    end
   end
 end
