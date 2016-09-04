@@ -446,5 +446,17 @@ module Discord
 
       Array(Role).from_json(response.body)
     end
+
+    def create_guild_role(guild_id : UInt64)
+      response = request(
+        :create_guild_role,
+        "POST",
+        "/guilds/#{guild_id}/roles",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Role.from_json(response.body)
+    end
   end
 end
