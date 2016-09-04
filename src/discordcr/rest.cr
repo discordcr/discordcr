@@ -769,5 +769,17 @@ module Discord
 
       Invite.from_json(response.body)
     end
+
+    def list_voice_regions
+      response = request(
+        :list_voice_regions,
+        "GET",
+        "/voice/regions",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(VoiceRegion).from_json(response.body)
+    end
   end
 end
