@@ -116,8 +116,8 @@ module Discord
     end
 
     # :nodoc:
-    macro call_event(name)
-      @on_{{name}}_handlers.try &.each { |handler| handler.call(payload) }
+    macro call_event(name, payload)
+      @on_{{name}}_handlers.try &.each { |handler| handler.call({{payload}}) }
     end
 
     private def handle_dispatch(type, data)
@@ -127,32 +127,32 @@ module Discord
         puts "Received READY, v: #{payload.v}"
       when "CHANNEL_CREATE"
         payload = Channel.from_json(data)
-        call_event channel_create
+        call_event channel_create, payload
       when "CHANNEL_UPDATE"
         payload = Channel.from_json(data)
-        call_event channel_update
+        call_event channel_update, payload
       when "CHANNEL_DELETE"
         payload = Channel.from_json(data)
-        call_event channel_delete
+        call_event channel_delete, payload
       when "GUILD_CREATE"
         payload = Guild.from_json(data)
-        call_event guild_create
+        call_event guild_create, payload
       when "GUILD_UPDATE"
         payload = Guild.from_json(data)
-        call_event guild_update
+        call_event guild_update, payload
       when "GUILD_DELETE"
         payload = GuildDeletePayload.from_json(data)
-        call_event guild_delete
+        call_event guild_delete, payload
       when "GUILD_BAN_ADD"
         payload = GuildBanPayload.from_json(data)
-        call_event guild_ban_add
+        call_event guild_ban_add, payload
       when "GUILD_BAN_REMOVE"
         payload = GuildBanPayload.from_json(data)
-        call_event guild_ban_remove
+        call_event guild_ban_remove, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
-        call_event message
+        call_event message, payload
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
