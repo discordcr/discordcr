@@ -20,5 +20,12 @@ module Discord
         _trace: Array(String)
       )
     end
+
+    struct GuildDeletePayload
+      JSON.mapping(
+        id: {type: UInt64, converter: SnowflakeConverter},
+        unavailable: {type: Bool, nilable: true}
+      )
+    end
   end
 end
