@@ -27,5 +27,16 @@ module Discord
         unavailable: {type: Bool, nilable: true}
       )
     end
+
+    struct GuildBanPayload
+      JSON.mapping(
+        username: String,
+        id: {type: UInt64, converter: SnowflakeConverter},
+        discriminator: String,
+        avatar: String,
+        bot: {type: Bool, nilable: true},
+        guild_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
