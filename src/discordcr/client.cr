@@ -129,8 +129,7 @@ module Discord
       end
     end
 
-    def on_message(&@on_message : Message ->)
-    end
+    def on_message(&@on_message : Message ->); end
   end
 
   # :nodoc:
