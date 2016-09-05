@@ -120,6 +120,8 @@ module Discord
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
         puts "Received READY, v: #{payload.v}"
+      when "CHANNEL_CREATE"
+        @on_channel_create.try &.call(Channel.from_json(data))
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -134,6 +136,7 @@ module Discord
       def on_{{name}}(&@on_{{name}} : {{payload_type}} ->); end
     end
 
+    event channel_create, Channel
     event message, Message
   end
 
