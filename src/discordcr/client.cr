@@ -141,13 +141,13 @@ module Discord
         payload = Guild.from_json(data)
         call_event guild_update, payload
       when "GUILD_DELETE"
-        payload = GuildDeletePayload.from_json(data)
+        payload = Gateway::GuildDeletePayload.from_json(data)
         call_event guild_delete, payload
       when "GUILD_BAN_ADD"
-        payload = GuildBanPayload.from_json(data)
+        payload = Gateway::GuildBanPayload.from_json(data)
         call_event guild_ban_add, payload
       when "GUILD_BAN_REMOVE"
-        payload = GuildBanPayload.from_json(data)
+        payload = Gateway::GuildBanPayload.from_json(data)
         call_event guild_ban_remove, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
@@ -171,10 +171,10 @@ module Discord
 
     event guild_create, Guild
     event guild_update, Guild
-    event guild_delete, Guild
+    event guild_delete, Gateway::GuildDeletePayload
 
-    event guild_ban_add, GuildBanPayload
-    event guild_ban_remove, GuildBanPayload
+    event guild_ban_add, Gateway::GuildBanPayload
+    event guild_ban_remove, Gateway::GuildBanPayload
 
     event message, Message
   end
