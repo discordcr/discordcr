@@ -115,21 +115,29 @@ module Discord
       @websocket.send(packet)
     end
 
+    # :nodoc:
+    macro call_event(name)
+      @on_{{name}}.try &.call(payload)
+    end
+
     private def handle_dispatch(type, data)
       case type
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
         puts "Received READY, v: #{payload.v}"
       when "CHANNEL_CREATE"
-        @on_channel_create.try &.call(Channel.from_json(data))
+        payload = Channel.from_json(data)
+        call_event channel_create
       when "CHANNEL_UPDATE"
-        @on_channel_update.try &.call(Channel.from_json(data))
+        payload = Channel.from_json(data)
+        call_event channel_update
       when "CHANNEL_DELETE"
-        @on_channel_delete.try &.call(Channel.from_json(data))
+        payload = Channel.from_json(data)
+        call_event channel_delete
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
-        @on_message.try &.call(payload)
+        call_event message
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
