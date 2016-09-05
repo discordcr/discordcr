@@ -117,7 +117,7 @@ module Discord
 
     # :nodoc:
     macro call_event(name)
-      @on_{{name}}.try &.call(payload)
+      @on_{{name}}_handlers.try &.each { |handler| handler.call(payload) }
     end
 
     private def handle_dispatch(type, data)
@@ -145,7 +145,9 @@ module Discord
 
     # :nodoc:
     macro event(name, payload_type)
-      def on_{{name}}(&@on_{{name}} : {{payload_type}} ->); end
+      def on_{{name}}(&handler : {{payload_type}} ->)
+        (@on_{{name}}_handlers ||= [] of {{payload_type}} ->) << handler
+      end
     end
 
     event channel_create, Channel
