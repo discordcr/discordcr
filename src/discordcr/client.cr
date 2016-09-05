@@ -140,6 +140,9 @@ module Discord
       when "GUILD_UPDATE"
         payload = Guild.from_json(data)
         call_event guild_update
+      when "GUILD_DELETE"
+        payload = GuildDeletePayload.from_json(data)
+        call_event guild_delete
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -162,6 +165,7 @@ module Discord
 
     event guild_create, Guild
     event guild_update, Guild
+    event guild_delete, Guild
 
     event message, Message
   end
