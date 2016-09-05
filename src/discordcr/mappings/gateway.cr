@@ -1,6 +1,7 @@
 require "./converters"
 require "./user"
 require "./channel"
+require "./guild"
 
 module Discord
   module Gateway
@@ -36,6 +37,13 @@ module Discord
         avatar: String,
         bot: {type: Bool, nilable: true},
         guild_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
+
+    struct GuildEmojiUpdatePayload
+      JSON.mapping(
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        emoji: {type: Array(Emoji), key: "emojis"}
       )
     end
   end
