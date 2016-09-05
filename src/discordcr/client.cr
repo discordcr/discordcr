@@ -124,6 +124,8 @@ module Discord
         @on_channel_create.try &.call(Channel.from_json(data))
       when "CHANNEL_UPDATE"
         @on_channel_update.try &.call(Channel.from_json(data))
+      when "CHANNEL_DELETE"
+        @on_channel_delete.try &.call(Channel.from_json(data))
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -140,6 +142,7 @@ module Discord
 
     event channel_create, Channel
     event channel_update, Channel
+    event channel_delete, Channel
     event message, Message
   end
 
