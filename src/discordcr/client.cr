@@ -146,6 +146,9 @@ module Discord
       when "GUILD_BAN_ADD"
         payload = GuildBanPayload.from_json(data)
         call_event guild_ban_add
+      when "GUILD_BAN_REMOVE"
+        payload = GuildBanPayload.from_json(data)
+        call_event guild_ban_remove
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -171,6 +174,7 @@ module Discord
     event guild_delete, Guild
 
     event guild_ban_add, GuildBanPayload
+    event guild_ban_remove, GuildBanPayload
 
     event message, Message
   end
