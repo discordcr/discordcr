@@ -129,7 +129,12 @@ module Discord
       end
     end
 
-    def on_message(&@on_message : Message ->); end
+    # :nodoc:
+    macro event(name, payload_type)
+      def on_{{name}}(&@on_{{name}} : {{payload_type}} ->); end
+    end
+
+    event message, Message
   end
 
   # :nodoc:
