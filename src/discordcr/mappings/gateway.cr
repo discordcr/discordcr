@@ -46,5 +46,11 @@ module Discord
         emoji: {type: Array(Emoji), key: "emojis"}
       )
     end
+
+    struct GuildIntegrationsUpdatePayload
+      JSON.mapping(
+        guild_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
