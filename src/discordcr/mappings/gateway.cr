@@ -93,5 +93,12 @@ module Discord
         role: Role
       )
     end
+
+    struct GuildRoleDeletePayload
+      JSON.mapping(
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        role_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
