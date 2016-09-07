@@ -100,5 +100,12 @@ module Discord
         role_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
+
+    struct MessageDeletePayload
+      JSON.mapping(
+        id: {type: UInt64, converter: SnowflakeConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
