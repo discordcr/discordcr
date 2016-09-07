@@ -164,6 +164,9 @@ module Discord
       when "GUILD_MEMBER_REMOVE"
         payload = Gateway::GuildMemberRemovePayload.from_json(data)
         call_event guild_member_remove, payload
+      when "GUILD_MEMBERS_CHUNK"
+        payload = Gateway::GuildMembersChunkPayload.from_json(data)
+        call_event guild_members_chunk, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -197,6 +200,8 @@ module Discord
     event guild_member_add, Gateway::GuildMemberAddPayload
     event guild_member_update, Gateway::GuildMemberUpdatePayload
     event guild_member_remove, Gateway::GuildMemberRemovePayload
+
+    event guild_members_chunk, Gateway::GuildMembersChunkPayload
 
     event message, Message
   end
