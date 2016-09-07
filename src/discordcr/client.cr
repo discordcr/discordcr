@@ -186,6 +186,9 @@ module Discord
       when "MESSAGE_DELETE"
         payload = Gateway::MessageDeletePayload.from_json(data)
         call_event message_delete, payload
+      when "MESSAGE_DELETE_BULK"
+        payload = Gateway::MessageDeleteBulkPayload.from_json(data)
+        call_event message_delete_bulk, payload
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
@@ -225,6 +228,7 @@ module Discord
     event message_create, Message
     event message_update, Message
     event message_delete, Gateway::MessageDeletePayload
+    event message_delete_bulk, Gateway::MessageDeleteBulkPayload
   end
 
   # :nodoc:
