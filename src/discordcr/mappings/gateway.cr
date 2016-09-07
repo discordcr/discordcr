@@ -125,5 +125,13 @@ module Discord
         status: String
       )
     end
+
+    struct TypingStartPayload
+      JSON.mapping(
+        channel_id: {type: UInt64, converter: SnowflakeConverter},
+        user_id: {type: UInt64, converter: SnowflakeConverter},
+        timestamp: {type: Time, converter: Time::EpochConverter}
+      )
+    end
   end
 end
