@@ -72,5 +72,12 @@ module Discord
         guild_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
+
+    struct GuildMemberRemovePayload
+      JSON.mapping(
+        user: User,
+        guild_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
