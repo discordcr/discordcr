@@ -158,6 +158,9 @@ module Discord
       when "GUILD_MEMBER_ADD"
         payload = Gateway::GuildMemberAddPayload.from_json(data)
         call_event guild_member_add, payload
+      when "GUILD_MEMBER_UPDATE"
+        payload = Gateway::GuildMemberUpdatePayload.from_json(data)
+        call_event guild_member_update, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -189,6 +192,7 @@ module Discord
     event guild_integrations_update, Gateway::GuildIntegrationsUpdatePayload
 
     event guild_member_add, Gateway::GuildMemberAddPayload
+    event guild_member_update, Gateway::GuildMemberUpdatePayload
 
     event message, Message
   end
