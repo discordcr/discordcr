@@ -86,5 +86,12 @@ module Discord
         members: Array(GuildMember)
       )
     end
+
+    struct GuildRolePayload
+      JSON.mapping(
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        role: Role
+      )
+    end
   end
 end
