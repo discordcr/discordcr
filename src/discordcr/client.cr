@@ -173,6 +173,9 @@ module Discord
       when "GUILD_ROLE_UPDATE"
         payload = Gateway::GuildRolePayload.from_json(data)
         call_event guild_role_update, payload
+      when "GUILD_ROLE_DELETE"
+        payload = Gateway::GuildRoleDeletePayload.from_json(data)
+        call_event guild_role_delete, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -211,6 +214,7 @@ module Discord
 
     event guild_role_create, Gateway::GuildRolePayload
     event guild_role_update, Gateway::GuildRolePayload
+    event guild_role_delete, Gateway::GuildRoleDeletePayload
 
     event message, Message
   end
