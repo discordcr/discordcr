@@ -192,6 +192,9 @@ module Discord
       when "PRESENCE_UPDATE"
         payload = Gateway::PresenceUpdatePayload.from_json(data)
         call_event presence_update, payload
+      when "TYPING_START"
+        payload = Gateway::TypingStartPayload.from_json(data)
+        call_event typing_start, payload
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
@@ -234,6 +237,7 @@ module Discord
     event message_delete_bulk, Gateway::MessageDeleteBulkPayload
 
     event presence_update, Gateway::PresenceUpdatePayload
+    event typing_start, Gateway::TypingStartPayload
   end
 
   # :nodoc:
