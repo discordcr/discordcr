@@ -114,5 +114,16 @@ module Discord
         channel_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
+
+    struct PresenceUpdatePayload
+      JSON.mapping(
+        user: PartialUser,
+        roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+        game: {type: GamePlaying, nilable: true},
+        nick: {type: String, nilable: true},
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        status: String
+      )
+    end
   end
 end
