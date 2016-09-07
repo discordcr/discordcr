@@ -107,5 +107,12 @@ module Discord
         channel_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
+
+    struct MessageDeleteBulkPayload
+      JSON.mapping(
+        ids: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
