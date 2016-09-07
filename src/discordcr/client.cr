@@ -179,7 +179,7 @@ module Discord
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
-        call_event message, payload
+        call_event message_create, payload
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
@@ -216,7 +216,7 @@ module Discord
     event guild_role_update, Gateway::GuildRolePayload
     event guild_role_delete, Gateway::GuildRoleDeletePayload
 
-    event message, Message
+    event message_create, Message
   end
 
   # :nodoc:
