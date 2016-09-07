@@ -91,4 +91,12 @@ module Discord
       mentionable: Bool
     )
   end
+
+  struct GamePlaying
+    JSON.mapping(
+      name: String,
+      type: {type: UInt8, nilable: true},
+      url: {type: String, nilable: true}
+    )
+  end
 end
