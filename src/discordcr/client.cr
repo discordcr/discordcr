@@ -152,6 +152,9 @@ module Discord
       when "GUILD_EMOJI_UPDATE"
         payload = Gateway::GuildEmojiUpdatePayload.from_json(data)
         call_event guild_emoji_update, payload
+      when "GUILD_INTEGRATIONS_UPDATE"
+        payload = Gateway::GuildIntegrationsUpdatePayload.from_json(data)
+        call_event guild_integrations_update, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
         puts "Received message with content #{payload.content}"
@@ -180,6 +183,7 @@ module Discord
     event guild_ban_remove, Gateway::GuildBanPayload
 
     event guild_emoji_update, Gateway::GuildEmojiUpdatePayload
+    event guild_integrations_update, Gateway::GuildIntegrationsUpdatePayload
 
     event message, Message
   end
