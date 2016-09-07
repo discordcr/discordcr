@@ -52,5 +52,17 @@ module Discord
         guild_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
+
+    struct GuildMemberAddPayload
+      JSON.mapping(
+        user: User,
+        nick: {type: String, nilable: true},
+        roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+        joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
+        deaf: Bool,
+        mute: Bool,
+        guild_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
