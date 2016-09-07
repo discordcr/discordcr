@@ -12,6 +12,17 @@ module Discord
     )
   end
 
+  struct PartialUser
+    JSON.mapping(
+      username: {type: String, nilable: true},
+      id: {type: UInt64, converter: SnowflakeConverter},
+      discriminator: {type: String, nilable: true},
+      avatar: {type: String, nilable: true},
+      email: {type: String, nilable: true},
+      bot: {type: Bool, nilable: true}
+    )
+  end
+
   struct UserGuild
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
