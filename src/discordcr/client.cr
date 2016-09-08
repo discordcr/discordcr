@@ -125,6 +125,7 @@ module Discord
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
         puts "Received READY, v: #{payload.v}"
+        call_event ready, payload
       when "CHANNEL_CREATE"
         payload = Channel.from_json(data)
         call_event channel_create, payload
@@ -215,6 +216,8 @@ module Discord
         (@on_{{name}}_handlers ||= [] of {{payload_type}} ->) << handler
       end
     end
+
+    event ready, Gateway::ReadyPayload
 
     event channel_create, Channel
     event channel_update, Channel
