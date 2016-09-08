@@ -133,5 +133,13 @@ module Discord
         timestamp: {type: Time, converter: Time::EpochConverter}
       )
     end
+
+    struct VoiceServerUpdatePayload
+      JSON.mapping(
+        token: String,
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        endpoint: String
+      )
+    end
   end
 end
