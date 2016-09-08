@@ -201,6 +201,9 @@ module Discord
       when "VOICE_STATE_UPDATE"
         payload = VoiceState.from_json(data)
         call_event voice_state_update, payload
+      when "VOICE_SERVER_UPDATE"
+        payload = Gateway::VoiceServerUpdatePayload.from_json(data)
+        call_event voice_server_update, payload
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
@@ -247,6 +250,7 @@ module Discord
 
     event user_update, User
     event voice_state_update, VoiceState
+    event voice_server_update, Gateway::VoiceServerUpdatePayload
   end
 
   # :nodoc:
