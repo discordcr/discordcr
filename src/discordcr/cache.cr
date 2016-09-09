@@ -26,6 +26,22 @@ module Discord
       local_members.fetch(user_id) { local_members[user_id] = @client.get_guild_member(guild_id, user_id) }
     end
 
+    def delete_user(id : UInt64)
+      @users.delete(id)
+    end
+
+    def delete_channel(id : UInt64)
+      @channels.delete(id)
+    end
+
+    def delete_guild(id : UInt64)
+      @guilds.delete(id)
+    end
+
+    def delete_member(guild_id : UInt64, user_id : UInt64)
+      @members[guild_id]?.try &.delete(user_id)
+    end
+
     def cache(user : User)
       @users[user.id] = user
     end
