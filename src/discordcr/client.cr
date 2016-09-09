@@ -8,6 +8,8 @@ module Discord
   class Client
     include REST
 
+    getter cache
+
     def initialize(@token : String, @client_id : UInt64)
       url = URI.parse(get_gateway.url)
       @websocket = HTTP::WebSocket.new(
