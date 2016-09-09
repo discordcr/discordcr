@@ -37,6 +37,16 @@ module Discord
   end
 
   struct GuildMember
+    # :nodoc:
+    def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(UInt64)? = nil)
+      @user = payload.user
+      @nick = payload.nick
+      @roles = roles || payload.roles
+      @joined_at = payload.joined_at
+      @deaf = payload.deaf
+      @mute = payload.mute
+    end
+
     JSON.mapping(
       user: User,
       nick: {type: String, nilable: true},
