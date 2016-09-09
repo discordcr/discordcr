@@ -14,5 +14,9 @@ module Discord
       @users[id] = user
       user
     end
+
+    def cache(user : User)
+      @users[user.id] = user
+    end
   end
 end
