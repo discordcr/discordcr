@@ -8,6 +8,7 @@ module Discord
       @guilds = Hash(UInt64, Guild).new
       @members = Hash(UInt64, Hash(UInt64, GuildMember)).new
       @roles = Hash(UInt64, Role).new
+      @guild_roles = Hash(UInt64, Array(UInt64)).new
     end
 
     def resolve_user(id : UInt64) : User
@@ -70,6 +71,19 @@ module Discord
 
     def cache(role : Role)
       @roles[role.id] = role
+    end
+
+    def guild_roles(guild_id : UInt64) : Array(UInt64)
+      @guild_roles[guild_id]
+    end
+
+    def add_guild_role(guild_id : UInt64, role_id : UInt64)
+      local_roles = @guild_roles[guild_id] ||= [] of UInt64
+      local_roles << role_id
+    end
+
+    def remove_guild_role(guild_id : UInt64, role_id : UInt64)
+      @guild_roles[guild_id]?.try { |local_roles| local_roles.delete(role_id) }
     end
   end
 end
