@@ -161,6 +161,9 @@ module Discord
         call_event guild_integrations_update, payload
       when "GUILD_MEMBER_ADD"
         payload = Gateway::GuildMemberAddPayload.from_json(data)
+
+        @cache.try &.cache payload.user
+
         call_event guild_member_add, payload
       when "GUILD_MEMBER_UPDATE"
         payload = Gateway::GuildMemberUpdatePayload.from_json(data)
