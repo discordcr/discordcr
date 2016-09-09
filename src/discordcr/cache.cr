@@ -7,6 +7,7 @@ module Discord
       @channels = Hash(UInt64, Channel).new
       @guilds = Hash(UInt64, Guild).new
       @members = Hash(UInt64, Hash(UInt64, GuildMember)).new
+      @roles = Hash(UInt64, Role).new
     end
 
     def resolve_user(id : UInt64) : User
@@ -26,6 +27,10 @@ module Discord
       local_members.fetch(user_id) { local_members[user_id] = @client.get_guild_member(guild_id, user_id) }
     end
 
+    def resolve_role(id : UInt64) : Role
+      @roles[id] # There is no endpoint for getting an individual role, so we will have to ignore that case for now.
+    end
+
     def delete_user(id : UInt64)
       @users.delete(id)
     end
@@ -40,6 +45,10 @@ module Discord
 
     def delete_member(guild_id : UInt64, user_id : UInt64)
       @members[guild_id]?.try &.delete(user_id)
+    end
+
+    def delete_role(id : UInt64)
+      @roles.delete(role_id)
     end
 
     def cache(user : User)
@@ -57,6 +66,10 @@ module Discord
     def cache(member : GuildMember, guild_id : UInt64)
       local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
       local_members[member.user.id] = member
+    end
+
+    def cache(role : Role)
+      @roles[role.id] = role
     end
   end
 end
