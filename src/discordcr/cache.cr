@@ -7,12 +7,7 @@ module Discord
     end
 
     def resolve_user(id : UInt64) : User
-      user = @users[id]?
-      return user if user
-
-      user = @client.get_user(id)
-      @users[id] = user
-      user
+      @users.fetch(id) { @users[id] = @client.get_user(id) }
     end
 
     def cache(user : User)
