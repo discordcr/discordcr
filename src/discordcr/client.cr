@@ -2,6 +2,7 @@ require "http/web_socket"
 require "json"
 
 require "./rest"
+require "./cache"
 
 module Discord
   class Client
@@ -18,6 +19,8 @@ module Discord
 
       @websocket.on_message(&->on_message(String))
       @websocket.on_close(&->on_close(String))
+
+      @cache = Cache.new(self)
     end
 
     def run
