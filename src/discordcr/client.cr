@@ -8,7 +8,7 @@ module Discord
   class Client
     include REST
 
-    property cache : Cache
+    property cache : Cache?
 
     def initialize(@token : String, @client_id : UInt64)
       url = URI.parse(get_gateway.url)
