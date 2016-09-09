@@ -49,7 +49,7 @@ module Discord
     end
 
     def delete_role(id : UInt64)
-      @roles.delete(role_id)
+      @roles.delete(id)
     end
 
     def cache(user : User)
