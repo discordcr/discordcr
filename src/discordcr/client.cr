@@ -8,6 +8,8 @@ module Discord
   class Client
     include REST
 
+    property cache : Cache
+
     def initialize(@token : String, @client_id : UInt64)
       url = URI.parse(get_gateway.url)
       @websocket = HTTP::WebSocket.new(
@@ -19,12 +21,6 @@ module Discord
 
       @websocket.on_message(&->on_message(String))
       @websocket.on_close(&->on_close(String))
-
-      @cache = Cache.new(self)
-    end
-
-    def cache
-      @cache.not_nil!
     end
 
     def run
