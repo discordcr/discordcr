@@ -73,6 +73,13 @@ module Discord
       @roles[role.id] = role
     end
 
+    def cache_multiple_members(members : Array(GuildMember), guild_id : UInt64)
+      local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
+      members.each do |member|
+        local_members[member.user.id] = member
+      end
+    end
+
     def guild_roles(guild_id : UInt64) : Array(UInt64)
       @guild_roles[guild_id]
     end
