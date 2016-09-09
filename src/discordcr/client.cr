@@ -123,6 +123,11 @@ module Discord
       @on_{{name}}_handlers.try &.each { |handler| handler.call({{payload}}) }
     end
 
+    # :nodoc:
+    macro cache(object)
+      @cache.try &.cache {{object}}
+    end
+
     private def handle_dispatch(type, data)
       case type
       when "READY"
@@ -162,7 +167,7 @@ module Discord
       when "GUILD_MEMBER_ADD"
         payload = Gateway::GuildMemberAddPayload.from_json(data)
 
-        @cache.try &.cache payload.user
+        cache payload.user
 
         call_event guild_member_add, payload
       when "GUILD_MEMBER_UPDATE"
