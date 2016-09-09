@@ -6,6 +6,7 @@ module Discord
       @users = Hash(UInt64, User).new
       @channels = Hash(UInt64, Channel).new
       @guilds = Hash(UInt64, Guild).new
+      @members = Hash(UInt64, Hash(UInt64, GuildMember)).new
     end
 
     def resolve_user(id : UInt64) : User
@@ -20,6 +21,11 @@ module Discord
       @guilds.fetch(id) { @guilds[id] = @client.get_guild(id) }
     end
 
+    def resolve_member(guild_id : UInt64, user_id : UInt64) : GuildMember
+      local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
+      local_members.fetch(user_id) { local_members[user_id] = @client.get_guild_member(guild_id, user_id) }
+    end
+
     def cache(user : User)
       @users[user.id] = user
     end
@@ -30,6 +36,11 @@ module Discord
 
     def cache(guild : Guild)
       @guilds[guild.id] = guild
+    end
+
+    def cache(member : GuildMember, guild_id : UInt64)
+      local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
+      local_members[member.user.id] = member
     end
   end
 end
