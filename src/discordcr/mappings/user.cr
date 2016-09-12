@@ -1,17 +1,17 @@
 require "./converters"
 
 module Discord
-  # :nodoc:
-  def initialize(partial : PartialUser)
-    @username = partial.username.not_nil!
-    @id = partial.id
-    @discriminator = partial.discriminator.not_nil!
-    @avatar = partial.avatar
-    @email = partial.email
-    @bot = partial.bot
-  end
-
   struct User
+    # :nodoc:
+    def initialize(partial : PartialUser)
+      @username = partial.username.not_nil!
+      @id = partial.id
+      @discriminator = partial.discriminator.not_nil!
+      @avatar = partial.avatar
+      @email = partial.email
+      @bot = partial.bot
+    end
+
     JSON.mapping(
       username: String,
       id: {type: UInt64, converter: SnowflakeConverter},
