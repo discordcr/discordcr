@@ -52,9 +52,7 @@ module Discord
       @user = User.new(payload.user)
       @nick = payload.nick
       @roles = payload.roles
-      # Presence updates have no joined_at, thanks Discord
-      @deaf = payload.deaf
-      @mute = payload.mute
+      # Presence updates have no joined_at or deaf/mute, thanks Discord
     end
 
     JSON.mapping(
@@ -62,8 +60,8 @@ module Discord
       nick: {type: String, nilable: true},
       roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
-      deaf: Bool,
-      mute: Bool
+      deaf: {type: Bool, nilable: true},
+      mute: {type: Bool, nilable: true}
     )
   end
 
