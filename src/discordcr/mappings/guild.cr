@@ -112,7 +112,7 @@ module Discord
 
   struct GamePlaying
     JSON.mapping(
-      name: String,
+      name: {type: String, nilable: true},
       type: {type: UInt8, nilable: true},
       url: {type: String, nilable: true}
     )
