@@ -21,6 +21,10 @@ module Discord
       email: {type: String, nilable: true},
       bot: {type: Bool, nilable: true}
     )
+
+    def full? : Bool
+      !@username.nil? && !@discriminator.nil? && !@avatar.nil?
+    end
   end
 
   struct UserGuild
