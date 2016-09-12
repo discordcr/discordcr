@@ -156,9 +156,10 @@ module Discord
 
         call_event channel_delete, payload
       when "GUILD_CREATE"
-        payload = Guild.from_json(data)
+        payload = Gateway::GuildCreatePayload.from_json(data)
 
-        cache payload
+        guild = Guild.new(payload)
+        cache guild
 
         call_event guild_create, payload
       when "GUILD_UPDATE"
@@ -289,7 +290,7 @@ module Discord
     event channel_update, Channel
     event channel_delete, Channel
 
-    event guild_create, Guild
+    event guild_create, Gateway::GuildCreatePayload
     event guild_update, Guild
     event guild_delete, Gateway::GuildDeletePayload
 

@@ -22,6 +22,32 @@ module Discord
       )
     end
 
+    # This one is special from simply Guild since it also has fields for members
+    # and presences.
+    struct GuildCreatePayload
+      JSON.mapping(
+        id: {type: UInt64, converter: SnowflakeConverter},
+        name: String,
+        icon: {type: String, nilable: true},
+        splash: {type: String, nilable: true},
+        owner_id: {type: UInt64, converter: SnowflakeConverter},
+        region: String,
+        afk_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+        afk_timeout: {type: Int32, nilable: true},
+        verification_level: UInt8,
+        roles: Array(Role),
+        emoji: {type: Array(Emoji), key: "emojis"},
+        features: Array(String),
+        large: Bool,
+        voice_states: Array(VoiceState),
+        unavailable: {type: Bool, nilable: true},
+        member_count: Int32,
+        members: Array(GuildMember),
+        channels: Array(Channel),
+        presences: Array(Presence)
+      )
+    end
+
     struct GuildDeletePayload
       JSON.mapping(
         id: {type: UInt64, converter: SnowflakeConverter},
