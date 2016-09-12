@@ -141,6 +141,8 @@ module Discord
         payload = Channel.from_json(data)
 
         cache payload
+        guild_id = payload.guild_id
+        @cache.try &.add_guild_channel(guild_id, payload.id) if guild_id
 
         call_event channel_create, payload
       when "CHANNEL_UPDATE"
@@ -153,6 +155,8 @@ module Discord
         payload = Channel.from_json(data)
 
         @cache.try &.delete_channel(payload.id)
+        guild_id = payload.guild_id
+        @cache.try &.remove_guild_channel(guild_id, payload.id) if guild_id
 
         call_event channel_delete, payload
       when "GUILD_CREATE"
@@ -160,6 +164,11 @@ module Discord
 
         guild = Guild.new(payload)
         cache guild
+
+        payload.channels.each do |channel|
+          cache channel
+          @cache.try &.add_guild_channel(guild.id, channel.id)
+        end
 
         call_event guild_create, payload
       when "GUILD_UPDATE"

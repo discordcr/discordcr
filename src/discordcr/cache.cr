@@ -41,7 +41,9 @@ module Discord
       @guilds = Hash(UInt64, Guild).new
       @members = Hash(UInt64, Hash(UInt64, GuildMember)).new
       @roles = Hash(UInt64, Role).new
+
       @guild_roles = Hash(UInt64, Array(UInt64)).new
+      @guild_channels = Hash(UInt64, Array(UInt64)).new
     end
 
     # Resolves a user by its *ID*. If the requested object is not cached, it
@@ -169,6 +171,23 @@ module Discord
     # Marks a role as not belonging to a particular guild anymore.
     def remove_guild_role(guild_id : UInt64, role_id : UInt64)
       @guild_roles[guild_id]?.try { |local_roles| local_roles.delete(role_id) }
+    end
+
+    # Returns all channels of a guild, identified by its *guild_id*.
+    def guild_channels(guild_id : UInt64) : Array(UInt64)
+      @guild_channels[guild_id]
+    end
+
+    # Marks a channel, identified by the *channel_id*, as belonging to a particular
+    # guild, identified by the *guild_id*.
+    def add_guild_channel(guild_id : UInt64, channel_id : UInt64)
+      local_channels = @guild_channels[guild_id] ||= [] of UInt64
+      local_channels << channel_id
+    end
+
+    # Marks a channel as not belonging to a particular guild anymore.
+    def remove_guild_channel(guild_id : UInt64, channel_id : UInt64)
+      @guild_channels[guild_id]?.try { |local_channels| local_channels.delete(channel_id) }
     end
   end
 end
