@@ -77,6 +77,13 @@ module Discord
       @roles[id] # There is no endpoint for getting an individual role, so we will have to ignore that case for now.
     end
 
+    # Resolves the current user's profile. Requires no parameters since the
+    # endpoint has none either. If there is a gateway connection this should
+    # always be cached.
+    def resolve_current_user : User
+      @current_user ||= @client.get_current_user
+    end
+
     # Deletes a user from the cache given its *ID*.
     def delete_user(id : UInt64)
       @users.delete(id)
@@ -101,6 +108,11 @@ module Discord
     # Deletes a role from the cache given its *ID*.
     def delete_role(id : UInt64)
       @roles.delete(id)
+    end
+
+    # Deletes the current user from the cache, if that will ever be necessary.
+    def delete_current_user
+      @current_user = nil
     end
 
     # Adds a specific *user* to the cache.
@@ -128,6 +140,9 @@ module Discord
     def cache(role : Role)
       @roles[role.id] = role
     end
+
+    # Caches the current user.
+    def cache_current_user(@current_user : User); end
 
     # Adds multiple *members* at once to the cache, given the *guild_id* they
     # all share. This method exists to slightly reduce the overhead of

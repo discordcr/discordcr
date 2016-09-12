@@ -132,6 +132,9 @@ module Discord
       case type
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
+
+        @cache.try &.cache_current_user(payload.user)
+
         puts "Received READY, v: #{payload.v}"
         call_event ready, payload
       when "CHANNEL_CREATE"
