@@ -47,6 +47,16 @@ module Discord
       @mute = payload.mute
     end
 
+    # :nodoc:
+    def initialize(payload : Gateway::PresenceUpdatePayload)
+      @user = User.new(payload.user)
+      @nick = payload.nick
+      @roles = payload.roles
+      # Presence updates have no joined_at, thanks Discord
+      @deaf = payload.deaf
+      @mute = payload.mute
+    end
+
     JSON.mapping(
       user: User,
       nick: {type: String, nilable: true},
