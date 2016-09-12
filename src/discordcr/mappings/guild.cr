@@ -3,6 +3,22 @@ require "./voice"
 
 module Discord
   struct Guild
+    # :nodoc:
+    def initialize(payload : Gateway::GuildCreatePayload)
+      @id = payload.id
+      @name = payload.name
+      @icon = payload.icon
+      @splash = payload.splash
+      @owner_id = payload.owner_id
+      @region = payload.region
+      @afk_channel_id = payload.afk_channel_id
+      @afk_timeout = payload.afk_timeout
+      @verification_level = payload.verification_level
+      @roles = payload.roles
+      @emoji = payload.emoji
+      @features = payload.features
+    end
+
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       name: String,
