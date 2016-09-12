@@ -31,7 +31,6 @@ module Discord
       embed_enabled: {type: Bool, nilable: true},
       embed_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       verification_level: UInt8,
-      voice_states: Array(VoiceState),
       roles: Array(Role),
       emoji: {type: Array(Emoji), key: "emojis"},
       features: Array(String)
