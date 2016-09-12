@@ -117,4 +117,12 @@ module Discord
       url: {type: String, nilable: true}
     )
   end
+
+  struct Presence
+    JSON.mapping(
+      user: PartialUser,
+      game: {type: GamePlaying, nilable: true},
+      status: String
+    )
+  end
 end
