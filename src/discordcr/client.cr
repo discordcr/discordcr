@@ -135,6 +135,15 @@ module Discord
 
         @cache.try &.cache_current_user(payload.user)
 
+        payload.private_channels.each do |channel|
+          cache Channel.new(channel)
+
+          if channel.type == 1 # DM channel, not group
+            recipient_id = channel.recipients[0].id
+            @cache.try &.cache_dm_channel(channel.id, recipient_id)
+          end
+        end
+
         puts "Received READY, v: #{payload.v}"
         call_event ready, payload
       when "CHANNEL_CREATE"
@@ -142,7 +151,12 @@ module Discord
 
         cache payload
         guild_id = payload.guild_id
-        @cache.try &.add_guild_channel(guild_id, payload.id) if guild_id
+        recipients = payload.recipients
+        if guild_id
+          @cache.try &.add_guild_channel(guild_id, payload.id)
+        elsif payload.type == 1 && recipients
+          @cache.try &.cache_dm_channel(payload.id, recipients[0].id)
+        end
 
         call_event channel_create, payload
       when "CHANNEL_UPDATE"

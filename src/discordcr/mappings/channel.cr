@@ -21,6 +21,14 @@ module Discord
   end
 
   struct Channel
+    # :nodoc:
+    def initialize(private_channel : PrivateChannel)
+      @id = private_channel.id
+      @type = private_channel.type
+      @recipients = private_channel.recipients
+      @last_message_id = private_channel.last_message_id
+    end
+
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       type: UInt8,

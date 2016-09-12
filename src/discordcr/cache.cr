@@ -42,6 +42,8 @@ module Discord
       @members = Hash(UInt64, Hash(UInt64, GuildMember)).new
       @roles = Hash(UInt64, Role).new
 
+      @dm_channels = Hash(UInt64, UInt64).new
+
       @guild_roles = Hash(UInt64, Array(UInt64)).new
       @guild_channels = Hash(UInt64, Array(UInt64)).new
     end
@@ -79,6 +81,16 @@ module Discord
       @roles[id] # There is no endpoint for getting an individual role, so we will have to ignore that case for now.
     end
 
+    # Resolves the ID of a DM channel with a particular user by the recipient's
+    # *recipient_id*. If there is no such channel cached, one will be created.
+    def resolve_dm_channel(recipient_id : UInt64) : UInt64
+      @dm_channels.fetch(recipient_id) do
+        channel = @client.create_dm(recipient_id)
+        cache(Channel.new(channel))
+        channel.id
+      end
+    end
+
     # Resolves the current user's profile. Requires no parameters since the
     # endpoint has none either. If there is a gateway connection this should
     # always be cached.
@@ -112,6 +124,11 @@ module Discord
       @roles.delete(id)
     end
 
+    # Deletes a DM channel with a particular user given the *recipient_id*.
+    def delete_dm_channel(recipient_id : UInt64)
+      @dm_channels.delete(recipient_id)
+    end
+
     # Deletes the current user from the cache, if that will ever be necessary.
     def delete_current_user
       @current_user = nil
@@ -141,6 +158,12 @@ module Discord
     # Adds a specific *role* to the cache.
     def cache(role : Role)
       @roles[role.id] = role
+    end
+
+    # Adds a particular DM channel to the cache, given the *channel_id* and the
+    # *recipient_id*.
+    def cache_dm_channel(channel_id : UInt64, recipient_id : UInt64)
+      @dm_channels[recipient_id] = channel_id
     end
 
     # Caches the current user.
