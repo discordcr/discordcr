@@ -41,7 +41,7 @@ module Discord
       id: {type: UInt64, converter: SnowflakeConverter},
       type: UInt8,
       recipients: Array(User),
-      last_message_id: UInt64
+      last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
     )
   end
 
