@@ -2,10 +2,13 @@ require "http/web_socket"
 require "json"
 
 require "./rest"
+require "./cache"
 
 module Discord
   class Client
     include REST
+
+    property cache : Cache?
 
     def initialize(@token : String, @client_id : UInt64)
       url = URI.parse(get_gateway.url)
@@ -120,29 +123,85 @@ module Discord
       @on_{{name}}_handlers.try &.each { |handler| handler.call({{payload}}) }
     end
 
+    # :nodoc:
+    macro cache(object)
+      @cache.try &.cache {{object}}
+    end
+
     private def handle_dispatch(type, data)
       case type
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
+
+        @cache.try &.cache_current_user(payload.user)
+
+        payload.private_channels.each do |channel|
+          cache Channel.new(channel)
+
+          if channel.type == 1 # DM channel, not group
+            recipient_id = channel.recipients[0].id
+            @cache.try &.cache_dm_channel(channel.id, recipient_id)
+          end
+        end
+
         puts "Received READY, v: #{payload.v}"
         call_event ready, payload
       when "CHANNEL_CREATE"
         payload = Channel.from_json(data)
+
+        cache payload
+        guild_id = payload.guild_id
+        recipients = payload.recipients
+        if guild_id
+          @cache.try &.add_guild_channel(guild_id, payload.id)
+        elsif payload.type == 1 && recipients
+          @cache.try &.cache_dm_channel(payload.id, recipients[0].id)
+        end
+
         call_event channel_create, payload
       when "CHANNEL_UPDATE"
         payload = Channel.from_json(data)
+
+        cache payload
+
         call_event channel_update, payload
       when "CHANNEL_DELETE"
         payload = Channel.from_json(data)
+
+        @cache.try &.delete_channel(payload.id)
+        guild_id = payload.guild_id
+        @cache.try &.remove_guild_channel(guild_id, payload.id) if guild_id
+
         call_event channel_delete, payload
       when "GUILD_CREATE"
-        payload = Guild.from_json(data)
+        payload = Gateway::GuildCreatePayload.from_json(data)
+
+        guild = Guild.new(payload)
+        cache guild
+
+        payload.channels.each do |channel|
+          channel.guild_id = guild.id
+          cache channel
+          @cache.try &.add_guild_channel(guild.id, channel.id)
+        end
+
+        payload.roles.each do |role|
+          cache role
+          @cache.try &.add_guild_role(guild.id, role.id)
+        end
+
         call_event guild_create, payload
       when "GUILD_UPDATE"
         payload = Guild.from_json(data)
+
+        cache payload
+
         call_event guild_update, payload
       when "GUILD_DELETE"
         payload = Gateway::GuildDeletePayload.from_json(data)
+
+        @cache.try &.delete_guild(payload.id)
+
         call_event guild_delete, payload
       when "GUILD_BAN_ADD"
         payload = Gateway::GuildBanPayload.from_json(data)
@@ -158,24 +217,55 @@ module Discord
         call_event guild_integrations_update, payload
       when "GUILD_MEMBER_ADD"
         payload = Gateway::GuildMemberAddPayload.from_json(data)
+
+        cache payload.user
+        member = GuildMember.new(payload)
+        @cache.try &.cache(member, payload.guild_id)
+
         call_event guild_member_add, payload
       when "GUILD_MEMBER_UPDATE"
         payload = Gateway::GuildMemberUpdatePayload.from_json(data)
+
+        cache payload.user
+        @cache.try do |c|
+          member = c.resolve_member(payload.guild_id, payload.user.id)
+          new_member = GuildMember.new(member, payload.roles)
+          c.cache(new_member, payload.guild_id)
+        end
+
         call_event guild_member_update, payload
       when "GUILD_MEMBER_REMOVE"
         payload = Gateway::GuildMemberRemovePayload.from_json(data)
+
+        cache payload.user
+        @cache.try &.delete_member(payload.guild_id, payload.user.id)
+
         call_event guild_member_remove, payload
       when "GUILD_MEMBERS_CHUNK"
         payload = Gateway::GuildMembersChunkPayload.from_json(data)
+
+        @cache.try &.cache_multiple_members(payload.members, payload.guild_id)
+
         call_event guild_members_chunk, payload
       when "GUILD_ROLE_CREATE"
         payload = Gateway::GuildRolePayload.from_json(data)
+
+        cache payload.role
+        @cache.try &.add_guild_role(payload.guild_id, payload.role.id)
+
         call_event guild_role_create, payload
       when "GUILD_ROLE_UPDATE"
         payload = Gateway::GuildRolePayload.from_json(data)
+
+        cache payload.role
+
         call_event guild_role_update, payload
       when "GUILD_ROLE_DELETE"
         payload = Gateway::GuildRoleDeletePayload.from_json(data)
+
+        @cache.try &.delete_role(payload.role_id)
+        @cache.try &.remove_guild_role(payload.guild_id, payload.role_id)
+
         call_event guild_role_delete, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
@@ -192,6 +282,12 @@ module Discord
         call_event message_delete_bulk, payload
       when "PRESENCE_UPDATE"
         payload = Gateway::PresenceUpdatePayload.from_json(data)
+
+        if payload.user.full?
+          member = GuildMember.new(payload)
+          @cache.try &.cache(member, payload.guild_id)
+        end
+
         call_event presence_update, payload
       when "TYPING_START"
         payload = Gateway::TypingStartPayload.from_json(data)
@@ -223,7 +319,7 @@ module Discord
     event channel_update, Channel
     event channel_delete, Channel
 
-    event guild_create, Guild
+    event guild_create, Gateway::GuildCreatePayload
     event guild_update, Guild
     event guild_delete, Gateway::GuildDeletePayload
 

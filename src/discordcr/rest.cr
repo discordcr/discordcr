@@ -718,7 +718,7 @@ module Discord
         "POST",
         "/users/@me/channels",
         HTTP::Headers{"Content-Type" => "application/json"},
-        {recipient_id: recipient_id}
+        {recipient_id: recipient_id}.to_json
       )
 
       PrivateChannel.from_json(response.body)

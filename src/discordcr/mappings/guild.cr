@@ -3,6 +3,22 @@ require "./voice"
 
 module Discord
   struct Guild
+    # :nodoc:
+    def initialize(payload : Gateway::GuildCreatePayload)
+      @id = payload.id
+      @name = payload.name
+      @icon = payload.icon
+      @splash = payload.splash
+      @owner_id = payload.owner_id
+      @region = payload.region
+      @afk_channel_id = payload.afk_channel_id
+      @afk_timeout = payload.afk_timeout
+      @verification_level = payload.verification_level
+      @roles = payload.roles
+      @emoji = payload.emoji
+      @features = payload.features
+    end
+
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       name: String,
@@ -15,7 +31,6 @@ module Discord
       embed_enabled: {type: Bool, nilable: true},
       embed_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       verification_level: UInt8,
-      voice_states: Array(VoiceState),
       roles: Array(Role),
       emoji: {type: Array(Emoji), key: "emojis"},
       features: Array(String)
@@ -37,13 +52,31 @@ module Discord
   end
 
   struct GuildMember
+    # :nodoc:
+    def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(UInt64)? = nil)
+      @user = payload.user
+      @nick = payload.nick
+      @roles = roles || payload.roles
+      @joined_at = payload.joined_at
+      @deaf = payload.deaf
+      @mute = payload.mute
+    end
+
+    # :nodoc:
+    def initialize(payload : Gateway::PresenceUpdatePayload)
+      @user = User.new(payload.user)
+      @nick = payload.nick
+      @roles = payload.roles
+      # Presence updates have no joined_at or deaf/mute, thanks Discord
+    end
+
     JSON.mapping(
       user: User,
       nick: {type: String, nilable: true},
       roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
-      deaf: Bool,
-      mute: Bool
+      deaf: {type: Bool, nilable: true},
+      mute: {type: Bool, nilable: true}
     )
   end
 
@@ -94,9 +127,17 @@ module Discord
 
   struct GamePlaying
     JSON.mapping(
-      name: String,
+      name: {type: String, nilable: true},
       type: {type: UInt8, nilable: true},
       url: {type: String, nilable: true}
+    )
+  end
+
+  struct Presence
+    JSON.mapping(
+      user: PartialUser,
+      game: {type: GamePlaying, nilable: true},
+      status: String
     )
   end
 end

@@ -2,6 +2,16 @@ require "./converters"
 
 module Discord
   struct User
+    # :nodoc:
+    def initialize(partial : PartialUser)
+      @username = partial.username.not_nil!
+      @id = partial.id
+      @discriminator = partial.discriminator.not_nil!
+      @avatar = partial.avatar
+      @email = partial.email
+      @bot = partial.bot
+    end
+
     JSON.mapping(
       username: String,
       id: {type: UInt64, converter: SnowflakeConverter},
@@ -21,6 +31,10 @@ module Discord
       email: {type: String, nilable: true},
       bot: {type: Bool, nilable: true}
     )
+
+    def full? : Bool
+      !@username.nil? && !@discriminator.nil? && !@avatar.nil?
+    end
   end
 
   struct UserGuild
