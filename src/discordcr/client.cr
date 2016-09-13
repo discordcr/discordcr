@@ -185,6 +185,11 @@ module Discord
           @cache.try &.add_guild_channel(guild.id, channel.id)
         end
 
+        payload.roles.each do |role|
+          cache role
+          @cache.try &.add_guild_role(guild.id, role.id)
+        end
+
         call_event guild_create, payload
       when "GUILD_UPDATE"
         payload = Guild.from_json(data)
