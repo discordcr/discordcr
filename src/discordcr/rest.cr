@@ -10,7 +10,7 @@ module Discord
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
     API_BASE    = "https://discordapp.com/api/v6"
 
-    def request(endpoint_key : Symbol, major_parameter : UInt64 | Nil, method : String, path : String, headers : HTTP::Headers, body : String?)
+    def request(route_key : Symbol, major_parameter : UInt64 | Nil, method : String, path : String, headers : HTTP::Headers, body : String?)
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
 
@@ -19,7 +19,7 @@ module Discord
 
     def get_gateway
       response = request(
-        :get_gateway,
+        :gateway,
         nil,
         "GET",
         "/gateway",
@@ -32,7 +32,7 @@ module Discord
 
     def get_channel(channel_id : UInt64)
       response = request(
-        :get_channel,
+        :channels_cid,
         channel_id,
         "GET",
         "/channels/#{channel_id}",
@@ -54,7 +54,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_channel,
+        :channels_cid,
         channel_id,
         "PATCH",
         "/channels/#{channel_id}",
@@ -67,7 +67,7 @@ module Discord
 
     def delete_channel(channel_id : UInt64)
       response = request(
-        :delete_channel,
+        :channels_cid,
         channel_id,
         "DELETE",
         "/channels/#{channel_id}",
@@ -83,7 +83,7 @@ module Discord
       path += "&around=#{around}" if around
 
       response = request(
-        :get_channel_messages,
+        :channels_cid_messages,
         channel_id,
         "GET",
         path,
@@ -96,7 +96,7 @@ module Discord
 
     def get_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :get_channel_message,
+        :channels_cid_messages_mid,
         channel_id,
         "GET",
         "/channels/#{channel_id}/messages/#{message_id}",
@@ -109,7 +109,7 @@ module Discord
 
     def create_message(channel_id : UInt64, content : String)
       response = request(
-        :create_message,
+        :channels_cid_messages,
         channel_id,
         "POST",
         "/channels/#{channel_id}/messages",
@@ -124,7 +124,7 @@ module Discord
 
     def edit_message(channel_id : UInt64, message_id : UInt64, content : String)
       response = request(
-        :edit_message,
+        :channels_cid_messages_mid,
         channel_id,
         "PATCH",
         "/channels/#{channel_id}/messages/#{message_id}",
@@ -137,7 +137,7 @@ module Discord
 
     def delete_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :delete_message,
+        :channels_cid_messages_mid,
         channel_id,
         "DELETE",
         "/channels/#{channel_id}/messages/#{message_id}",
@@ -148,7 +148,7 @@ module Discord
 
     def bulk_delete_messages(channel_id : UInt64, message_ids : Array(UInt64))
       response = request(
-        :bulk_delete_messages,
+        :channels_cid_messages_bulk_delete,
         channel_id,
         "POST",
         "/channels/#{channel_id}/messages/bulk_delete",
@@ -166,7 +166,7 @@ module Discord
       }.to_json
 
       response = request(
-        :edit_channel_permissions,
+        :channels_cid_permissions_oid,
         channel_id,
         "PUT",
         "/channels/#{channel_id}/permissions/#{overwrite_id}",
@@ -177,7 +177,7 @@ module Discord
 
     def get_channel_invites(channel_id : UInt64)
       response = request(
-        :get_channel_invites,
+        :channels_cid_invites,
         channel_id,
         "GET",
         "/channels/#{channel_id}/invites",
@@ -197,7 +197,7 @@ module Discord
       }.to_json
 
       response = request(
-        :create_channel_invite,
+        :channels_cid_invites,
         channel_id,
         "POST",
         "/channels/#{channel_id}/invites",
@@ -210,7 +210,7 @@ module Discord
 
     def delete_channel_permission(channel_id : UInt64, overwrite_id : UInt64)
       response = request(
-        :delete_channel_permission,
+        :channels_cid_permissions_oid,
         channel_id,
         "DELETE",
         "/channels/#{channel_id}/permissions/#{overwrite_id}",
@@ -221,7 +221,7 @@ module Discord
 
     def trigger_typing_indicator(channel_id : UInt64)
       response = request(
-        :trigger_typing_indicator,
+        :channels_cid_typing,
         channel_id,
         "POST",
         "/channels/#{channel_id}/typing",
@@ -232,7 +232,7 @@ module Discord
 
     def get_pinned_messages(channel_id : UInt64)
       response = request(
-        :get_pinned_messages,
+        :channels_cid_pins,
         channel_id,
         "GET",
         "/channels/#{channel_id}/pins",
@@ -245,7 +245,7 @@ module Discord
 
     def add_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :add_pinned_channel_message,
+        :channels_cid_pins_mid,
         channel_id,
         "PUT",
         "/channels/#{channel_id}/pins/#{message_id}",
@@ -256,7 +256,7 @@ module Discord
 
     def delete_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :delete_pinned_channel_message,
+        :channels_cid_pins_mid,
         channel_id,
         "DELETE",
         "/channels/#{channel_id}/pins/#{message_id}",
@@ -267,7 +267,7 @@ module Discord
 
     def get_guild(guild_id : UInt64)
       response = request(
-        :get_guild,
+        :guilds_gid,
         guild_id,
         "GET",
         "/guilds/#{guild_id}",
@@ -294,7 +294,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild,
+        :guilds_gid,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}",
@@ -307,7 +307,7 @@ module Discord
 
     def delete_guild(guild_id : UInt64)
       response = request(
-        :delete_guild,
+        :guilds_gid,
         guild_id,
         "DELETE",
         "/guilds/#{guild_id}",
@@ -320,7 +320,7 @@ module Discord
 
     def get_guild_channels(guild_id : UInt64)
       response = request(
-        :get_guild_channels,
+        :guilds_gid_channels,
         guild_id,
         "GET",
         "/guilds/#{channel_id}/channels",
@@ -341,7 +341,7 @@ module Discord
       }.to_json
 
       response = request(
-        :create_guild_channel,
+        :guilds_gid_channels,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/channels",
@@ -360,7 +360,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_channel,
+        :guilds_gid_channels,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/channels",
@@ -373,7 +373,7 @@ module Discord
 
     def get_guild_member(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :get_guild_member,
+        :guilds_gid_members_uid,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/members/#{user_id}",
@@ -388,7 +388,7 @@ module Discord
       path = "/guilds/#{guild_id}/members?limit=#{limit}&after=#{after}"
 
       response = request(
-        :list_guild_members,
+        :guilds_gid_members,
         guild_id,
         "GET",
         path,
@@ -411,7 +411,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_member,
+        :guilds_gid_members_uid,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/members/#{user_id}",
@@ -422,7 +422,7 @@ module Discord
 
     def remove_guild_member(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :remove_guild_member,
+        :guilds_gid_members_uid,
         guild_id,
         "DELETE",
         "/guilds/#{guild_id}/members/#{user_id}",
@@ -433,7 +433,7 @@ module Discord
 
     def get_guild_bans(guild_id : UInt64)
       response = request(
-        :get_guild_bans,
+        :guilds_gid_bans,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/bans",
@@ -446,7 +446,7 @@ module Discord
 
     def create_guild_ban(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :create_guild_ban,
+        :guilds_gid_bans_uid,
         guild_id,
         "PUT",
         "/guilds/#{guild_id}/bans/#{user_id}",
@@ -457,7 +457,7 @@ module Discord
 
     def remove_guild_ban(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :remove_guild_ban,
+        :guilds_gid_bans_uid,
         guild_id,
         "DELETE",
         "/guilds/#{guild_id}/bans/#{user_id}",
@@ -468,7 +468,7 @@ module Discord
 
     def get_guild_roles(guild_id : UInt64)
       response = request(
-        :get_guild_roles,
+        :guilds_gid_roles,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/roles",
@@ -481,7 +481,7 @@ module Discord
 
     def create_guild_role(guild_id : UInt64)
       response = request(
-        :create_guild_role,
+        :get_guild_roles,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/roles",
@@ -504,7 +504,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_role,
+        :guilds_gid_roles_rid,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/roles/#{role_id}",
@@ -517,7 +517,7 @@ module Discord
 
     def delete_guild_role(guild_id : UInt64, role_id : UInt64)
       response = request(
-        :delete_guild_role,
+        :guilds_gid_roles_rid,
         guild_id,
         "DELETE",
         "/guilds/#{guild_id}/roles/#{role_id}",
@@ -530,7 +530,7 @@ module Discord
 
     def get_guild_prune_count(guild_id : UInt64, days : UInt32)
       response = request(
-        :get_guild_prune_count,
+        :guilds_gid_prune,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/prune?days=#{days}",
@@ -543,7 +543,7 @@ module Discord
 
     def begin_guild_prune(guild_id : UInt64, days : UInt32)
       response = request(
-        :begin_guild_prune,
+        :guilds_gid_prune,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/prune?days=#{days}",
@@ -556,7 +556,7 @@ module Discord
 
     def get_guild_voice_regions(guild_id : UInt64)
       response = request(
-        :get_guild_voice_regions,
+        :guilds_gid_regions,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/regions",
@@ -569,7 +569,7 @@ module Discord
 
     def get_guild_integrations(guild_id : UInt64)
       response = request(
-        :get_guild_integrations,
+        :guilds_gid_integrations,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/integrations",
@@ -587,7 +587,7 @@ module Discord
       }.to_json
 
       response = request(
-        :create_guild_integration,
+        :guilds_gid_integrations,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/integrations",
@@ -607,7 +607,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_integration,
+        :guilds_gid_integrations_iid,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/integrations/#{integration_id}",
@@ -618,7 +618,7 @@ module Discord
 
     def delete_guild_integration(guild_id : UInt64, integration_id : UInt64)
       response = request(
-        :delete_guild_integration,
+        :guilds_gid_integrations_iid,
         guild_id,
         "DELETE",
         "/guilds/#{guild_id}/integrations/#{integration_id}",
@@ -629,7 +629,7 @@ module Discord
 
     def sync_guild_integration(guild_id : UInt64, integration_id : UInt64)
       response = request(
-        :sync_guild_integration,
+        :guilds_gid_integrations_iid_sync,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/integrations/#{integration_id}/sync",
@@ -640,7 +640,7 @@ module Discord
 
     def get_guild_embed(guild_id : UInt64)
       response = request(
-        :get_guild_embed,
+        :guilds_gid_embed,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/embed",
@@ -659,7 +659,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_embed,
+        :guilds_gid_embed,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/embed",
@@ -672,7 +672,7 @@ module Discord
 
     def get_user(user_id : UInt64)
       response = request(
-        :get_user,
+        :users_uid,
         nil,
         "GET",
         "/users/#{user_id}",
@@ -685,7 +685,7 @@ module Discord
 
     def query_users(query : String, limit : Int32 = 25)
       response = request(
-        :query_users,
+        :users,
         nil,
         "GET",
         "/users?q=#{query}&limit=#{limit}",
@@ -698,7 +698,7 @@ module Discord
 
     def get_current_user
       response = request(
-        :get_current_user,
+        :users_me,
         nil,
         "GET",
         "/users/@me",
@@ -716,7 +716,7 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_current_user,
+        :users_me,
         nil,
         "PATCH",
         "/users/@me",
@@ -729,7 +729,7 @@ module Discord
 
     def get_current_user_guilds
       response = request(
-        :get_current_user_guilds,
+        :users_me_guilds,
         nil,
         "GET",
         "/users/@me/guilds",
@@ -742,7 +742,7 @@ module Discord
 
     def leave_guild(guild_id : UInt64)
       response = request(
-        :leave_guild,
+        :users_me_guilds_gid,
         nil,
         "DELETE",
         "/users/@me/guilds/#{guild_id}",
@@ -753,7 +753,7 @@ module Discord
 
     def get_user_dms
       response = request(
-        :get_user_dms,
+        :users_me_channels,
         nil,
         "GET",
         "/users/@me/channels",
@@ -766,7 +766,7 @@ module Discord
 
     def create_dm(recipient_id : UInt64)
       response = request(
-        :create_dm,
+        :users_me_channels,
         nil,
         "POST",
         "/users/@me/channels",
@@ -779,7 +779,7 @@ module Discord
 
     def get_users_connections
       response = request(
-        :get_users_connections,
+        :users_me_connections,
         nil,
         "GET",
         "/users/@me/connections",
@@ -792,7 +792,7 @@ module Discord
 
     def get_invite(code : String)
       response = request(
-        :get_invite,
+        :invites_code,
         nil,
         "GET",
         "/invites/#{code}",
@@ -805,7 +805,7 @@ module Discord
 
     def delete_invite(code : String)
       response = request(
-        :delete_invite,
+        :invites_code,
         nil,
         "DELETE",
         "/invites/#{code}",
@@ -818,7 +818,7 @@ module Discord
 
     def accept_invite(code : String)
       response = request(
-        :accept_invite,
+        :invites_code,
         nil,
         "POST",
         "/invites/#{code}",
@@ -831,7 +831,7 @@ module Discord
 
     def list_voice_regions
       response = request(
-        :list_voice_regions,
+        :voice_regions,
         nil,
         "GET",
         "/voice/regions",
