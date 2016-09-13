@@ -180,6 +180,7 @@ module Discord
         cache guild
 
         payload.channels.each do |channel|
+          channel.guild_id = guild.id
           cache channel
           @cache.try &.add_guild_channel(guild.id, channel.id)
         end
