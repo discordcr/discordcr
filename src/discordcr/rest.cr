@@ -45,8 +45,7 @@ module Discord
             # reset.
             origin_time = HTTP.parse_time(response.headers["Date"]).not_nil!
             reset_time = Time.epoch(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
-            diff = reset_time - origin_time
-            retry_after = diff.seconds
+            retry_after = reset_time - origin_time
           end
 
           if response.headers["X-RateLimit-Global"]?
