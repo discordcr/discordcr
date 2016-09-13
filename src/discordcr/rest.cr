@@ -11,7 +11,7 @@ module Discord
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
     API_BASE    = "https://discordapp.com/api/v6"
 
-    alias RateLimitKey = NamedTuple(route_key: Symbol, major_parameter: UInt64 | Nil)
+    alias RateLimitKey = {route_key: Symbol, major_parameter: UInt64 | Nil}
 
     def request(route_key : Symbol, major_parameter : UInt64 | Nil, method : String, path : String, headers : HTTP::Headers, body : String?)
       mutexes = @mutexes ||= Hash(RateLimitKey, Mutex).new
