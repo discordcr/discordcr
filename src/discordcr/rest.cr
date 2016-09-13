@@ -14,8 +14,8 @@ module Discord
     alias RateLimitKey = {route_key: Symbol, major_parameter: UInt64?}
 
     def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
-      mutexes = @mutexes ||= Hash(RateLimitKey, Mutex).new
-      global_mutex = @global_mutex ||= Mutex.new
+      mutexes = (@mutexes ||= Hash(RateLimitKey, Mutex).new)
+      global_mutex = (@global_mutex ||= Mutex.new)
 
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
