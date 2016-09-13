@@ -1,5 +1,6 @@
 require "http/client"
 require "openssl/ssl/context"
+require "time/format"
 
 require "./mappings/*"
 require "./version"
@@ -10,16 +11,64 @@ module Discord
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
     API_BASE    = "https://discordapp.com/api/v6"
 
-    def request(endpoint_key : Symbol, method : String, path : String, headers : HTTP::Headers, body : String?)
+    alias RateLimitKey = {route_key: Symbol, major_parameter: UInt64?}
+
+    def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
+      mutexes = (@mutexes ||= Hash(RateLimitKey, Mutex).new)
+      global_mutex = (@global_mutex ||= Mutex.new)
+
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
 
-      HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
+      request_done = false
+      rate_limit_key = {route_key: route_key, major_parameter: major_parameter}
+
+      until request_done
+        mutexes[rate_limit_key] ||= Mutex.new
+
+        # Make sure to catch up with existing mutexes - they may be locked from
+        # another fiber.
+        mutexes[rate_limit_key].synchronize {}
+        global_mutex.synchronize {}
+
+        response = HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
+
+        if response.status_code == 429 || response.headers["X-RateLimit-Remaining"]? == "0"
+          # We got rate limited!
+          if response.headers["Retry-After"]?
+            # Retry-After is in ms, convert to seconds first
+            retry_after = response.headers["Retry-After"].to_i / 1000.0
+          else
+            # Calculate the difference between the HTTP Date header, which
+            # represents the time the response was sent on Discord's side, and
+            # the reset header which represents when the rate limit will get
+            # reset.
+            origin_time = HTTP.parse_time(response.headers["Date"]).not_nil!
+            reset_time = Time.epoch(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
+            retry_after = reset_time - origin_time
+          end
+
+          if response.headers["X-RateLimit-Global"]?
+            global_mutex.synchronize { sleep retry_after }
+          else
+            mutexes[rate_limit_key].synchronize { sleep retry_after }
+          end
+
+          # If we actually got a 429, i. e. the request failed, we need to
+          # retry it.
+          request_done = true unless response.status_code == 429
+        else
+          request_done = true
+        end
+      end
+
+      response.not_nil!
     end
 
     def get_gateway
       response = request(
-        :get_gateway,
+        :gateway,
+        nil,
         "GET",
         "/gateway",
         HTTP::Headers.new,
@@ -31,7 +80,8 @@ module Discord
 
     def get_channel(channel_id : UInt64)
       response = request(
-        :get_channel,
+        :channels_cid,
+        channel_id,
         "GET",
         "/channels/#{channel_id}",
         HTTP::Headers.new,
@@ -52,7 +102,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_channel,
+        :channels_cid,
+        channel_id,
         "PATCH",
         "/channels/#{channel_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -64,7 +115,8 @@ module Discord
 
     def delete_channel(channel_id : UInt64)
       response = request(
-        :delete_channel,
+        :channels_cid,
+        channel_id,
         "DELETE",
         "/channels/#{channel_id}",
         HTTP::Headers.new,
@@ -79,7 +131,8 @@ module Discord
       path += "&around=#{around}" if around
 
       response = request(
-        :get_channel_messages,
+        :channels_cid_messages,
+        channel_id,
         "GET",
         path,
         HTTP::Headers.new,
@@ -91,7 +144,8 @@ module Discord
 
     def get_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :get_channel_message,
+        :channels_cid_messages_mid,
+        channel_id,
         "GET",
         "/channels/#{channel_id}/messages/#{message_id}",
         HTTP::Headers.new,
@@ -103,7 +157,8 @@ module Discord
 
     def create_message(channel_id : UInt64, content : String)
       response = request(
-        :create_message,
+        :channels_cid_messages,
+        channel_id,
         "POST",
         "/channels/#{channel_id}/messages",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -117,7 +172,8 @@ module Discord
 
     def edit_message(channel_id : UInt64, message_id : UInt64, content : String)
       response = request(
-        :edit_message,
+        :channels_cid_messages_mid,
+        channel_id,
         "PATCH",
         "/channels/#{channel_id}/messages/#{message_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -129,7 +185,8 @@ module Discord
 
     def delete_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :delete_message,
+        :channels_cid_messages_mid,
+        channel_id,
         "DELETE",
         "/channels/#{channel_id}/messages/#{message_id}",
         HTTP::Headers.new,
@@ -139,7 +196,8 @@ module Discord
 
     def bulk_delete_messages(channel_id : UInt64, message_ids : Array(UInt64))
       response = request(
-        :bulk_delete_messages,
+        :channels_cid_messages_bulk_delete,
+        channel_id,
         "POST",
         "/channels/#{channel_id}/messages/bulk_delete",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -156,7 +214,8 @@ module Discord
       }.to_json
 
       response = request(
-        :edit_channel_permissions,
+        :channels_cid_permissions_oid,
+        channel_id,
         "PUT",
         "/channels/#{channel_id}/permissions/#{overwrite_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -166,7 +225,8 @@ module Discord
 
     def get_channel_invites(channel_id : UInt64)
       response = request(
-        :get_channel_invites,
+        :channels_cid_invites,
+        channel_id,
         "GET",
         "/channels/#{channel_id}/invites",
         HTTP::Headers.new,
@@ -185,7 +245,8 @@ module Discord
       }.to_json
 
       response = request(
-        :create_channel_invite,
+        :channels_cid_invites,
+        channel_id,
         "POST",
         "/channels/#{channel_id}/invites",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -197,7 +258,8 @@ module Discord
 
     def delete_channel_permission(channel_id : UInt64, overwrite_id : UInt64)
       response = request(
-        :delete_channel_permission,
+        :channels_cid_permissions_oid,
+        channel_id,
         "DELETE",
         "/channels/#{channel_id}/permissions/#{overwrite_id}",
         HTTP::Headers.new,
@@ -207,7 +269,8 @@ module Discord
 
     def trigger_typing_indicator(channel_id : UInt64)
       response = request(
-        :trigger_typing_indicator,
+        :channels_cid_typing,
+        channel_id,
         "POST",
         "/channels/#{channel_id}/typing",
         HTTP::Headers.new,
@@ -217,7 +280,8 @@ module Discord
 
     def get_pinned_messages(channel_id : UInt64)
       response = request(
-        :get_pinned_messages,
+        :channels_cid_pins,
+        channel_id,
         "GET",
         "/channels/#{channel_id}/pins",
         HTTP::Headers.new,
@@ -229,7 +293,8 @@ module Discord
 
     def add_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :add_pinned_channel_message,
+        :channels_cid_pins_mid,
+        channel_id,
         "PUT",
         "/channels/#{channel_id}/pins/#{message_id}",
         HTTP::Headers.new,
@@ -239,7 +304,8 @@ module Discord
 
     def delete_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
-        :delete_pinned_channel_message,
+        :channels_cid_pins_mid,
+        channel_id,
         "DELETE",
         "/channels/#{channel_id}/pins/#{message_id}",
         HTTP::Headers.new,
@@ -249,7 +315,8 @@ module Discord
 
     def get_guild(guild_id : UInt64)
       response = request(
-        :get_guild,
+        :guilds_gid,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}",
         HTTP::Headers.new,
@@ -275,7 +342,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild,
+        :guilds_gid,
+        guild_id,
         "PATCH",
         "/guilds/#{guild_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -287,7 +355,8 @@ module Discord
 
     def delete_guild(guild_id : UInt64)
       response = request(
-        :delete_guild,
+        :guilds_gid,
+        guild_id,
         "DELETE",
         "/guilds/#{guild_id}",
         HTTP::Headers.new,
@@ -299,7 +368,8 @@ module Discord
 
     def get_guild_channels(guild_id : UInt64)
       response = request(
-        :get_guild_channels,
+        :guilds_gid_channels,
+        guild_id,
         "GET",
         "/guilds/#{channel_id}/channels",
         HTTP::Headers.new,
@@ -319,7 +389,8 @@ module Discord
       }.to_json
 
       response = request(
-        :create_guild_channel,
+        :guilds_gid_channels,
+        guild_id,
         "POST",
         "/guilds/#{guild_id}/channels",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -337,7 +408,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_channel,
+        :guilds_gid_channels,
+        guild_id,
         "PATCH",
         "/guilds/#{guild_id}/channels",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -349,7 +421,8 @@ module Discord
 
     def get_guild_member(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :get_guild_member,
+        :guilds_gid_members_uid,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/members/#{user_id}",
         HTTP::Headers.new,
@@ -363,7 +436,8 @@ module Discord
       path = "/guilds/#{guild_id}/members?limit=#{limit}&after=#{after}"
 
       response = request(
-        :list_guild_members,
+        :guilds_gid_members,
+        guild_id,
         "GET",
         path,
         HTTP::Headers.new,
@@ -385,7 +459,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_member,
+        :guilds_gid_members_uid,
+        guild_id,
         "PATCH",
         "/guilds/#{guild_id}/members/#{user_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -395,7 +470,8 @@ module Discord
 
     def remove_guild_member(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :remove_guild_member,
+        :guilds_gid_members_uid,
+        guild_id,
         "DELETE",
         "/guilds/#{guild_id}/members/#{user_id}",
         HTTP::Headers.new,
@@ -405,7 +481,8 @@ module Discord
 
     def get_guild_bans(guild_id : UInt64)
       response = request(
-        :get_guild_bans,
+        :guilds_gid_bans,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/bans",
         HTTP::Headers.new,
@@ -417,7 +494,8 @@ module Discord
 
     def create_guild_ban(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :create_guild_ban,
+        :guilds_gid_bans_uid,
+        guild_id,
         "PUT",
         "/guilds/#{guild_id}/bans/#{user_id}",
         HTTP::Headers.new,
@@ -427,7 +505,8 @@ module Discord
 
     def remove_guild_ban(guild_id : UInt64, user_id : UInt64)
       response = request(
-        :remove_guild_ban,
+        :guilds_gid_bans_uid,
+        guild_id,
         "DELETE",
         "/guilds/#{guild_id}/bans/#{user_id}",
         HTTP::Headers.new,
@@ -437,7 +516,8 @@ module Discord
 
     def get_guild_roles(guild_id : UInt64)
       response = request(
-        :get_guild_roles,
+        :guilds_gid_roles,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/roles",
         HTTP::Headers.new,
@@ -449,7 +529,8 @@ module Discord
 
     def create_guild_role(guild_id : UInt64)
       response = request(
-        :create_guild_role,
+        :get_guild_roles,
+        guild_id,
         "POST",
         "/guilds/#{guild_id}/roles",
         HTTP::Headers.new,
@@ -471,7 +552,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_role,
+        :guilds_gid_roles_rid,
+        guild_id,
         "PATCH",
         "/guilds/#{guild_id}/roles/#{role_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -483,7 +565,8 @@ module Discord
 
     def delete_guild_role(guild_id : UInt64, role_id : UInt64)
       response = request(
-        :delete_guild_role,
+        :guilds_gid_roles_rid,
+        guild_id,
         "DELETE",
         "/guilds/#{guild_id}/roles/#{role_id}",
         HTTP::Headers.new,
@@ -495,7 +578,8 @@ module Discord
 
     def get_guild_prune_count(guild_id : UInt64, days : UInt32)
       response = request(
-        :get_guild_prune_count,
+        :guilds_gid_prune,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/prune?days=#{days}",
         HTTP::Headers.new,
@@ -507,7 +591,8 @@ module Discord
 
     def begin_guild_prune(guild_id : UInt64, days : UInt32)
       response = request(
-        :begin_guild_prune,
+        :guilds_gid_prune,
+        guild_id,
         "POST",
         "/guilds/#{guild_id}/prune?days=#{days}",
         HTTP::Headers.new,
@@ -519,7 +604,8 @@ module Discord
 
     def get_guild_voice_regions(guild_id : UInt64)
       response = request(
-        :get_guild_voice_regions,
+        :guilds_gid_regions,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/regions",
         HTTP::Headers.new,
@@ -531,7 +617,8 @@ module Discord
 
     def get_guild_integrations(guild_id : UInt64)
       response = request(
-        :get_guild_integrations,
+        :guilds_gid_integrations,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/integrations",
         HTTP::Headers.new,
@@ -548,7 +635,8 @@ module Discord
       }.to_json
 
       response = request(
-        :create_guild_integration,
+        :guilds_gid_integrations,
+        guild_id,
         "POST",
         "/guilds/#{guild_id}/integrations",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -567,7 +655,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_integration,
+        :guilds_gid_integrations_iid,
+        guild_id,
         "PATCH",
         "/guilds/#{guild_id}/integrations/#{integration_id}",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -577,7 +666,8 @@ module Discord
 
     def delete_guild_integration(guild_id : UInt64, integration_id : UInt64)
       response = request(
-        :delete_guild_integration,
+        :guilds_gid_integrations_iid,
+        guild_id,
         "DELETE",
         "/guilds/#{guild_id}/integrations/#{integration_id}",
         HTTP::Headers.new,
@@ -587,7 +677,8 @@ module Discord
 
     def sync_guild_integration(guild_id : UInt64, integration_id : UInt64)
       response = request(
-        :sync_guild_integration,
+        :guilds_gid_integrations_iid_sync,
+        guild_id,
         "POST",
         "/guilds/#{guild_id}/integrations/#{integration_id}/sync",
         HTTP::Headers.new,
@@ -597,7 +688,8 @@ module Discord
 
     def get_guild_embed(guild_id : UInt64)
       response = request(
-        :get_guild_embed,
+        :guilds_gid_embed,
+        guild_id,
         "GET",
         "/guilds/#{guild_id}/embed",
         HTTP::Headers.new,
@@ -615,7 +707,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_guild_embed,
+        :guilds_gid_embed,
+        guild_id,
         "PATCH",
         "/guilds/#{guild_id}/embed",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -627,7 +720,8 @@ module Discord
 
     def get_user(user_id : UInt64)
       response = request(
-        :get_user,
+        :users_uid,
+        nil,
         "GET",
         "/users/#{user_id}",
         HTTP::Headers.new,
@@ -639,7 +733,8 @@ module Discord
 
     def query_users(query : String, limit : Int32 = 25)
       response = request(
-        :query_users,
+        :users,
+        nil,
         "GET",
         "/users?q=#{query}&limit=#{limit}",
         HTTP::Headers.new,
@@ -651,7 +746,8 @@ module Discord
 
     def get_current_user
       response = request(
-        :get_current_user,
+        :users_me,
+        nil,
         "GET",
         "/users/@me",
         HTTP::Headers.new,
@@ -668,7 +764,8 @@ module Discord
       }.to_json
 
       response = request(
-        :modify_current_user,
+        :users_me,
+        nil,
         "PATCH",
         "/users/@me",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -680,7 +777,8 @@ module Discord
 
     def get_current_user_guilds
       response = request(
-        :get_current_user_guilds,
+        :users_me_guilds,
+        nil,
         "GET",
         "/users/@me/guilds",
         HTTP::Headers.new,
@@ -692,7 +790,8 @@ module Discord
 
     def leave_guild(guild_id : UInt64)
       response = request(
-        :leave_guild,
+        :users_me_guilds_gid,
+        nil,
         "DELETE",
         "/users/@me/guilds/#{guild_id}",
         HTTP::Headers.new,
@@ -702,7 +801,8 @@ module Discord
 
     def get_user_dms
       response = request(
-        :get_user_dms,
+        :users_me_channels,
+        nil,
         "GET",
         "/users/@me/channels",
         HTTP::Headers.new,
@@ -714,7 +814,8 @@ module Discord
 
     def create_dm(recipient_id : UInt64)
       response = request(
-        :create_dm,
+        :users_me_channels,
+        nil,
         "POST",
         "/users/@me/channels",
         HTTP::Headers{"Content-Type" => "application/json"},
@@ -726,7 +827,8 @@ module Discord
 
     def get_users_connections
       response = request(
-        :get_users_connections,
+        :users_me_connections,
+        nil,
         "GET",
         "/users/@me/connections",
         HTTP::Headers.new,
@@ -738,7 +840,8 @@ module Discord
 
     def get_invite(code : String)
       response = request(
-        :get_invite,
+        :invites_code,
+        nil,
         "GET",
         "/invites/#{code}",
         HTTP::Headers.new,
@@ -750,7 +853,8 @@ module Discord
 
     def delete_invite(code : String)
       response = request(
-        :delete_invite,
+        :invites_code,
+        nil,
         "DELETE",
         "/invites/#{code}",
         HTTP::Headers.new,
@@ -762,7 +866,8 @@ module Discord
 
     def accept_invite(code : String)
       response = request(
-        :accept_invite,
+        :invites_code,
+        nil,
         "POST",
         "/invites/#{code}",
         HTTP::Headers.new,
@@ -774,7 +879,8 @@ module Discord
 
     def list_voice_regions
       response = request(
-        :list_voice_regions,
+        :voice_regions,
+        nil,
         "GET",
         "/voice/regions",
         HTTP::Headers.new,
