@@ -11,8 +11,6 @@ module Discord
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
     API_BASE    = "https://discordapp.com/api/v6"
 
-    HTTP_DATE_FORMAT = Time::Format.new("%a, %d %b %Y %T GMT")
-
     alias RateLimitKey = NamedTuple(route_key: Symbol, major_parameter: UInt64 | Nil)
 
     def request(route_key : Symbol, major_parameter : UInt64 | Nil, method : String, path : String, headers : HTTP::Headers, body : String?)
@@ -45,7 +43,7 @@ module Discord
             # represents the time the response was sent on Discord's side, and
             # the reset header which represents when the rate limit will get
             # reset.
-            origin_time = HTTP_DATE_FORMAT.parse(response.headers["Date"])
+            origin_time = HTTP.parse_time(response.headers["Date"]).not_nil!
             reset_time = Time.epoch(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
             diff = reset_time - origin_time
             retry_after = diff.seconds
