@@ -1,5 +1,6 @@
 require "http/client"
 require "openssl/ssl/context"
+require "time/format"
 
 require "./mappings/*"
 require "./version"
@@ -10,11 +11,61 @@ module Discord
     USER_AGENT  = "DiscordBot (https://github.com/meew0/discordcr, #{Discord::VERSION})"
     API_BASE    = "https://discordapp.com/api/v6"
 
+    HTTP_DATE_FORMAT = Time::Format.new("%a, %d %b %Y %T GMT")
+
+    alias RateLimitKey = NamedTuple(route_key: Symbol, major_parameter: UInt64 | Nil)
+
     def request(route_key : Symbol, major_parameter : UInt64 | Nil, method : String, path : String, headers : HTTP::Headers, body : String?)
+      mutexes = @mutexes ||= Hash(RateLimitKey, Mutex).new
+      global_mutex = @global_mutex ||= Mutex.new
+
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
 
-      HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
+      request_done = false
+      rate_limit_key = {route_key: route_key, major_parameter: major_parameter}
+
+      until request_done
+        mutexes[rate_limit_key] ||= Mutex.new
+
+        # Make sure to catch up with existing mutexes - they may be locked from
+        # another fiber.
+        mutexes[rate_limit_key].synchronize {}
+        global_mutex.synchronize {}
+
+        response = HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
+
+        if response.status_code == 429 || response.headers["X-RateLimit-Remaining"]? == "0"
+          # We got rate limited!
+          if response.headers["Retry-After"]?
+            # Retry-After is in ms, convert to seconds first
+            retry_after = response.headers["Retry-After"].to_i / 1000.0
+          else
+            # Calculate the difference between the HTTP Date header, which
+            # represents the time the response was sent on Discord's side, and
+            # the reset header which represents when the rate limit will get
+            # reset.
+            origin_time = HTTP_DATE_FORMAT.parse(response.headers["Date"])
+            reset_time = Time.epoch(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
+            diff = reset_time - origin_time
+            retry_after = diff.seconds
+          end
+
+          if response.headers["X-RateLimit-Global"]?
+            global_mutex.synchronize { sleep retry_after }
+          else
+            mutexes[rate_limit_key].synchronize { sleep retry_after }
+          end
+
+          # If we actually got a 429, i. e. the request failed, we need to
+          # retry it.
+          request_done = true unless response.status_code == 429
+        else
+          request_done = true
+        end
+      end
+
+      response.not_nil!
     end
 
     def get_gateway
