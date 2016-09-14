@@ -370,5 +370,37 @@ module Discord
       def initialize(@opcode : Int64?, @sequence : Int64?, @data : MemoryIO, @event_type : String?)
       end
     end
+
+    class Session
+      getter session_id
+      property sequence
+
+      def initialize(@session_id : String)
+        @sequence = 0
+
+        @suspended = false
+        @invalid = false
+      end
+
+      def suspend
+        @suspended = true
+      end
+
+      def suspended? : Bool
+        @suspended
+      end
+
+      def invalidate
+        @invalid = true
+      end
+
+      def invalid? : Bool
+        @invalid
+      end
+
+      def should_resume? : Bool
+        suspended? && !invalid?
+      end
+    end
   end
 end
