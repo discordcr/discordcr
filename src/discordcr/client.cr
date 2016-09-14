@@ -91,7 +91,7 @@ module Discord
       # Rewind to beginning of JSON
       data.rewind
 
-      GatewayPacket.new(opcode, sequence, data, event_type)
+      Gateway::GatewayPacket.new(opcode, sequence, data, event_type)
     end
 
     private def handle_hello(heartbeat_interval)
@@ -362,11 +362,13 @@ module Discord
     event voice_server_update, Gateway::VoiceServerUpdatePayload
   end
 
-  # :nodoc:
-  struct GatewayPacket
-    getter opcode, sequence, data, event_type
+  module Gateway
+    # :nodoc:
+    struct GatewayPacket
+      getter opcode, sequence, data, event_type
 
-    def initialize(@opcode : Int64 | Nil, @sequence : Int64 | Nil, @data : MemoryIO, @event_type : String | Nil)
+      def initialize(@opcode : Int64?, @sequence : Int64?, @data : MemoryIO, @event_type : String?)
+      end
     end
   end
 end
