@@ -10,21 +10,35 @@ module Discord
 
     property cache : Cache?
 
+    @websocket : HTTP::WebSocket
+
     def initialize(@token : String, @client_id : UInt64)
+      @websocket = initialize_websocket
+    end
+
+    def run
+      loop do
+        @websocket.run
+
+        puts "Reconnecting"
+
+        @websocket = initialize_websocket
+      end
+    end
+
+    private def initialize_websocket : HTTP::WebSocket
       url = URI.parse(get_gateway.url)
-      @websocket = HTTP::WebSocket.new(
+      websocket = HTTP::WebSocket.new(
         host: url.host.not_nil!,
         path: "#{url.path}/?encoding=json&v=6",
         port: 443,
         tls: true
       )
 
-      @websocket.on_message(&->on_message(String))
-      @websocket.on_close(&->on_close(String))
-    end
+      websocket.on_message(&->on_message(String))
+      websocket.on_close(&->on_close(String))
 
-    def run
-      @websocket.run
+      websocket
     end
 
     private def on_close(message : String)
