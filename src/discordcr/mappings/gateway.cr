@@ -15,6 +15,12 @@ module Discord
       )
     end
 
+    struct ResumedPayload
+      JSON.mapping(
+        _trace: Array(String)
+      )
+    end
+
     struct IdentifyPacket
       def initialize(token, properties, large_threshold, compress, shard)
         @op = Discord::Client::OP_IDENTIFY
