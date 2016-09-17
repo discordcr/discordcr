@@ -10,30 +10,85 @@ module Discord
 
     property cache : Cache?
 
-    def initialize(@token : String, @client_id : UInt64)
+    @websocket : HTTP::WebSocket
+
+    # Default analytics properties sent in IDENTIFY
+    DEFAULT_PROPERTIES = Gateway::IdentifyProperties.new(
+      os: "Crystal",
+      browser: "discordcr",
+      device: "discordcr",
+      referrer: "",
+      referring_domain: ""
+    )
+
+    def initialize(@token : String, @client_id : UInt64,
+                   @shard : Gateway::ShardKey? = nil,
+                   @large_threshold : Int32 = 100,
+                   @compress : Bool = false,
+                   @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES)
+      @websocket = initialize_websocket
+      @backoff = 1.0
+    end
+
+    def run
+      loop do
+        @websocket.run
+
+        wait_for_reconnect
+
+        puts "Reconnecting"
+        @websocket = initialize_websocket
+      end
+    end
+
+    # Separate method to wait an ever-increasing amount of time before reconnecting after being disconnected in an
+    # unexpected way
+    def wait_for_reconnect
+      # Wait before reconnecting so we don't spam Discord's servers.
+      puts "Attempting to reconnect in #{@backoff} seconds."
+      sleep @backoff.seconds
+
+      # Calculate new backoff
+      @backoff = 1.0 if @backoff < 1.0
+      @backoff *= 1.5
+      @backoff = 115 + (rand * 10) if @backoff > 120 # Cap the backoff at 120 seconds and then add some random jitter
+    end
+
+    private def initialize_websocket : HTTP::WebSocket
       url = URI.parse(get_gateway.url)
-      @websocket = HTTP::WebSocket.new(
+      websocket = HTTP::WebSocket.new(
         host: url.host.not_nil!,
         path: "#{url.path}/?encoding=json&v=6",
         port: 443,
         tls: true
       )
 
-      @websocket.on_message(&->on_message(String))
-      @websocket.on_close(&->on_close(String))
-    end
+      websocket.on_message(&->on_message(String))
+      websocket.on_close(&->on_close(String))
 
-    def run
-      @websocket.run
+      websocket
     end
 
     private def on_close(message : String)
       # TODO: make more sophisticated
       puts "Closed with: " + message
+
+      @session.try &.suspend
+      nil
     end
 
-    OP_DISPATCH =  0
-    OP_HELLO    = 10
+    OP_DISPATCH              =  0
+    OP_HEARTBEAT             =  1
+    OP_IDENTIFY              =  2
+    OP_STATUS_UPDATE         =  3
+    OP_VOICE_STATE_UPDATE    =  4
+    OP_VOICE_SERVER_PING     =  5
+    OP_RESUME                =  6
+    OP_RECONNECT             =  7
+    OP_REQUEST_GUILD_MEMBERS =  8
+    OP_INVALID_SESSION       =  9
+    OP_HELLO                 = 10
+    OP_HEARTBEAT_ACK         = 11
 
     private def on_message(message : String)
       spawn do
@@ -45,12 +100,27 @@ module Discord
           handle_hello(payload.heartbeat_interval)
         when OP_DISPATCH
           handle_dispatch(packet.event_type, packet.data)
+        when OP_RECONNECT
+          handle_reconnect
+        when OP_INVALID_SESSION
+          handle_invalid_session
         else
           puts "Unsupported message: #{message}"
         end
+
+        # Set the sequence to confirm that we have handled this packet, in case
+        # we need to resume
+        seq = packet.sequence
+        @session.try &.sequence = seq if seq
       end
 
       nil
+    end
+
+    # Injects a JSON *message* into the packet handler. Must be a valid gateway
+    # packet, including opcode, sequence and type.
+    def inject(message)
+      on_message(message)
     end
 
     private def parse_message(message : String)
@@ -81,12 +151,18 @@ module Discord
       # Rewind to beginning of JSON
       data.rewind
 
-      GatewayPacket.new(opcode, sequence, data, event_type)
+      Gateway::GatewayPacket.new(opcode, sequence, data, event_type)
     end
 
     private def handle_hello(heartbeat_interval)
       setup_heartbeats(heartbeat_interval)
-      identify
+
+      # If it seems like we can resume, we will - worst case we get an op9
+      if @session.try &.should_resume?
+        resume
+      else
+        identify
+      end
     end
 
     private def setup_heartbeats(heartbeat_interval)
@@ -100,22 +176,57 @@ module Discord
     end
 
     private def identify
-      packet = {
-        op: 2,
-        d:  {
-          token:      @token,
-          properties: {
-            :"$os"               => "Crystal",
-            :"$browser"          => "discordcr",
-            :"$device"           => "discordcr",
-            :"$referrer"         => "",
-            :"$referring_domain" => "",
-          },
-          compress:        false,
-          large_threshold: 100,
-        },
-      }.to_json
-      @websocket.send(packet)
+      if shard = @shard
+        shard_tuple = shard.values
+      end
+
+      packet = Gateway::IdentifyPacket.new(@token, @properties, @compress, @large_threshold, shard_tuple)
+      @websocket.send(packet.to_json)
+    end
+
+    # Sends a resume packet from the given *sequence* number, or alternatively
+    # the current session's last received sequence if none is given. This will
+    # make Discord replay all events since that sequence.
+    def resume(sequence : Int64? = nil)
+      session = @session.not_nil!
+      sequence ||= session.sequence
+
+      packet = Gateway::ResumePacket.new(@token, session.session_id, sequence)
+      @websocket.send(packet.to_json)
+    end
+
+    # Sends a status update to Discord. By setting the *idle_since* time to
+    # something other than `nil`, the client will appear as idle; by setting
+    # the *game* to a GamePlaying object the client can be set to appear as
+    # playing or streaming a game.
+    def status_update(idle_since : Int64? = nil, game : GamePlaying? = nil)
+      packet = Gateway::StatusUpdatePacket.new(idle_since, game)
+      @websocket.send(packet.to_json)
+    end
+
+    # Sends a voice state update to Discord. This will create a new voice
+    # connection on the given *guild_id* and *channel_id*, update an existing
+    # one with new *self_mute* and *self_deaf* status, or disconnect from voice
+    # if the *channel_id* is `nil`.
+    #
+    # discordcr doesn't support sending or receiving any data from voice
+    # connections yet - this will have to be done externally until that happens.
+    def voice_state_update(guild_id : UInt64, channel_id : UInt64?, self_mute : Bool, self_deaf : Bool)
+      packet = Gateway::VoiceStateUpdatePacket.new(guild_id, channel_id, self_mute, self_deaf)
+      @websocket.send(packet.to_json)
+    end
+
+    # Requests a full list of members to be sent for a specific guild. This is
+    # necessary to get the entire members list for guilds considered large (what
+    # is considered large can be changed using the large_threshold parameter
+    # in `#initialize`).
+    #
+    # The list will arrive in the form of GUILD_MEMBERS_CHUNK dispatch events,
+    # which can be listened to using `#on_guild_members_chunk`. If a cache
+    # is set up, arriving members will be cached automatically.
+    def request_guild_members(guild_id : UInt64, query : String = "", limit : Int32 = 0)
+      packet = Gateway::RequestGuildMembersPacket.new(guild_id, query, limit)
+      @websocket.send(packet.to_json)
     end
 
     # :nodoc:
@@ -133,6 +244,12 @@ module Discord
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
 
+        @session = Gateway::Session.new(payload.session_id)
+
+        # Reset the backoff, because READY means we successfully achieved a
+        # connection and don't have to wait next time
+        @backoff = 1.0
+
         @cache.try &.cache_current_user(payload.user)
 
         payload.private_channels.each do |channel|
@@ -146,6 +263,9 @@ module Discord
 
         puts "Received READY, v: #{payload.v}"
         call_event ready, payload
+      when "RESUMED"
+        payload = Gateway::ResumedPayload.from_json(data)
+        call_event resumed, payload
       when "CHANNEL_CREATE"
         payload = Channel.from_json(data)
 
@@ -306,6 +426,21 @@ module Discord
       end
     end
 
+    private def handle_reconnect
+      # Close the websocket - the reconnection logic will kick in. We want this
+      # to happen instantly so set the backoff to 0 seconds
+      @backoff = 0.0
+      @websocket.close
+
+      # Suspend the session so we 1. resume and 2. don't send heartbeats
+      @session.try &.suspend
+    end
+
+    private def handle_invalid_session
+      @session.try &.invalidate
+      identify
+    end
+
     # :nodoc:
     macro event(name, payload_type)
       def on_{{name}}(&handler : {{payload_type}} ->)
@@ -314,6 +449,7 @@ module Discord
     end
 
     event ready, Gateway::ReadyPayload
+    event resumed, Gateway::ResumedPayload
 
     event channel_create, Channel
     event channel_update, Channel
@@ -352,11 +488,47 @@ module Discord
     event voice_server_update, Gateway::VoiceServerUpdatePayload
   end
 
-  # :nodoc:
-  struct GatewayPacket
-    getter opcode, sequence, data, event_type
+  module Gateway
+    alias ShardKey = {shard_id: Int32, num_shards: Int32}
 
-    def initialize(@opcode : Int64 | Nil, @sequence : Int64 | Nil, @data : MemoryIO, @event_type : String | Nil)
+    # :nodoc:
+    struct GatewayPacket
+      getter opcode, sequence, data, event_type
+
+      def initialize(@opcode : Int64?, @sequence : Int64?, @data : MemoryIO, @event_type : String?)
+      end
+    end
+
+    class Session
+      getter session_id
+      property sequence
+
+      def initialize(@session_id : String)
+        @sequence = 0_i64
+
+        @suspended = false
+        @invalid = false
+      end
+
+      def suspend
+        @suspended = true
+      end
+
+      def suspended? : Bool
+        @suspended
+      end
+
+      def invalidate
+        @invalid = true
+      end
+
+      def invalid? : Bool
+        @invalid
+      end
+
+      def should_resume? : Bool
+        suspended? && !invalid?
+      end
     end
   end
 end
