@@ -74,6 +74,8 @@ module Discord
           handle_dispatch(packet.event_type, packet.data)
         when OP_RECONNECT
           handle_reconnect
+        when OP_INVALID_SESSION
+          handle_invalid_session
         else
           puts "Unsupported message: #{message}"
         end
@@ -349,6 +351,11 @@ module Discord
 
       # Suspend the session so we 1. resume and 2. don't send heartbeats
       @session.try &.suspend
+    end
+
+    private def handle_invalid_session
+      @session.try &.invalidate
+      identify
     end
 
     # :nodoc:
