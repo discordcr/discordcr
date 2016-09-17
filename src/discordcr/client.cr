@@ -44,6 +44,9 @@ module Discord
     private def on_close(message : String)
       # TODO: make more sophisticated
       puts "Closed with: " + message
+
+      @session.try &.suspend
+      nil
     end
 
     OP_DISPATCH              =  0
@@ -162,6 +165,8 @@ module Discord
       case type
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
+
+        @session = Gateway::Session.new(payload.session_id)
 
         @cache.try &.cache_current_user(payload.user)
 
