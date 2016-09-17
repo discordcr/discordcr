@@ -12,7 +12,20 @@ module Discord
 
     @websocket : HTTP::WebSocket
 
-    def initialize(@token : String, @client_id : UInt64)
+    # Default analytics properties sent in IDENTIFY
+    DEFAULT_PROPERTIES = Gateway::IdentifyProperties.new(
+      os: "Crystal",
+      browser: "discordcr",
+      device: "discordcr",
+      referrer: "",
+      referring_domain: ""
+    )
+
+    def initialize(@token : String, @client_id : UInt64,
+                   @shard : Gateway::ShardKey? = nil,
+                   @large_threshold : Int32 = 100,
+                   @compress : Bool = false,
+                   @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES)
       @websocket = initialize_websocket
       @backoff = 1.0
     end
@@ -163,22 +176,12 @@ module Discord
     end
 
     private def identify
-      packet = {
-        op: 2,
-        d:  {
-          token:      @token,
-          properties: {
-            :"$os"               => "Crystal",
-            :"$browser"          => "discordcr",
-            :"$device"           => "discordcr",
-            :"$referrer"         => "",
-            :"$referring_domain" => "",
-          },
-          compress:        false,
-          large_threshold: 100,
-        },
-      }.to_json
-      @websocket.send(packet)
+      if shard = @shard
+        shard_tuple = shard.values
+      end
+
+      packet = Gateway::IdentifyPacket.new(@token, @properties, @compress, @large_threshold, shard_tuple)
+      @websocket.send(packet.to_json)
     end
 
     # Sends a resume packet from the given *sequence* number, or alternatively
@@ -189,6 +192,40 @@ module Discord
       sequence ||= session.sequence
 
       packet = Gateway::ResumePacket.new(@token, session.session_id, sequence)
+      @websocket.send(packet.to_json)
+    end
+
+    # Sends a status update to Discord. By setting the *idle_since* time to
+    # something other than `nil`, the client will appear as idle; by setting
+    # the *game* to a GamePlaying object the client can be set to appear as
+    # playing or streaming a game.
+    def status_update(idle_since : Int64? = nil, game : GamePlaying? = nil)
+      packet = Gateway::StatusUpdatePacket.new(idle_since, game)
+      @websocket.send(packet.to_json)
+    end
+
+    # Sends a voice state update to Discord. This will create a new voice
+    # connection on the given *guild_id* and *channel_id*, update an existing
+    # one with new *self_mute* and *self_deaf* status, or disconnect from voice
+    # if the *channel_id* is `nil`.
+    #
+    # discordcr doesn't support sending or receiving any data from voice
+    # connections yet - this will have to be done externally until that happens.
+    def voice_state_update(guild_id : UInt64, channel_id : UInt64?, self_mute : Bool, self_deaf : Bool)
+      packet = Gateway::VoiceStateUpdatePacket.new(guild_id, channel_id, self_mute, self_deaf)
+      @websocket.send(packet.to_json)
+    end
+
+    # Requests a full list of members to be sent for a specific guild. This is
+    # necessary to get the entire members list for guilds considered large (what
+    # is considered large can be changed using the large_threshold parameter
+    # in `#initialize`).
+    #
+    # The list will arrive in the form of GUILD_MEMBERS_CHUNK dispatch events,
+    # which can be listened to using `#on_guild_members_chunk`. If a cache
+    # is set up, arriving members will be cached automatically.
+    def request_guild_members(guild_id : UInt64, query : String = "", limit : Int32 = 0)
+      packet = Gateway::RequestGuildMembersPacket.new(guild_id, query, limit)
       @websocket.send(packet.to_json)
     end
 
@@ -226,6 +263,9 @@ module Discord
 
         puts "Received READY, v: #{payload.v}"
         call_event ready, payload
+      when "RESUMED"
+        payload = Gateway::ResumedPayload.from_json(data)
+        call_event resumed, payload
       when "CHANNEL_CREATE"
         payload = Channel.from_json(data)
 
@@ -409,6 +449,7 @@ module Discord
     end
 
     event ready, Gateway::ReadyPayload
+    event resumed, Gateway::ResumedPayload
 
     event channel_create, Channel
     event channel_update, Channel
@@ -448,6 +489,8 @@ module Discord
   end
 
   module Gateway
+    alias ShardKey = {shard_id: Int32, num_shards: Int32}
+
     # :nodoc:
     struct GatewayPacket
       getter opcode, sequence, data, event_type

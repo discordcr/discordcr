@@ -15,6 +15,42 @@ module Discord
       )
     end
 
+    struct IdentifyPacket
+      def initialize(token, properties, large_threshold, compress, shard)
+        @op = Discord::Client::OP_IDENTIFY
+        @d = IdentifyPayload.new(token, properties, large_threshold, compress, shard)
+      end
+
+      JSON.mapping(
+        op: Int32,
+        d: IdentifyPayload
+      )
+    end
+
+    struct IdentifyPayload
+      def initialize(@token, @properties, @compress, @large_threshold, @shard); end
+
+      JSON.mapping({
+        token: String,
+        properties: IdentifyProperties,
+        compress: Bool,
+        large_threshold: Int32,
+        shard: {type: {Int32, Int32}, nilable: true}
+      })
+    end
+
+    struct IdentifyProperties
+      def initialize(@os, @browser, @device, @referrer, @referring_domain); end
+
+      JSON.mapping(
+        os: {key: "$os", type: String},
+        browser: {key: "$browser", type: String},
+        device: {key: "$device", type: String},
+        referrer: {key: "$referrer", type: String},
+        referring_domain: {key: "$referring_domain", type: String}
+      )
+    end
+
     struct ResumePacket
       def initialize(token, session_id, seq)
         @op = Discord::Client::OP_RESUME
