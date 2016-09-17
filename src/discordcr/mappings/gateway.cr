@@ -15,6 +15,29 @@ module Discord
       )
     end
 
+    struct ResumePacket
+      def initialize(token, session_id, seq)
+        @op = Discord::Client::OP_RESUME
+        @d = ResumePayload.new(token, session_id, seq)
+      end
+
+      JSON.mapping(
+        op: Int32,
+        d: ResumePayload
+      )
+    end
+
+    # :nodoc:
+    struct ResumePayload
+      def initialize(@token, @session_id, @seq); end
+
+      JSON.mapping(
+        token: String,
+        session_id: String,
+        seq: Int64
+      )
+    end
+
     struct HelloPayload
       JSON.mapping(
         heartbeat_interval: UInt32,

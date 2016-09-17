@@ -79,6 +79,11 @@ module Discord
         else
           puts "Unsupported message: #{message}"
         end
+
+        # Set the sequence to confirm that we have handled this packet, in case
+        # we need to resume
+        seq = packet.sequence
+        @session.try &.sequence = seq if seq
       end
 
       nil
@@ -123,7 +128,13 @@ module Discord
 
     private def handle_hello(heartbeat_interval)
       setup_heartbeats(heartbeat_interval)
-      identify
+
+      # If it seems like we can resume, we will - worst case we get an op9
+      if @session.try &.should_resume?
+        resume
+      else
+        identify
+      end
     end
 
     private def setup_heartbeats(heartbeat_interval)
@@ -153,6 +164,17 @@ module Discord
         },
       }.to_json
       @websocket.send(packet)
+    end
+
+    # Sends a resume packet from the given *sequence* number, or alternatively
+    # the current session's last received sequence if none is given. This will
+    # make Discord replay all events since that sequence.
+    def resume(sequence : Int64? = nil)
+      session = @session.not_nil!
+      sequence ||= session.sequence
+
+      packet = Gateway::ResumePacket.new(@token, session.session_id, sequence)
+      @websocket.send(packet.to_json)
     end
 
     # :nodoc:
@@ -418,7 +440,7 @@ module Discord
       property sequence
 
       def initialize(@session_id : String)
-        @sequence = 0
+        @sequence = 0_i64
 
         @suspended = false
         @invalid = false
