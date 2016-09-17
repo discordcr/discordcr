@@ -72,6 +72,8 @@ module Discord
           handle_hello(payload.heartbeat_interval)
         when OP_DISPATCH
           handle_dispatch(packet.event_type, packet.data)
+        when OP_RECONNECT
+          handle_reconnect
         else
           puts "Unsupported message: #{message}"
         end
@@ -339,6 +341,14 @@ module Discord
       else
         puts "Unsupported dispatch: #{type} #{data}"
       end
+    end
+
+    private def handle_reconnect
+      # Close the websocket - the reconnection logic will kick in
+      @websocket.close
+
+      # Suspend the session so we 1. resume and 2. don't send heartbeats
+      @session.try &.suspend
     end
 
     # :nodoc:
