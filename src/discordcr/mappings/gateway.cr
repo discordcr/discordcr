@@ -74,6 +74,75 @@ module Discord
       )
     end
 
+    struct StatusUpdatePacket
+      def initialize(idle_since, game)
+        @op = Discord::Client::OP_STATUS_UPDATE
+        @d = StatusUpdatePayload.new(idle_since, game)
+      end
+
+      JSON.mapping(
+        op: Int32,
+        d: StatusUpdatePayload
+      )
+    end
+
+    # :nodoc:
+    struct StatusUpdatePayload
+      def initialize(@idle_since, @game); end
+
+      JSON.mapping(
+        idle_since: {type: Int64, nilable: true, emit_null: true},
+        game: {type: GamePlaying, nilable: true, emit_null: true}
+      )
+    end
+
+    struct VoiceStateUpdatePacket
+      def initialize(guild_id, channel_id, self_mute, self_deaf)
+        @op = Discord::Client::OP_VOICE_STATE_UPDATE
+        @d = VoiceStateUpdatePayload.new(guild_id, channel_id, self_mute, self_deaf)
+      end
+
+      JSON.mapping(
+        op: Int32,
+        d: VoiceStateUpdatePayload
+      )
+    end
+
+    # :nodoc:
+    struct VoiceStateUpdatePayload
+      def initialize(@guild_id, @channel_id, @self_mute, @self_deaf); end
+
+      JSON.mapping(
+        guild_id: UInt64,
+        channel_id: {type: UInt64, nilable: true, emit_null: true},
+        self_mute: Bool,
+        self_deaf: Bool
+      )
+    end
+
+    struct RequestGuildMembersPacket
+      def initialize(guild_id, query, limit)
+        @op = Discord::Client::OP_REQUEST_GUILD_MEMBERS
+        @d = RequestGuildMembersPayload.new(guild_id, query, limit)
+      end
+
+      JSON.mapping(
+        op: Int32,
+        d: RequestGuildMembersPayload
+      )
+    end
+
+    # :nodoc:
+    struct RequestGuildMembersPayload
+      def initialize(@guild_id, @query, @limit); end
+
+      JSON.mapping(
+        guild_id: UInt64,
+        query: String,
+        limit: Int32
+      )
+    end
+
     struct HelloPayload
       JSON.mapping(
         heartbeat_interval: UInt32,

@@ -126,6 +126,8 @@ module Discord
   end
 
   struct GamePlaying
+    def initialize(@name = nil, @type = nil, @url = nil); end
+
     JSON.mapping(
       name: {type: String, nilable: true},
       type: {type: UInt8, nilable: true},
