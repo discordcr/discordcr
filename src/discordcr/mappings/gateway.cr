@@ -34,7 +34,8 @@ module Discord
     end
 
     struct IdentifyPayload
-      def initialize(@token, @properties, @compress, @large_threshold, @shard); end
+      def initialize(@token, @properties, @compress, @large_threshold, @shard)
+      end
 
       JSON.mapping({
         token: String,
@@ -46,7 +47,8 @@ module Discord
     end
 
     struct IdentifyProperties
-      def initialize(@os, @browser, @device, @referrer, @referring_domain); end
+      def initialize(@os, @browser, @device, @referrer, @referring_domain)
+      end
 
       JSON.mapping(
         os: {key: "$os", type: String},
@@ -71,7 +73,8 @@ module Discord
 
     # :nodoc:
     struct ResumePayload
-      def initialize(@token, @session_id, @seq); end
+      def initialize(@token, @session_id, @seq)
+      end
 
       JSON.mapping(
         token: String,
@@ -94,7 +97,8 @@ module Discord
 
     # :nodoc:
     struct StatusUpdatePayload
-      def initialize(@idle_since, @game); end
+      def initialize(@idle_since, @game)
+      end
 
       JSON.mapping(
         idle_since: {type: Int64, nilable: true, emit_null: true},
@@ -116,7 +120,8 @@ module Discord
 
     # :nodoc:
     struct VoiceStateUpdatePayload
-      def initialize(@guild_id, @channel_id, @self_mute, @self_deaf); end
+      def initialize(@guild_id, @channel_id, @self_mute, @self_deaf)
+      end
 
       JSON.mapping(
         guild_id: UInt64,
@@ -140,7 +145,8 @@ module Discord
 
     # :nodoc:
     struct RequestGuildMembersPayload
-      def initialize(@guild_id, @query, @limit); end
+      def initialize(@guild_id, @query, @limit)
+      end
 
       JSON.mapping(
         guild_id: UInt64,
