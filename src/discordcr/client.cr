@@ -77,6 +77,12 @@ module Discord
       nil
     end
 
+    # Injects a JSON *message* into the packet handler. Must be a valid gateway
+    # packet, including opcode, sequence and type.
+    def inject(message)
+      on_message(message)
+    end
+
     private def parse_message(message : String)
       parser = JSON::PullParser.new(message)
 
