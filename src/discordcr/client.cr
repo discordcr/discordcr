@@ -14,16 +14,31 @@ module Discord
 
     def initialize(@token : String, @client_id : UInt64)
       @websocket = initialize_websocket
+      @backoff = 1.0
     end
 
     def run
       loop do
         @websocket.run
 
-        puts "Reconnecting"
+        wait_for_reconnect
 
+        puts "Reconnecting"
         @websocket = initialize_websocket
       end
+    end
+
+    # Separate method to wait an ever-increasing amount of time before reconnecting after being disconnected in an
+    # unexpected way
+    def wait_for_reconnect
+      # Wait before reconnecting so we don't spam Discord's servers.
+      puts "Attempting to reconnect in #{@backoff} seconds."
+      sleep @backoff.seconds
+
+      # Calculate new backoff
+      @backoff = 1.0 if @backoff < 1.0
+      @backoff *= 1.5
+      @backoff = 115 + (rand * 10) if @backoff > 120 # Cap the backoff at 120 seconds and then add some random jitter
     end
 
     private def initialize_websocket : HTTP::WebSocket
@@ -193,6 +208,10 @@ module Discord
         payload = Gateway::ReadyPayload.from_json(data)
 
         @session = Gateway::Session.new(payload.session_id)
+
+        # Reset the backoff, because READY means we successfully achieved a
+        # connection and don't have to wait next time
+        @backoff = 1.0
 
         @cache.try &.cache_current_user(payload.user)
 
@@ -368,7 +387,9 @@ module Discord
     end
 
     private def handle_reconnect
-      # Close the websocket - the reconnection logic will kick in
+      # Close the websocket - the reconnection logic will kick in. We want this
+      # to happen instantly so set the backoff to 0 seconds
+      @backoff = 0.0
       @websocket.close
 
       # Suspend the session so we 1. resume and 2. don't send heartbeats
