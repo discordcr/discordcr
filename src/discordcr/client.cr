@@ -104,6 +104,10 @@ module Discord
           handle_reconnect
         when OP_INVALID_SESSION
           handle_invalid_session
+        when OP_HEARTBEAT
+          # We got a received heartbeat, reply with the same sequence
+          puts "Heartbeat received"
+          @websocket.send({op: 1, d: packet.sequence}.to_json)
         else
           puts "Unsupported message: #{message}"
         end
@@ -169,7 +173,10 @@ module Discord
       spawn do
         loop do
           puts "Sending heartbeat"
-          @websocket.send({op: 1, d: 0}.to_json)
+
+          seq = @session.try &.sequence || 0
+          @websocket.send({op: 1, d: seq}.to_json)
+
           sleep heartbeat_interval.milliseconds
         end
       end
