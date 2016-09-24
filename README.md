@@ -34,9 +34,42 @@ An example bot can be found
 [here](https://github.com/meew0/discordcr/blob/master/examples/ping.cr). More
 examples will come in the future.
 
-Documentation is available too but needs to be manually compiled locally.
-Download the repo and run `crystal doc` in its folder, then the `doc` folder
-will have the documentation to view.
+A short overview of library structure: the `Client` class includes the `REST`
+module, which handles the REST parts of Discord's API; the `Client` itself
+handles the gateway, i. e. the interactive parts such as receiving messages. It
+is possible to use only the REST parts by never calling the `#run` method on a
+`Client`, which is what does the actual gateway connection.
+
+The example linked above has an example of an event (`on_message_create`) that
+is called through the gateway, and of a REST call (`client.create_message`).
+Other gateway events and REST calls work much in the same way - see the
+documentation for what specific events and REST calls do.
+
+Caching is done using a separate `Cache` class that needs to be added into
+clients manually:
+
+```cr
+client = Discord::Client.new # ...
+cache = Discord::Cache.new(client)
+client.cache = cache
+```
+
+Resolution requests for objects can now be done on the `cache` object instead of
+directly over REST, this ensures that if an object is needed more than once
+there will still only be one request to Discord. (There may even be no request
+at all, if the requested data has already been obtained over the gateway.)
+An example of how to use the cache once it has been instantiated:
+
+```cr
+# Get the username of the user with ID 66237334693085184
+user = cache.resolve_user(66237334693085184_u64)
+user = cache.resolve_user(66237334693085184_u64) # won't do a request to Discord
+puts user.username
+```
+
+Apart from this, API documentation for the lib itself is available too but needs
+to be manually compiled locally. Download the repo and run `crystal doc` in its
+folder, then the `doc` folder will have the documentation to view.
 
 ## Contributing
 
