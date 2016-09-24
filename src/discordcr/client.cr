@@ -5,9 +5,22 @@ require "./rest"
 require "./cache"
 
 module Discord
+  # The basic client class that is used to connect to Discord, send REST
+  # requests, or send or receive gateway messages. It is required for doing any
+  # sort of interaction with Discord.
+  #
+  # A new simple client that does nothing yet can be created like this:
+  # ```
+  # client = Discord::Client.new(token: "Bot token", client_id: 123_u64)
+  # ```
+  #
+  # With this client, REST requests can now be sent. (See the `Discord::REST`
+  # module.) A gateway connection can also be started using the `#run` method.
   class Client
     include REST
 
+    # If this is set to any `Cache`, the data in the cache will be updated as
+    # the client receives the corresponding gateway dispatches.
     property cache : Cache?
 
     @websocket : HTTP::WebSocket
@@ -21,6 +34,31 @@ module Discord
       referring_domain: ""
     )
 
+    # Creates a new bot with the given *token* and *client_id*. Both of these
+    # things can be found on a bot's application page; the token will need to be
+    # revealed using the "click to reveal" thing on the token (**not** the
+    # OAuth2 secret!)
+    #
+    # If the *shard* key is set, the gateway will operate in sharded mode. This
+    # means that this client's gateway connection will only receive packets from
+    # a part of the guilds the bot is connected to. See
+    # [here](https://discordapp.com/developers/docs/topics/gateway#sharding)
+    # for more information.
+    #
+    # The *large_threshold* defines the minimum member count that, if a guild
+    # has at least that many members, the client will only receive online
+    # members in GUILD_CREATE. The default value 100 is what the Discord client
+    # uses; the maximum value is 250. To get a list of offline members as well,
+    # the `#request_guild_members` method can be used.
+    #
+    # If *compress* is true, packets will be sent in a compressed manner.
+    # discordcr doesn't currently handle packet decompression, so until that is
+    # implemented, setting this to true will cause the client to fail to parse
+    # anything.
+    #
+    # The *properties* define what values are sent to Discord as analytics
+    # properties. It's not recommended to change these from the default values,
+    # but if you desire to do so, you can.
     def initialize(@token : String, @client_id : UInt64,
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
@@ -30,6 +68,9 @@ module Discord
       @backoff = 1.0
     end
 
+    # Connects this client to the gateway. This is required if the bot needs to
+    # do anything beyond making REST API calls. Calling this method will block
+    # execution until the bot is forcibly stopped.
     def run
       loop do
         @websocket.run
