@@ -94,22 +94,29 @@ module Discord
       spawn do
         packet = parse_message(message)
 
-        case packet.opcode
-        when OP_HELLO
-          payload = Gateway::HelloPayload.from_json(packet.data)
-          handle_hello(payload.heartbeat_interval)
-        when OP_DISPATCH
-          handle_dispatch(packet.event_type, packet.data)
-        when OP_RECONNECT
-          handle_reconnect
-        when OP_INVALID_SESSION
-          handle_invalid_session
-        when OP_HEARTBEAT
-          # We got a received heartbeat, reply with the same sequence
-          puts "Heartbeat received"
-          @websocket.send({op: 1, d: packet.sequence}.to_json)
-        else
-          puts "Unsupported message: #{message}"
+        begin
+          case packet.opcode
+          when OP_HELLO
+            payload = Gateway::HelloPayload.from_json(packet.data)
+            handle_hello(payload.heartbeat_interval)
+          when OP_DISPATCH
+            handle_dispatch(packet.event_type, packet.data)
+          when OP_RECONNECT
+            handle_reconnect
+          when OP_INVALID_SESSION
+            handle_invalid_session
+          when OP_HEARTBEAT
+            # We got a received heartbeat, reply with the same sequence
+            puts "Heartbeat received"
+            @websocket.send({op: 1, d: packet.sequence}.to_json)
+          else
+            puts "Unsupported message: #{message}"
+          end
+        rescue ex : JSON::ParseException
+          puts "An exception occurred during message parsing!"
+          puts ex.message
+          puts "Raised with packet:"
+          puts message
         end
 
         # Set the sequence to confirm that we have handled this packet, in case
