@@ -406,7 +406,7 @@ module Discord
         puts "Received message with content #{payload.content}"
         call_event message_create, payload
       when "MESSAGE_UPDATE"
-        payload = Message.from_json(data)
+        payload = Gateway::MessageUpdatePayload.from_json(data)
         call_event message_update, payload
       when "MESSAGE_DELETE"
         payload = Gateway::MessageDeletePayload.from_json(data)
@@ -490,7 +490,7 @@ module Discord
     event guild_role_delete, Gateway::GuildRoleDeletePayload
 
     event message_create, Message
-    event message_update, Message
+    event message_update, Gateway::MessageUpdatePayload
     event message_delete, Gateway::MessageDeletePayload
     event message_delete_bulk, Gateway::MessageDeleteBulkPayload
 
