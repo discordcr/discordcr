@@ -113,10 +113,13 @@ module Discord
             puts "Unsupported message: #{message}"
           end
         rescue ex : JSON::ParseException
-          puts "An exception occurred during message parsing!"
-          puts ex.message
+          puts "An exception occurred during message parsing! Please report this."
+          ex.inspect_with_backtrace(STDOUT)
           puts "Raised with packet:"
           puts message
+        rescue ex
+          puts "A miscellaneous exception occurred during message handling."
+          ex.inspect_with_backtrace(STDOUT)
         end
 
         # Set the sequence to confirm that we have handled this packet, in case
@@ -245,7 +248,14 @@ module Discord
 
     # :nodoc:
     macro call_event(name, payload)
-      @on_{{name}}_handlers.try &.each { |handler| handler.call({{payload}}) }
+      @on_{{name}}_handlers.try &.each do |handler|
+        begin
+          handler.call({{payload}})
+        rescue ex
+          puts "An exception occurred in a user-defined event handler!"
+          ex.inspect_with_backtrace(STDOUT)
+        end
+      end
     end
 
     # :nodoc:
