@@ -22,7 +22,7 @@ if ! git diff-index --quiet HEAD; then
 fi
 
 # If there are unstaged changes
-u="$(git ls-files --others)"
+u="$(git ls-files --exclude-standard --others)"
 if ! [ -z "$u" ]; then
     # Error out
     echo "Cannot continue with untracked changes"
