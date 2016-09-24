@@ -169,7 +169,12 @@ module Discord
       spawn do
         loop do
           puts "Sending heartbeat"
-          @websocket.send({op: 1, d: 0}.to_json)
+
+          seq = @session.try &.sequence || 0
+          @websocket.send({op: 1, d: seq}.to_json)
+
+          puts seq
+
           sleep heartbeat_interval.milliseconds
         end
       end
