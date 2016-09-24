@@ -1,3 +1,5 @@
+[![docs](https://img.shields.io/badge/docs-latest-green.svg?style=flat-square)](https://meew0.github.io/discordcr/doc/v0.1.0/)
+
 # discordcr
 
 (The "cr" stands for "creative name".)
@@ -67,9 +69,8 @@ user = cache.resolve_user(66237334693085184_u64) # won't do a request to Discord
 puts user.username
 ```
 
-Apart from this, API documentation for the lib itself is available too but needs
-to be manually compiled locally. Download the repo and run `crystal doc` in its
-folder, then the `doc` folder will have the documentation to view.
+Apart from this, API documentation is also available, at
+https://meew0.github.io/discordcr/doc/v0.1.0/.
 
 ## Contributing
 
