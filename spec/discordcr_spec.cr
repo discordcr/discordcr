@@ -1,3 +1,4 @@
+require "yaml"
 require "./spec_helper"
 
 struct StructWithSnowflake
@@ -19,6 +20,13 @@ struct StructWithSnowflakeArray
 end
 
 describe Discord do
+  describe "VERSION" do
+    it "matches shards.yml" do
+      version = YAML.parse(File.read(File.join(__DIR__, "..", "shard.yml")))["version"].as_s
+      version.should eq(Discord::VERSION)
+    end
+  end
+
   describe Discord::SnowflakeConverter do
     it "converts a string to u64" do
       json = %({"data":"10000000000"})
