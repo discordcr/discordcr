@@ -13,6 +13,15 @@ module Discord
 
     alias RateLimitKey = {route_key: Symbol, major_parameter: UInt64?}
 
+    # Makes a REST request to Discord, with the given *method* to the given
+    # *path*, with the given *headers* set and with the given *body* being sent.
+    # The *route_key* should uniquely identify the route used, for rate limiting
+    # purposes. The *major_parameter* should be set to the guild or channel ID,
+    # if either of those appears as the first parameter in the route.
+    #
+    # This method also does rate limit handling, so if a rate limit is
+    # encountered, it may take longer than usual. (In case you're worried, this
+    # won't block events from being processed.)
     def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
       mutexes = (@mutexes ||= Hash(RateLimitKey, Mutex).new)
       global_mutex = (@global_mutex ||= Mutex.new)
@@ -65,6 +74,9 @@ module Discord
       response.not_nil!
     end
 
+    # Gets the gateway URL to connect to.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/topics/gateway#get-gateway)
     def get_gateway
       response = request(
         :gateway,
@@ -78,6 +90,9 @@ module Discord
       GatewayResponse.from_json(response.body)
     end
 
+    # Gets a channel by ID.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel)
     def get_channel(channel_id : UInt64)
       response = request(
         :channels_cid,
@@ -91,6 +106,10 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    # Modifies a channel with new properties. Requires the "Manage Channel"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#modify-channel)
     def modify_channel(channel_id : UInt64, name : String?, position : UInt32?,
                        topic : String?, bitrate : UInt32?, user_limit : UInt32?)
       json = {
@@ -113,6 +132,9 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    # Deletes a channel by ID. Requires the "Manage Channel" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#deleteclose-channel)
     def delete_channel(channel_id : UInt64)
       response = request(
         :channels_cid,
@@ -124,6 +146,10 @@ module Discord
       )
     end
 
+    # Gets a list of messages from the channel's history. Requires the "Read
+    # Message History" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel-messages)
     def get_channel_messages(channel_id : UInt64, limit : UInt8 = 50, before : UInt64? = nil, after : UInt64? = nil, around : UInt64? = nil)
       path = "/channels/#{channel_id}/messages?limit=#{limit}"
       path += "&before=#{before}" if before
@@ -142,6 +168,10 @@ module Discord
       Array(Message).from_json(response.body)
     end
 
+    # Gets a single message from the channel's history. Requires the "Read
+    # Message History" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel-message)
     def get_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
         :channels_cid_messages_mid,
@@ -155,6 +185,9 @@ module Discord
       Message.from_json(response.body)
     end
 
+    # Sends a message to the channel. Requires the "Send Messages" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
     def create_message(channel_id : UInt64, content : String)
       response = request(
         :channels_cid_messages,
@@ -170,6 +203,10 @@ module Discord
 
     # TODO: Add the upload file endpoint when the multipart PR is merged
 
+    # Edits an existing message on the channel. This only works for messages
+    # sent by the bot itself - you can't edit others' messages.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#edit-message)
     def edit_message(channel_id : UInt64, message_id : UInt64, content : String)
       response = request(
         :channels_cid_messages_mid,
@@ -183,6 +220,11 @@ module Discord
       Message.from_json(response.body)
     end
 
+    # Deletes a message from the channel. Requires the message to either have
+    # been sent by the bot itself or the bot to have the "Manage Messages"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-message)
     def delete_message(channel_id : UInt64, message_id : UInt64)
       response = request(
         :channels_cid_messages_mid,
@@ -194,6 +236,10 @@ module Discord
       )
     end
 
+    # Deletes multiple messages at once from the channel. The maximum amount is
+    # 100 messages, the minimum is 2. Requires the "Manage Messages" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#bulk-delete-messages)
     def bulk_delete_messages(channel_id : UInt64, message_ids : Array(UInt64))
       response = request(
         :channels_cid_messages_bulk_delete,
@@ -205,6 +251,11 @@ module Discord
       )
     end
 
+    # Edits an existing permission overwrite on a channel with new permissions,
+    # or creates a new one. The *overwrite_id* should be either a user or a role
+    # ID. Requires the "Manage Permissions" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions)
     def edit_channel_permissions(channel_id : UInt64, overwrite_id : UInt64,
                                  type : String, allow : UInt64, deny : UInt64)
       json = {
@@ -223,6 +274,10 @@ module Discord
       )
     end
 
+    # Gets a list of invites for this channel. Requires the "Manage Channel"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel-invites)
     def get_channel_invites(channel_id : UInt64)
       response = request(
         :channels_cid_invites,
@@ -236,6 +291,10 @@ module Discord
       Array(InviteMetadata).from_json(response.body)
     end
 
+    # Creates a new invite for the channel. Requires the "Create Instant Invite"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-channel-invite)
     def create_channel_invite(channel_id : UInt64, max_age : UInt32 = 0,
                               max_uses : UInt32 = 0, temporary : Bool = false)
       json = {
@@ -256,6 +315,10 @@ module Discord
       Invite.from_json(response.body)
     end
 
+    # Deletes a permission overwrite from a channel. Requires the "Manage
+    # Permissions" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-channel-permission)
     def delete_channel_permission(channel_id : UInt64, overwrite_id : UInt64)
       response = request(
         :channels_cid_permissions_oid,
@@ -267,6 +330,11 @@ module Discord
       )
     end
 
+    # Causes the bot to appear as typing on the channel. This generally lasts
+    # 10 seconds, but should be refreshed every five seconds. Requires the
+    # "Send Messages" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#trigger-typing-indicator)
     def trigger_typing_indicator(channel_id : UInt64)
       response = request(
         :channels_cid_typing,
@@ -278,6 +346,9 @@ module Discord
       )
     end
 
+    # Get a list of messages pinned to this channel.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-pinned-messages)
     def get_pinned_messages(channel_id : UInt64)
       response = request(
         :channels_cid_pins,
@@ -291,6 +362,10 @@ module Discord
       Array(Message).from_json(response.body)
     end
 
+    # Pins a new message to this channel. Requires the "Manage Messages"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#add-pinned-channel-message)
     def add_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
         :channels_cid_pins_mid,
@@ -302,6 +377,10 @@ module Discord
       )
     end
 
+    # Unpins a message from this channel. Requires the "Manage Messages"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-pinned-channel-message)
     def delete_pinned_channel_message(channel_id : UInt64, message_id : UInt64)
       response = request(
         :channels_cid_pins_mid,
@@ -313,6 +392,9 @@ module Discord
       )
     end
 
+    # Gets a guild by ID.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild)
     def get_guild(guild_id : UInt64)
       response = request(
         :guilds_gid,
@@ -326,6 +408,10 @@ module Discord
       Guild.from_json(response.body)
     end
 
+    # Modifies an existing guild with new properties. Requires the "Manage
+    # Server" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild)
     def modify_guild(guild_id : UInt64, name : String?, region : String?,
                      verification_level : UInt8?, afk_channel_id : UInt64?,
                      afk_timeout : Int32?, icon : String?, owner_id : UInt64?,
@@ -353,6 +439,9 @@ module Discord
       Guild.from_json(response.body)
     end
 
+    # Deletes a guild. Requires the bot to be the server owner.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#delete-guild)
     def delete_guild(guild_id : UInt64)
       response = request(
         :guilds_gid,
@@ -366,6 +455,9 @@ module Discord
       Guild.from_json(response.body)
     end
 
+    # Gets a list of channels in a guild.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-channels)
     def get_guild_channels(guild_id : UInt64)
       response = request(
         :guilds_gid_channels,
@@ -379,6 +471,10 @@ module Discord
       Array(Channel).from_json(response.body)
     end
 
+    # Creates a new channel on this guild. Requires the "Manage Channels"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-channel)
     def create_guild_channel(guild_id : UInt64, name : String, type : UInt8,
                              bitrate : UInt32?, user_limit : UInt32?)
       json = {
@@ -400,6 +496,10 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    # Modifies a guild channel's position. Requires the "Manage Channels"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-channel)
     def modify_guild_channel(guild_id : UInt64, channel_id : UInt64,
                              position : UInt64)
       json = {
@@ -419,6 +519,9 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    # Gets a specific member by both IDs.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-member)
     def get_guild_member(guild_id : UInt64, user_id : UInt64)
       response = request(
         :guilds_gid_members_uid,
@@ -432,6 +535,11 @@ module Discord
       GuildMember.from_json(response.body)
     end
 
+    # Gets multiple guild members at once. The *limit* can be at most 1000.
+    # The resulting list will be sorted by user IDs, use the *after* parameter
+    # to specify what ID to start at.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#list-guild-members)
     def list_guild_members(guild_id : UInt64, limit : UInt8 = 1, after : UInt64 = 0)
       path = "/guilds/#{guild_id}/members?limit=#{limit}&after=#{after}"
 
@@ -447,6 +555,17 @@ module Discord
       Array(GuildMember).from_json(response.body)
     end
 
+    # Changes a specific member's properties. Requires:
+    #
+    #  - the "Manage Roles" permission and the role to change to be lower
+    #    than the bot's highest role if changing the roles,
+    #  - the "Manage Nicknames" permission when changing the nickname,
+    #  - the "Mute Members" permission when changing mute status,
+    #  - the "Deafen Members" permission when changing deaf status,
+    #  - and the "Move Members" permission as well as the "Connect" permission
+    #    to the new channel when changing voice channel ID.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-member)
     def modify_guild_member(guild_id : UInt64, user_id : UInt64, nick : String?,
                             roles : Array(UInt64)?, mute : Bool?, deaf : Bool?,
                             channel_id : UInt64?)
@@ -468,6 +587,9 @@ module Discord
       )
     end
 
+    # Kicks a member from the server. Requires the "Kick Members" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#remove-guild-member)
     def remove_guild_member(guild_id : UInt64, user_id : UInt64)
       response = request(
         :guilds_gid_members_uid,
@@ -479,6 +601,10 @@ module Discord
       )
     end
 
+    # Gets a list of members banned from this server. Requires the "Ban Members"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-bans)
     def get_guild_bans(guild_id : UInt64)
       response = request(
         :guilds_gid_bans,
@@ -492,6 +618,9 @@ module Discord
       Array(User).from_json(response.body)
     end
 
+    # Bans a member from the guild. Requires the "Ban Members" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-ban)
     def create_guild_ban(guild_id : UInt64, user_id : UInt64)
       response = request(
         :guilds_gid_bans_uid,
@@ -503,6 +632,9 @@ module Discord
       )
     end
 
+    # Unbans a member from the guild. Requires the "Ban Members" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#remove-guild-ban)
     def remove_guild_ban(guild_id : UInt64, user_id : UInt64)
       response = request(
         :guilds_gid_bans_uid,
@@ -514,6 +646,9 @@ module Discord
       )
     end
 
+    # Get a list of roles on the guild. Requires the "Manage Roles" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-roles)
     def get_guild_roles(guild_id : UInt64)
       response = request(
         :guilds_gid_roles,
@@ -527,6 +662,9 @@ module Discord
       Array(Role).from_json(response.body)
     end
 
+    # Creates a new role on the guild. Requires the "Manage Roles" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-role)
     def create_guild_role(guild_id : UInt64)
       response = request(
         :get_guild_roles,
@@ -540,6 +678,10 @@ module Discord
       Role.from_json(response.body)
     end
 
+    # Changes a role's properties. Requires the "Manage Roles" permission as
+    # well as the role to be lower than the bot's highest role.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-role)
     def modify_guild_role(guild_id : UInt64, role_id : UInt64, name : String?,
                           permissions : UInt64?, colour : UInt32?,
                           position : Int32?, hoist : Bool?)
@@ -563,6 +705,10 @@ module Discord
       Role.from_json(response.body)
     end
 
+    # Deletes a role. Requires the "Manage Roles" permission as well as the role
+    # to be lower than the bot's highest role.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#delete-guild-role)
     def delete_guild_role(guild_id : UInt64, role_id : UInt64)
       response = request(
         :guilds_gid_roles_rid,
@@ -576,6 +722,10 @@ module Discord
       Role.from_json(response.body)
     end
 
+    # Get a number of members that would be pruned with the given number of
+    # days. Requires the "Kick Members" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-prune-count)
     def get_guild_prune_count(guild_id : UInt64, days : UInt32)
       response = request(
         :guilds_gid_prune,
@@ -589,6 +739,10 @@ module Discord
       PruneCountResponse.new(response.body)
     end
 
+    # Prunes all members from this guild which haven't been seen for more than
+    # *days* days. Requires the "Kick Members" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#begin-guild-prune)
     def begin_guild_prune(guild_id : UInt64, days : UInt32)
       response = request(
         :guilds_gid_prune,
@@ -602,6 +756,10 @@ module Discord
       PruneCountResponse.new(response.body)
     end
 
+    # Gets a list of voice regions available for this guild. This may include
+    # VIP regions for VIP servers.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-voice-regions)
     def get_guild_voice_regions(guild_id : UInt64)
       response = request(
         :guilds_gid_regions,
@@ -615,6 +773,10 @@ module Discord
       Array(VoiceRegion).from_json(response.body)
     end
 
+    # Gets a list of integrations (Twitch, YouTube, etc.) for this guild.
+    # Requires the "Manage Guild" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-integrations)
     def get_guild_integrations(guild_id : UInt64)
       response = request(
         :guilds_gid_integrations,
@@ -628,6 +790,10 @@ module Discord
       Array(Integration).from_json(response.body)
     end
 
+    # Creates a new integration for this guild. Requires the "Manage Guild"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-integration)
     def create_guild_integration(guild_id : UInt64, type : String, id : UInt64)
       json = {
         type: type,
@@ -644,6 +810,10 @@ module Discord
       )
     end
 
+    # Modifies an existing guild integration. Requires the "Manage Guild"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-integration)
     def modify_guild_integration(guild_id : UInt64, integration_id : UInt64,
                                  expire_behaviour : UInt8,
                                  expire_grace_period : Int32,
@@ -664,6 +834,9 @@ module Discord
       )
     end
 
+    # Deletes a guild integration. Requires the "Manage Guild" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#delete-guild-integration)
     def delete_guild_integration(guild_id : UInt64, integration_id : UInt64)
       response = request(
         :guilds_gid_integrations_iid,
@@ -675,6 +848,9 @@ module Discord
       )
     end
 
+    # Syncs an integration. Requires the "Manage Guild" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#sync-guild-integration)
     def sync_guild_integration(guild_id : UInt64, integration_id : UInt64)
       response = request(
         :guilds_gid_integrations_iid_sync,
@@ -686,6 +862,9 @@ module Discord
       )
     end
 
+    # Gets embed data for a guild. Requires the "Manage Guild" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-embed)
     def get_guild_embed(guild_id : UInt64)
       response = request(
         :guilds_gid_embed,
@@ -699,6 +878,9 @@ module Discord
       GuildEmbed.from_json(response.body)
     end
 
+    # Modifies embed data for a guild. Requires the "Manage Guild" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-embed)
     def modify_guild_embed(guild_id : UInt64, enabled : Bool,
                            channel_id : UInt64)
       json = {
@@ -718,6 +900,9 @@ module Discord
       GuildEmbed.from_json(response.body)
     end
 
+    # Gets a specific user by ID.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-user)
     def get_user(user_id : UInt64)
       response = request(
         :users_uid,
@@ -731,6 +916,9 @@ module Discord
       User.from_json(response.body)
     end
 
+    # Queries users by username.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#query-users)
     def query_users(query : String, limit : Int32 = 25)
       response = request(
         :users,
@@ -744,6 +932,9 @@ module Discord
       Array(User).from_json(response.body)
     end
 
+    # Gets the current bot user.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user)
     def get_current_user
       response = request(
         :users_me,
@@ -757,6 +948,9 @@ module Discord
       User.from_json(response.body)
     end
 
+    # Modifies the current bot user, changing the username and avatar.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#modify-current-user)
     def modify_current_user(username : String, avatar : String)
       json = {
         username: username,
@@ -775,6 +969,9 @@ module Discord
       User.from_json(response.body)
     end
 
+    # Gets a list of user guilds the current user is on.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
     def get_current_user_guilds
       response = request(
         :users_me_guilds,
@@ -788,6 +985,9 @@ module Discord
       Array(UserGuild).from_json(response.body)
     end
 
+    # Makes the bot leave a guild.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#leave-guild)
     def leave_guild(guild_id : UInt64)
       response = request(
         :users_me_guilds_gid,
@@ -799,6 +999,9 @@ module Discord
       )
     end
 
+    # Gets a list of DM channels the bot has access to.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-user-dms)
     def get_user_dms
       response = request(
         :users_me_channels,
@@ -812,6 +1015,10 @@ module Discord
       Array(PrivateChannel).from_json(response.body)
     end
 
+    # Creates a new DM channel with a given recipient. If there was already one
+    # before, it will be reopened.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#create-dm)
     def create_dm(recipient_id : UInt64)
       response = request(
         :users_me_channels,
@@ -825,6 +1032,9 @@ module Discord
       PrivateChannel.from_json(response.body)
     end
 
+    # Gets a list of connections the user has set up (Twitch, YouTube, etc.)
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-users-connections)
     def get_users_connections
       response = request(
         :users_me_connections,
@@ -838,6 +1048,9 @@ module Discord
       Array(Connection).from_json(response.body)
     end
 
+    # Gets a specific invite by its code.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/invite#get-invite)
     def get_invite(code : String)
       response = request(
         :invites_code,
@@ -851,6 +1064,11 @@ module Discord
       Invite.from_json(response.body)
     end
 
+    # Deletes (revokes) an invite. Requires the "Manage Channel" permission for
+    # the channel the invite is for, or the "Manage Server" permission for the
+    # server.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/invite#delete-invite)
     def delete_invite(code : String)
       response = request(
         :invites_code,
@@ -864,6 +1082,9 @@ module Discord
       Invite.from_json(response.body)
     end
 
+    # Makes the user accept an invite. Will not work for bots.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/invite#accept-invite)
     def accept_invite(code : String)
       response = request(
         :invites_code,
@@ -877,6 +1098,9 @@ module Discord
       Invite.from_json(response.body)
     end
 
+    # Gets a list of voice regions newly created servers have access to.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/voice#list-voice-regions)
     def list_voice_regions
       response = request(
         :voice_regions,
