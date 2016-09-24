@@ -267,6 +267,24 @@ module Discord
       )
     end
 
+    struct MessageUpdatePayload
+      JSON.mapping(
+        type: {type: UInt8, nilable: true},
+        content: {type: String, nilable: true},
+        id: {type: UInt64, converter: SnowflakeConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter},
+        author: {type: User, nilable: true},
+        timestamp: {type: Time, nilable: true, converter: Time::Format::ISO_8601_DATE},
+        tts: {type: Bool, nilable: true},
+        mention_everyone: {type: Bool, nilable: true},
+        mentions: {type: Array(User), nilable: true},
+        mention_roles: {type: Array(UInt64), nilable: true, converter: SnowflakeArrayConverter},
+        attachments: {type: Array(Attachment), nilable: true},
+        embeds: {type: Array(Embed), nilable: true},
+        pinned: {type: Bool, nilable: true}
+      )
+    end
+
     struct MessageDeletePayload
       JSON.mapping(
         id: {type: UInt64, converter: SnowflakeConverter},

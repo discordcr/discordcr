@@ -4,7 +4,7 @@ module Discord
   struct VoiceState
     JSON.mapping(
       guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      channel_id: {type: UInt64, converter: SnowflakeConverter},
+      channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       user_id: {type: UInt64, converter: SnowflakeConverter},
       session_id: String,
       deaf: Bool,

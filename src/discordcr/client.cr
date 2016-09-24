@@ -94,22 +94,32 @@ module Discord
       spawn do
         packet = parse_message(message)
 
-        case packet.opcode
-        when OP_HELLO
-          payload = Gateway::HelloPayload.from_json(packet.data)
-          handle_hello(payload.heartbeat_interval)
-        when OP_DISPATCH
-          handle_dispatch(packet.event_type, packet.data)
-        when OP_RECONNECT
-          handle_reconnect
-        when OP_INVALID_SESSION
-          handle_invalid_session
-        when OP_HEARTBEAT
-          # We got a received heartbeat, reply with the same sequence
-          puts "Heartbeat received"
-          @websocket.send({op: 1, d: packet.sequence}.to_json)
-        else
-          puts "Unsupported message: #{message}"
+        begin
+          case packet.opcode
+          when OP_HELLO
+            payload = Gateway::HelloPayload.from_json(packet.data)
+            handle_hello(payload.heartbeat_interval)
+          when OP_DISPATCH
+            handle_dispatch(packet.event_type, packet.data)
+          when OP_RECONNECT
+            handle_reconnect
+          when OP_INVALID_SESSION
+            handle_invalid_session
+          when OP_HEARTBEAT
+            # We got a received heartbeat, reply with the same sequence
+            puts "Heartbeat received"
+            @websocket.send({op: 1, d: packet.sequence}.to_json)
+          else
+            puts "Unsupported message: #{message}"
+          end
+        rescue ex : JSON::ParseException
+          puts "An exception occurred during message parsing! Please report this."
+          ex.inspect_with_backtrace(STDOUT)
+          puts "Raised with packet:"
+          puts message
+        rescue ex
+          puts "A miscellaneous exception occurred during message handling."
+          ex.inspect_with_backtrace(STDOUT)
         end
 
         # Set the sequence to confirm that we have handled this packet, in case
@@ -238,7 +248,14 @@ module Discord
 
     # :nodoc:
     macro call_event(name, payload)
-      @on_{{name}}_handlers.try &.each { |handler| handler.call({{payload}}) }
+      @on_{{name}}_handlers.try &.each do |handler|
+        begin
+          handler.call({{payload}})
+        rescue ex
+          puts "An exception occurred in a user-defined event handler!"
+          ex.inspect_with_backtrace(STDOUT)
+        end
+      end
     end
 
     # :nodoc:
@@ -399,7 +416,7 @@ module Discord
         puts "Received message with content #{payload.content}"
         call_event message_create, payload
       when "MESSAGE_UPDATE"
-        payload = Message.from_json(data)
+        payload = Gateway::MessageUpdatePayload.from_json(data)
         call_event message_update, payload
       when "MESSAGE_DELETE"
         payload = Gateway::MessageDeletePayload.from_json(data)
@@ -483,7 +500,7 @@ module Discord
     event guild_role_delete, Gateway::GuildRoleDeletePayload
 
     event message_create, Message
-    event message_update, Message
+    event message_update, Gateway::MessageUpdatePayload
     event message_delete, Gateway::MessageDeletePayload
     event message_delete_bulk, Gateway::MessageDeleteBulkPayload
 
