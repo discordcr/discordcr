@@ -8,3 +8,5 @@
 # Dependencies will be locked in application that uses them
 /shard.lock
 
+
+deploy_key
