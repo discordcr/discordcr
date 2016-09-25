@@ -37,8 +37,8 @@ module Discord
 
         # Make sure to catch up with existing mutexes - they may be locked from
         # another fiber.
-        mutexes[rate_limit_key].synchronize {}
-        global_mutex.synchronize {}
+        mutexes[rate_limit_key].synchronize { }
+        global_mutex.synchronize { }
 
         response = HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
 

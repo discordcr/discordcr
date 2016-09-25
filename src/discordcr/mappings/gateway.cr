@@ -38,11 +38,11 @@ module Discord
       end
 
       JSON.mapping({
-        token: String,
-        properties: IdentifyProperties,
-        compress: Bool,
+        token:           String,
+        properties:      IdentifyProperties,
+        compress:        Bool,
         large_threshold: Int32,
-        shard: {type: {Int32, Int32}, nilable: true}
+        shard:           {type: {Int32, Int32}, nilable: true},
       })
     end
 

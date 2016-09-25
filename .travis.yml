@@ -1,1 +1,9 @@
 language: crystal
+script:
+  - crystal spec
+  - crystal tool format --check
+  - bash ./deploy.sh
+env:
+  global:
+  - ENCRYPTION_LABEL: "65183d8b3ae9"
+  - COMMIT_AUTHOR_EMAIL: "blactbt@live.de"
