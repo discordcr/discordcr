@@ -30,16 +30,16 @@ cd out
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
 
-mkdir -p out/$SOURCE_BRANCH
+mkdir -p out/doc/$SOURCE_BRANCH
 
 # Clean out existing contents
-rm -rf out/$SOURCE_BRANCH/**/* || exit 0
+rm -rf out/doc/$SOURCE_BRANCH/**/* || exit 0
 
 # Run our compile script
 doCompile
 
 # Move results
-mv doc/* out/$SOURCE_BRANCH/
+mv doc/* out/doc/$SOURCE_BRANCH/
 
 # Now let's go have some fun with the cloned repo
 cd out
