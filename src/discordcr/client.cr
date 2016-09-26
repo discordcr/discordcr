@@ -73,7 +73,12 @@ module Discord
     # execution until the bot is forcibly stopped.
     def run
       loop do
-        @websocket.run
+        begin
+          @websocket.run
+        rescue ex
+          puts "Received exception from WebSocket#run:"
+          ex.inspect_with_backtrace(STDOUT)
+        end
 
         wait_for_reconnect
 
