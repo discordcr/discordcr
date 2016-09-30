@@ -84,7 +84,7 @@ module Discord
   struct EmbedProvider
     JSON.mapping(
       name: String,
-      url: String
+      url: {type: String, nilable: true}
     )
   end
 
