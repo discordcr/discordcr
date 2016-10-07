@@ -77,13 +77,13 @@ module Discord
         begin
           @websocket.run
         rescue ex
-          puts "Received exception from WebSocket#run:"
-          ex.inspect_with_backtrace(STDOUT)
+          LOGGER.error "Received exception from WebSocket#run:"
+          LOGGER.error ex
         end
 
         wait_for_reconnect
 
-        puts "Reconnecting"
+        LOGGER.info "Reconnecting"
         @websocket = initialize_websocket
       end
     end
@@ -92,7 +92,7 @@ module Discord
     # unexpected way
     def wait_for_reconnect
       # Wait before reconnecting so we don't spam Discord's servers.
-      puts "Attempting to reconnect in #{@backoff} seconds."
+      LOGGER.debug "Attempting to reconnect in #{@backoff} seconds."
       sleep @backoff.seconds
 
       # Calculate new backoff
@@ -118,7 +118,7 @@ module Discord
 
     private def on_close(message : String)
       # TODO: make more sophisticated
-      puts "Closed with: " + message
+      LOGGER.warn "Closed with: " + message
 
       @session.try &.suspend
       nil
@@ -154,19 +154,19 @@ module Discord
             handle_invalid_session
           when OP_HEARTBEAT
             # We got a received heartbeat, reply with the same sequence
-            puts "Heartbeat received"
+            LOGGER.debug "Heartbeat received"
             @websocket.send({op: 1, d: packet.sequence}.to_json)
           else
-            puts "Unsupported message: #{message}"
+            LOGGER.warn "Unsupported message: #{message}"
           end
         rescue ex : JSON::ParseException
-          puts "An exception occurred during message parsing! Please report this."
-          ex.inspect_with_backtrace(STDOUT)
-          puts "Raised with packet:"
-          puts message
+          LOGGER.error "An exception occurred during message parsing! Please report this."
+          LOGGER.error ex
+          LOGGER.error "(pertaining to previous exception) Raised with packet:"
+          LOGGER.error message
         rescue ex
-          puts "A miscellaneous exception occurred during message handling."
-          ex.inspect_with_backtrace(STDOUT)
+          LOGGER.error "A miscellaneous exception occurred during message handling."
+          LOGGER.error ex
         end
 
         # Set the sequence to confirm that we have handled this packet, in case
@@ -229,7 +229,7 @@ module Discord
     private def setup_heartbeats(heartbeat_interval)
       spawn do
         loop do
-          puts "Sending heartbeat"
+          LOGGER.debug "Sending heartbeat"
 
           seq = @session.try &.sequence || 0
           @websocket.send({op: 1, d: seq}.to_json)
@@ -299,8 +299,8 @@ module Discord
         begin
           handler.call({{payload}})
         rescue ex
-          puts "An exception occurred in a user-defined event handler!"
-          ex.inspect_with_backtrace(STDOUT)
+          LOGGER.error "An exception occurred in a user-defined event handler!"
+          LOGGER.error ex
         end
       end
     end
@@ -332,7 +332,7 @@ module Discord
           end
         end
 
-        puts "Received READY, v: #{payload.v}"
+        LOGGER.info "Received READY, v: #{payload.v}"
         call_event ready, payload
       when "RESUMED"
         payload = Gateway::ResumedPayload.from_json(data)
@@ -460,7 +460,7 @@ module Discord
         call_event guild_role_delete, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
-        puts "Received message with content #{payload.content}"
+        LOGGER.debug "Received message with content #{payload.content}"
         call_event message_create, payload
       when "MESSAGE_UPDATE"
         payload = Gateway::MessageUpdatePayload.from_json(data)
@@ -493,7 +493,7 @@ module Discord
         payload = Gateway::VoiceServerUpdatePayload.from_json(data)
         call_event voice_server_update, payload
       else
-        puts "Unsupported dispatch: #{type} #{data}"
+        LOGGER.warn "Unsupported dispatch: #{type} #{data}"
       end
     end
 
