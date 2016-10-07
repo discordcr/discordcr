@@ -1,6 +1,7 @@
 require "http/web_socket"
 require "json"
 
+require "./logger"
 require "./rest"
 require "./cache"
 
