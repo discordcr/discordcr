@@ -77,10 +77,10 @@ module Discord
         begin
           @websocket.run
         rescue ex
-          LOGGER.error String.build do |str|
+          LOGGER.error(String.build do |str|
             str.puts "Received exception from WebSocket#run:"
             str.puts ex
-          end
+          end)
         end
 
         wait_for_reconnect
@@ -162,16 +162,17 @@ module Discord
             LOGGER.warn "Unsupported message: #{message}"
           end
         rescue ex : JSON::ParseException
-          LOGGER.error String.build do |str|
+          LOGGER.error(String.build do |str|
             str.puts "An exception occurred during message parsing! Please report this."
             str.puts ex
             str.puts "(pertaining to previous exception) Raised with packet:"
             str.puts message
+          end)
         rescue ex
-          LOGGER.error String.build do |str|
+          LOGGER.error(String.build do |str|
             str.puts "A miscellaneous exception occurred during message handling."
             str.puts ex
-          end
+          end)
         end
 
         # Set the sequence to confirm that we have handled this packet, in case
@@ -304,10 +305,10 @@ module Discord
         begin
           handler.call({{payload}})
         rescue ex
-          LOGGER.error String.build do |str|
+          LOGGER.error(String.build do |str|
             str.puts "An exception occurred in a user-defined event handler!"
             str.puts ex
-          end
+          end)
         end
       end
     end
