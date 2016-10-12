@@ -9,10 +9,10 @@ client = Discord::Client.new(token: "Bot MjI5NDU5NjgxOTU1NjUyMzM3.Cpnz31.GQ7K9xw
 
 # this event is fired each time a new message is sent to the a text channel to any guild that the bot is connected to. 
 client.on_message_create do |payload|
-    prefix = "!"
-    if payload.content.starts_with? prefix + "help"
-        client.create_message(client.create_dm(payload.author.id).id, "Help is on the way!")
-    end
+  prefix = "!"
+  if payload.content.starts_with? prefix + "help"
+    client.create_message(client.create_dm(payload.author.id).id, "Help is on the way!")
+  end
 end
 
 client.run
