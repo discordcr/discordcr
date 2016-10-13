@@ -247,7 +247,7 @@ module Discord
         "POST",
         "/channels/#{channel_id}/messages/bulk_delete",
         HTTP::Headers{"Content-Type" => "application/json"},
-        message_ids.to_json
+        {messages: message_ids}.to_json
       )
     end
 
