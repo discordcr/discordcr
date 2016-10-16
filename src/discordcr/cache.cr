@@ -23,9 +23,8 @@ module Discord
   # uses a gateway connection) to reduce cache misses even more by automatically
   # caching data received over the gateway:
   # ```
-  # client = Discord::Client.new(token: "Bot token", client_id: 123_u64)
-  # cache = Discord::Cache.new(client)
-  # client.cache = cache # Integrate the cache into the client
+  # client = Discord::Client.new(token: "Bot token", client_id: 123_u64, cache: true)
+  # client.cache # => Cache object
   # ```
   #
   # Note that if a cache is *not* used this way, its data will slowly go out of

@@ -51,9 +51,7 @@ Caching is done using a separate `Cache` class that needs to be added into
 clients manually:
 
 ```cr
-client = Discord::Client.new # ...
-cache = Discord::Cache.new(client)
-client.cache = cache
+client = Discord::Client.new(token: ..., client_id: ..., cache: true)
 ```
 
 Resolution requests for objects can now be done on the `cache` object instead of
@@ -64,8 +62,8 @@ An example of how to use the cache once it has been instantiated:
 
 ```cr
 # Get the username of the user with ID 66237334693085184
-user = cache.resolve_user(66237334693085184_u64)
-user = cache.resolve_user(66237334693085184_u64) # won't do a request to Discord
+user = client.cache.resolve_user(66237334693085184_u64)
+user = client.cache.resolve_user(66237334693085184_u64) # won't do a request to Discord
 puts user.username
 ```
 

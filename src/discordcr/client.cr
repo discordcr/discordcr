@@ -22,7 +22,7 @@ module Discord
 
     # If this is set to any `Cache`, the data in the cache will be updated as
     # the client receives the corresponding gateway dispatches.
-    property cache : Cache?
+    property! cache : Cache?
 
     @websocket : HTTP::WebSocket
 
@@ -39,6 +39,10 @@ module Discord
     # things can be found on a bot's application page; the token will need to be
     # revealed using the "click to reveal" thing on the token (**not** the
     # OAuth2 secret!)
+    #
+    # If *cache* is set to true, a `Cache` object is initialized and becomes
+    # available on `.cache`. The cache will cache gateway objects as they are
+    # recieved. See the docs for `Cache` for more information.
     #
     # If the *shard* key is set, the gateway will operate in sharded mode. This
     # means that this client's gateway connection will only receive packets from
@@ -60,13 +64,15 @@ module Discord
     # The *properties* define what values are sent to Discord as analytics
     # properties. It's not recommended to change these from the default values,
     # but if you desire to do so, you can.
-    def initialize(@token : String, @client_id : UInt64,
+    def initialize(@token : String, @client_id : UInt64, *,
+                   cache : Bool = false,
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
                    @compress : Bool = false,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES)
       @websocket = initialize_websocket
       @backoff = 1.0
+      @cache = Cache.new(self) if cache
     end
 
     # Connects this client to the gateway. This is required if the bot needs to
