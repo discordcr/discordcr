@@ -224,7 +224,7 @@ module Discord
         user: User,
         nick: {type: String, nilable: true},
         roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
-        joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
+        joined_at: {type: Time?, converter: DATE_FORMAT},
         deaf: Bool,
         mute: Bool,
         guild_id: {type: UInt64, converter: SnowflakeConverter}
@@ -274,7 +274,7 @@ module Discord
         id: {type: UInt64, converter: SnowflakeConverter},
         channel_id: {type: UInt64, converter: SnowflakeConverter},
         author: {type: User, nilable: true},
-        timestamp: {type: Time, nilable: true, converter: Time::Format::ISO_8601_DATE},
+        timestamp: {type: Time, nilable: true, converter: DATE_FORMAT},
         tts: {type: Bool, nilable: true},
         mention_everyone: {type: Bool, nilable: true},
         mentions: {type: Array(User), nilable: true},
