@@ -2,6 +2,8 @@ require "json"
 require "time/format"
 
 module Discord
+  DATE_FORMAT = Time::Format.new("%FT%T.%L%:z")
+
   # :nodoc:
   module SnowflakeConverter
     def self.from_json(parser : JSON::PullParser) : UInt64
