@@ -13,16 +13,8 @@ module Discord
 
     alias RateLimitKey = {route_key: Symbol, major_parameter: UInt64?}
 
-    # Makes a REST request to Discord, with the given *method* to the given
-    # *path*, with the given *headers* set and with the given *body* being sent.
-    # The *route_key* should uniquely identify the route used, for rate limiting
-    # purposes. The *major_parameter* should be set to the guild or channel ID,
-    # if either of those appears as the first parameter in the route.
-    #
-    # This method also does rate limit handling, so if a rate limit is
-    # encountered, it may take longer than usual. (In case you're worried, this
-    # won't block events from being processed.)
-    def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
+    # Like `#request`, but does not do error checking beyond 429.
+    def raw_request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
       mutexes = (@mutexes ||= Hash(RateLimitKey, Mutex).new)
       global_mutex = (@global_mutex ||= Mutex.new)
 
@@ -72,6 +64,21 @@ module Discord
       end
 
       response.not_nil!
+    end
+
+    # Makes a REST request to Discord, with the given *method* to the given
+    # *path*, with the given *headers* set and with the given *body* being sent.
+    # The *route_key* should uniquely identify the route used, for rate limiting
+    # purposes. The *major_parameter* should be set to the guild or channel ID,
+    # if either of those appears as the first parameter in the route.
+    #
+    # This method also does rate limit handling, so if a rate limit is
+    # encountered, it may take longer than usual. (In case you're worried, this
+    # won't block events from being processed.) It also performs other kinds
+    # of error checking, so if a request fails (with a status code that is not
+    # 429) you will be notified of that.
+    def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
+      raw_request(route_key, major_parameter, method, path, headers, body)
     end
 
     # Gets the gateway URL to connect to.
