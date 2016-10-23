@@ -81,7 +81,16 @@ module Discord
     def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
       response = raw_request(route_key, major_parameter, method, path, headers, body)
 
-      raise StatusException.new(response) unless response.success?
+      unless response.success?
+        raise StatusException.new(response) unless response.content_type == "application/json"
+
+        begin
+          error = APIError.from_json(response.body)
+        rescue
+          raise StatusException.new(response)
+        end
+        raise CodeException.new(response, error)
+      end
 
       response
     end
