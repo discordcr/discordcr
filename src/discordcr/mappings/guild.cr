@@ -117,6 +117,7 @@ module Discord
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       name: String,
+      permissions: Permissions,
       colour: {type: UInt32, key: "color"},
       hoist: Bool,
       position: Int32,

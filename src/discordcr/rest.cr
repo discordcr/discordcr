@@ -257,7 +257,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions)
     def edit_channel_permissions(channel_id : UInt64, overwrite_id : UInt64,
-                                 type : String, allow : UInt64, deny : UInt64)
+                                 type : String, allow : Permissions, deny : Permissions)
       json = {
         allow: allow,
         deny:  deny,
@@ -683,7 +683,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-role)
     def modify_guild_role(guild_id : UInt64, role_id : UInt64, name : String?,
-                          permissions : UInt64?, colour : UInt32?,
+                          permissions : Permissions, colour : UInt32?,
                           position : Int32?, hoist : Bool?)
       json = {
         name:        name,
