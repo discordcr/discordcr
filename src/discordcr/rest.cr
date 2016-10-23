@@ -4,6 +4,7 @@ require "time/format"
 
 require "./mappings/*"
 require "./version"
+require "./errors"
 
 module Discord
   module REST
@@ -78,7 +79,11 @@ module Discord
     # of error checking, so if a request fails (with a status code that is not
     # 429) you will be notified of that.
     def request(route_key : Symbol, major_parameter : UInt64?, method : String, path : String, headers : HTTP::Headers, body : String?)
-      raw_request(route_key, major_parameter, method, path, headers, body)
+      response = raw_request(route_key, major_parameter, method, path, headers, body)
+
+      raise StatusException.new(response) unless response.success?
+
+      response
     end
 
     # Gets the gateway URL to connect to.
