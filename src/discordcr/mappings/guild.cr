@@ -131,7 +131,7 @@ module Discord
 
     JSON.mapping(
       name: {type: String, nilable: true},
-      type: {type: UInt8, nilable: true},
+      type: {type: Int64 | String, nilable: true},
       url: {type: String, nilable: true}
     )
   end
