@@ -56,8 +56,8 @@ module Discord
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       type: String,
-      allow: UInt64,
-      deny: UInt64
+      allow: Permissions,
+      deny: Permissions
     )
   end
 

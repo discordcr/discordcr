@@ -43,7 +43,7 @@ module Discord
       name: String,
       icon: String,
       owner: Bool,
-      permissions: UInt64
+      permissions: Permissions
     )
   end
 
