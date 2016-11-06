@@ -36,9 +36,11 @@ module Discord
       features: Array(String)
     )
 
-    def emojis
-      emoji
-    end
+    {% unless flag?(:correct_english) %}
+      def emojis
+        emoji
+      end
+    {% end %}
   end
 
   struct UnavailableGuild
@@ -99,9 +101,11 @@ module Discord
       synced_at: {type: Time, converter: Time::EpochConverter}
     )
 
-    def expire_behavior
-      expire_behaviour
-    end
+    {% unless flag?(:correct_english) %}
+      def expire_behavior
+        expire_behaviour
+      end
+    {% end %}
   end
 
   struct IntegrationAccount
@@ -133,9 +137,11 @@ module Discord
       mentionable: Bool
     )
 
-    def color
-      colour
-    end
+    {% unless flag?(:correct_english) %}
+      def color
+        colour
+      end
+    {% end %}
   end
 
   struct GamePlaying

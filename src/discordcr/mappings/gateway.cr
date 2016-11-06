@@ -187,9 +187,11 @@ module Discord
         presences: Array(Presence)
       )
 
-      def emojis
-        emoji
-      end
+      {% unless flag?(:correct_english) %}
+        def emojis
+          emoji
+        end
+      {% end %}
     end
 
     struct GuildDeletePayload
@@ -216,9 +218,11 @@ module Discord
         emoji: {type: Array(Emoji), key: "emojis"}
       )
 
-      def emojis
-        emoji
-      end
+      {% unless flag?(:correct_english) %}
+        def emojis
+          emoji
+        end
+      {% end %}
     end
 
     struct GuildIntegrationsUpdatePayload
