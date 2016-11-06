@@ -35,6 +35,10 @@ module Discord
       emoji: {type: Array(Emoji), key: "emojis"},
       features: Array(String)
     )
+
+    def emojis
+      emoji
+    end
   end
 
   struct UnavailableGuild
@@ -94,6 +98,10 @@ module Discord
       account: IntegrationAccount,
       synced_at: {type: Time, converter: Time::EpochConverter}
     )
+
+    def expire_behavior
+      expire_behaviour
+    end
   end
 
   struct IntegrationAccount
@@ -124,6 +132,10 @@ module Discord
       managed: Bool,
       mentionable: Bool
     )
+
+    def color
+      colour
+    end
   end
 
   struct GamePlaying

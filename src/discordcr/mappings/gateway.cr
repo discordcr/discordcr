@@ -186,6 +186,10 @@ module Discord
         channels: Array(Channel),
         presences: Array(Presence)
       )
+
+      def emojis
+        emoji
+      end
     end
 
     struct GuildDeletePayload
@@ -211,6 +215,10 @@ module Discord
         guild_id: {type: UInt64, converter: SnowflakeConverter},
         emoji: {type: Array(Emoji), key: "emojis"}
       )
+
+      def emojis
+        emoji
+      end
     end
 
     struct GuildIntegrationsUpdatePayload
