@@ -7,6 +7,7 @@ module Discord
     Administrator       = 1 << 3
     ManageChannels      = 1 << 4
     ManageGuild         = 1 << 5
+    AddReactions        = 1 << 6
     ReadMessages        = 1 << 10
     SendMessages        = 1 << 11
     SendTTSMessages     = 1 << 12
