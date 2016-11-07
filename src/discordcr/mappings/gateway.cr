@@ -186,6 +186,12 @@ module Discord
         channels: Array(Channel),
         presences: Array(Presence)
       )
+
+      {% unless flag?(:correct_english) %}
+        def emojis
+          emoji
+        end
+      {% end %}
     end
 
     struct GuildDeletePayload
@@ -211,6 +217,12 @@ module Discord
         guild_id: {type: UInt64, converter: SnowflakeConverter},
         emoji: {type: Array(Emoji), key: "emojis"}
       )
+
+      {% unless flag?(:correct_english) %}
+        def emojis
+          emoji
+        end
+      {% end %}
     end
 
     struct GuildIntegrationsUpdatePayload
