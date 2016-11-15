@@ -62,6 +62,13 @@ module Discord
   end
 
   struct Embed
+    def initialize(@title : String? = nil, @type : String = "rich",
+                   @description : String? = nil, @url : String? = nil,
+                   @timestamp : Time? = nil, @colour : UInt32? = nil,
+                   @footer : EmbedFooter? = nil, @image : EmbedImage = nil,
+                   @author : EmbedAuthor? = nil, @fields : Array(EmbedField)? = nil)
+    end
+
     JSON.mapping(
       title: {type: String, nilable: true},
       type: String,
@@ -86,11 +93,14 @@ module Discord
   end
 
   struct EmbedThumbnail
+    def initialize(@url : String)
+    end
+
     JSON.mapping(
       url: String,
-      proxy_url: String,
-      height: UInt32,
-      width: UInt32
+      proxy_url: String?,
+      height: UInt32?,
+      width: UInt32?
     )
   end
 
@@ -103,11 +113,14 @@ module Discord
   end
 
   struct EmbedImage
+    def initialize(@url : String)
+    end
+
     JSON.mapping(
       url: String,
-      proxy_url: String,
-      height: UInt32,
-      width: UInt32
+      proxy_url: String?,
+      height: UInt32?,
+      width: UInt32?
     )
   end
 
@@ -119,23 +132,32 @@ module Discord
   end
 
   struct EmbedAuthor
+    def initialize(@name : String? = nil, @url : String? = nil, @icon_url : String? = nil)
+    end
+
     JSON.mapping(
-      name: String,
-      url: String,
-      icon_url: String,
-      proxy_icon_url: String
+      name: String?,
+      url: String?,
+      icon_url: String?,
+      proxy_icon_url: String?
     )
   end
 
   struct EmbedFooter
+    def initialize(@text : String? = nil, @icon_url : String? = nil)
+    end
+
     JSON.mapping(
-      text: String,
-      icon_url: String,
-      proxy_icon_url: String
+      text: String?,
+      icon_url: String?,
+      proxy_icon_url: String?
     )
   end
 
   struct EmbedField
+    def initialize(@name : String, @value : String, @inline : Bool = false)
+    end
+
     JSON.mapping(
       name: String,
       value: String,
