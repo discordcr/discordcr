@@ -66,13 +66,43 @@ module Discord
       title: {type: String, nilable: true},
       type: String,
       description: {type: String, nilable: true},
-      url: String,
+      url: String?,
+      timestamp: {type: Time, converter: EmbedTimestampConverter, nilable: true},
+      colour: {type: UInt32, key: "color", nilable: true},
+      footer: {type: EmbedFooter, nilable: true},
+      image: {type: EmbedImage, nilable: true},
       thumbnail: {type: EmbedThumbnail, nilable: true},
-      provider: {type: EmbedProvider, nilable: true}
+      video: {type: EmbedVideo, nilable: true},
+      provider: {type: EmbedProvider, nilable: true},
+      author: {type: EmbedAuthor, nilable: true},
+      fields: {type: Array(EmbedField), nilable: true}
     )
+
+    {% unless flag?(:correct_english) %}
+      def color
+        colour
+      end
+    {% end %}
   end
 
   struct EmbedThumbnail
+    JSON.mapping(
+      url: String,
+      proxy_url: String,
+      height: UInt32,
+      width: UInt32
+    )
+  end
+
+  struct EmbedVideo
+    JSON.mapping(
+      url: String,
+      height: UInt32,
+      width: UInt32
+    )
+  end
+
+  struct EmbedImage
     JSON.mapping(
       url: String,
       proxy_url: String,
@@ -85,6 +115,31 @@ module Discord
     JSON.mapping(
       name: String,
       url: {type: String, nilable: true}
+    )
+  end
+
+  struct EmbedAuthor
+    JSON.mapping(
+      name: String,
+      url: String,
+      icon_url: String,
+      proxy_icon_url: String
+    )
+  end
+
+  struct EmbedFooter
+    JSON.mapping(
+      text: String,
+      icon_url: String,
+      proxy_icon_url: String
+    )
+  end
+
+  struct EmbedField
+    JSON.mapping(
+      name: String,
+      value: String,
+      inline: Bool
     )
   end
 
