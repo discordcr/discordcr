@@ -209,14 +209,41 @@ module Discord
     # Sends a message to the channel. Requires the "Send Messages" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
-    def create_message(channel_id : UInt64, content : String)
+    #
+    # The `embed` parameter can be used to append a rich embed to the message
+    # which allows for displaying certain kinds of data in a more structured
+    # way. An example:
+    #
+    # ```
+    # embed = Discord::Embed.new(
+    #   title: "Title of Embed",
+    #   description: "Description of embed. This can be a long text. Neque porro quisquam est, qui dolorem ipsum, quia dolor sit, amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt, ut labore et dolore magnam aliquam quaerat voluptatem.",
+    #   timestamp: Time.now,
+    #   url: "https://example.com",
+    #   image: Discord::EmbedImage.new(
+    #     url: "https://example.com/image.png",
+    #   ),
+    #   fields: [
+    #     Discord::EmbedField.new(
+    #       name: "Name of Field",
+    #       value: "Value of Field",
+    #     ),
+    #   ],
+    # )
+    #
+    # client.create_message(channel_id, "The content of the message. This will display separately above the embed. This string can be empty.", embed)
+    # ```
+    #
+    # For more details on the format of the `embed` object, look at the
+    # [relevant documentation](https://discordapp.com/developers/docs/resources/channel#embed-object).
+    def create_message(channel_id : UInt64, content : String, embed : Embed? = nil)
       response = request(
         :channels_cid_messages,
         channel_id,
         "POST",
         "/channels/#{channel_id}/messages",
         HTTP::Headers{"Content-Type" => "application/json"},
-        {content: content}.to_json
+        {content: content, embed: embed}.to_json
       )
 
       Message.from_json(response.body)

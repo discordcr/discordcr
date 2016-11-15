@@ -62,22 +62,65 @@ module Discord
   end
 
   struct Embed
+    def initialize(@title : String? = nil, @type : String = "rich",
+                   @description : String? = nil, @url : String? = nil,
+                   @timestamp : Time? = nil, @colour : UInt32? = nil,
+                   @footer : EmbedFooter? = nil, @image : EmbedImage = nil,
+                   @author : EmbedAuthor? = nil, @fields : Array(EmbedField)? = nil)
+    end
+
     JSON.mapping(
       title: {type: String, nilable: true},
       type: String,
       description: {type: String, nilable: true},
-      url: String,
+      url: String?,
+      timestamp: {type: Time, converter: EmbedTimestampConverter, nilable: true},
+      colour: {type: UInt32, key: "color", nilable: true},
+      footer: {type: EmbedFooter, nilable: true},
+      image: {type: EmbedImage, nilable: true},
       thumbnail: {type: EmbedThumbnail, nilable: true},
-      provider: {type: EmbedProvider, nilable: true}
+      video: {type: EmbedVideo, nilable: true},
+      provider: {type: EmbedProvider, nilable: true},
+      author: {type: EmbedAuthor, nilable: true},
+      fields: {type: Array(EmbedField), nilable: true}
     )
+
+    {% unless flag?(:correct_english) %}
+      def color
+        colour
+      end
+    {% end %}
   end
 
   struct EmbedThumbnail
+    def initialize(@url : String)
+    end
+
     JSON.mapping(
       url: String,
-      proxy_url: String,
+      proxy_url: String?,
+      height: UInt32?,
+      width: UInt32?
+    )
+  end
+
+  struct EmbedVideo
+    JSON.mapping(
+      url: String,
       height: UInt32,
       width: UInt32
+    )
+  end
+
+  struct EmbedImage
+    def initialize(@url : String)
+    end
+
+    JSON.mapping(
+      url: String,
+      proxy_url: String?,
+      height: UInt32?,
+      width: UInt32?
     )
   end
 
@@ -85,6 +128,40 @@ module Discord
     JSON.mapping(
       name: String,
       url: {type: String, nilable: true}
+    )
+  end
+
+  struct EmbedAuthor
+    def initialize(@name : String? = nil, @url : String? = nil, @icon_url : String? = nil)
+    end
+
+    JSON.mapping(
+      name: String?,
+      url: String?,
+      icon_url: String?,
+      proxy_icon_url: String?
+    )
+  end
+
+  struct EmbedFooter
+    def initialize(@text : String? = nil, @icon_url : String? = nil)
+    end
+
+    JSON.mapping(
+      text: String?,
+      icon_url: String?,
+      proxy_icon_url: String?
+    )
+  end
+
+  struct EmbedField
+    def initialize(@name : String, @value : String, @inline : Bool = false)
+    end
+
+    JSON.mapping(
+      name: String,
+      value: String,
+      inline: Bool
     )
   end
 

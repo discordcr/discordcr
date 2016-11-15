@@ -5,6 +5,20 @@ module Discord
   DATE_FORMAT = Time::Format.new("%FT%T.%L%:z")
 
   # :nodoc:
+  module EmbedTimestampConverter
+    SEND_FORMAT    = Time::Format.new("%FT%T%:z")
+    RECEIVE_FORMAT = Time::Format.new("%FT%TZ")
+
+    def self.from_json(parser : JSON::PullParser) : Time
+      SEND_FORMAT.from_json(parser)
+    end
+
+    def self.to_json(value : Time, io : IO)
+      RECEIVE_FORMAT.to_json(value.to_utc, io)
+    end
+  end
+
+  # :nodoc:
   module SnowflakeConverter
     def self.from_json(parser : JSON::PullParser) : UInt64
       parser.read_string.to_u64
