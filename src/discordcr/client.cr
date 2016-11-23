@@ -196,7 +196,7 @@ module Discord
       opcode = nil
       sequence = nil
       event_type = nil
-      data = MemoryIO.new
+      data = IO::Memory.new
 
       parser.read_object do |key|
         case key
@@ -705,7 +705,7 @@ module Discord
     struct GatewayPacket
       getter opcode, sequence, data, event_type
 
-      def initialize(@opcode : Int64?, @sequence : Int64?, @data : MemoryIO, @event_type : String?)
+      def initialize(@opcode : Int64?, @sequence : Int64?, @data : IO::Memory, @event_type : String?)
       end
     end
 
