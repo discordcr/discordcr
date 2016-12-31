@@ -61,6 +61,13 @@ module Discord
     )
   end
 
+  struct ReactionEmoji
+    JSON.mapping(
+      id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      name: String
+    )
+  end
+
   struct Embed
     def initialize(@title : String? = nil, @type : String = "rich",
                    @description : String? = nil, @url : String? = nil,
