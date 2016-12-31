@@ -470,6 +470,15 @@ module Discord
         payload = Message.from_json(data)
         LOGGER.debug "Received message with content #{payload.content}"
         call_event message_create, payload
+      when "MESSAGE_REACTION_ADD"
+        payload = Gateway::MessageReactionPayload.from_json(data)
+        call_event message_reaction_add, payload
+      when "MESSAGE_REACTION_REMOVE"
+        payload = Gateway::MessageReactionPayload.from_json(data)
+        call_event message_reaction_remove, payload
+      when "MESSAGE_REACTION_REMOVE_ALL"
+        payload = Gateway::MessageReactionRemoveAllPayload.from_json(data)
+        call_event message_reaction_remove_all, payload
       when "MESSAGE_UPDATE"
         payload = Gateway::MessageUpdatePayload.from_json(data)
         call_event message_update, payload
@@ -647,6 +656,15 @@ module Discord
     #
     # [API docs for this event](https://discordapp.com/developers/docs/topics/gateway#message-create)
     event message_create, Message
+
+    # Called when a reaction is added to a message.
+    event message_reaction_add, Gateway::MessageReactionPayload
+
+    # Called when a reaction is removed from a message.
+    event message_reaction_remove, Gateway::MessageReactionPayload
+
+    # Called when all reactions are removed at once from a message.
+    event message_reaction_remove_all, Gateway::MessageReactionRemoveAllPayload
 
     # Called when a message is updated. Most commonly this is done for edited
     # messages, but the event is also sent when embed information for an
