@@ -279,6 +279,22 @@ module Discord
       )
     end
 
+    struct MessageReactionPayload
+      JSON.mapping(
+        user_id: {type: UInt64, converter: SnowflakeConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter},
+        message_id: {type: UInt64, converter: SnowflakeConverter},
+        emoji: ReactionEmoji
+      )
+    end
+
+    struct MessageReactionRemoveAllPayload
+      JSON.mapping(
+        channel_id: {type: UInt64, converter: SnowflakeConverter},
+        message_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
+
     struct MessageUpdatePayload
       JSON.mapping(
         type: {type: UInt8, nilable: true},

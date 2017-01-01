@@ -249,6 +249,86 @@ module Discord
       Message.from_json(response.body)
     end
 
+    # Adds a reaction to a message. The `emoji` property must be in the format
+    # `name:id` for custom emoji. For unicode emoji it can simply be the UTF-8
+    # encoded characters.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-reaction)
+    def create_reaction(channel_id : UInt64, message_id : UInt64, emoji : String)
+      response = request(
+        :channels_cid_messages_mid_reactions_emoji_me,
+        channel_id,
+        "PUT",
+        "/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}/@me",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Removes the bot's own reaction from a message. The `emoji` property must
+    # be in the format `name:id` for custom emoji. For unicode emoji it can
+    # simply be the UTF-8 encoded characters.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-own-reaction)
+    def delete_own_reaction(channel_id : UInt64, message_id : UInt64, emoji : String)
+      response = request(
+        :channels_cid_messages_mid_reactions_emoji_me,
+        channel_id,
+        "DELETE",
+        "/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}/@me",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Removes another user's reaction from a message. The `emoji` property must
+    # be in the format `name:id` for custom emoji. For unicode emoji it can
+    # simply be the UTF-8 encoded characters. Requires the "Manage Messages"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-user-reaction)
+    def delete_user_reaction(channel_id : UInt64, message_id : UInt64, emoji : String, user_id : UInt64)
+      response = request(
+        :channels_cid_messages_mid_reactions_emoji_uid,
+        channel_id,
+        "DELETE",
+        "/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Returns all users that have reacted with a specific emoji.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-reactions)
+    def get_reactions(channel_id : UInt64, message_id : UInt64, emoji : String)
+      response = request(
+        :channels_cid_messages_mid_reactions_emoji_me,
+        channel_id,
+        "GET",
+        "/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(User).from_json(response.body)
+    end
+
+    # Removes all reactions from a message. Requires the "Manage Messages"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-all-reactions)
+    def delete_all_reactions(channel_id : UInt64, message_id : UInt64)
+      response = request(
+        :channels_cid_messages_mid_reactions,
+        channel_id,
+        "DELETE",
+        "/channels/#{channel_id}/messages/#{message_id}/reactions",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
     # TODO: Add the upload file endpoint when the multipart PR is merged
 
     # Edits an existing message on the channel. This only works for messages
