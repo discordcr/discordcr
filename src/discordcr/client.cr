@@ -204,7 +204,9 @@ module Discord
           opcode = parser.read_int
         when "d"
           # Read the raw JSON into memory
-          parser.read_raw(data)
+          JSON.build(data) do |builder|
+            parser.read_raw(builder)
+          end
         when "s"
           sequence = parser.read_int_or_null
         when "t"
