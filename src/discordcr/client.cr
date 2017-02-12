@@ -149,7 +149,7 @@ module Discord
             payload = Gateway::HelloPayload.from_json(packet.data)
             handle_hello(payload.heartbeat_interval)
           when OP_DISPATCH
-            handle_dispatch(packet.event_type, packet.data)
+            handle_dispatch(packet.event_type.not_nil!, packet.data)
           when OP_RECONNECT
             handle_reconnect
           when OP_INVALID_SESSION
@@ -321,6 +321,8 @@ module Discord
     end
 
     private def handle_dispatch(type, data)
+      call_event dispatch, {type, data}
+
       case type
       when "READY"
         payload = Gateway::ReadyPayload.from_json(data)
@@ -537,6 +539,16 @@ module Discord
         (@on_{{name}}_handlers ||= [] of {{payload_type}} ->) << handler
       end
     end
+
+    # Called when the bot receives any kind of dispatch at all, even one that
+    # is otherwise unsupported. This can be useful for statistics, e. g. how
+    # many gateway events are received per second. It can also be useful to
+    # handle new API changes not yet supported by the lib.
+    #
+    # The parameter passed to the event will be a tuple of `{type, data}`, where
+    # `type` is the event type (e.g. "MESSAGE_CREATE") and `data` is the
+    # unprocessed JSON event data.
+    event dispatch, {String, IO::Memory}
 
     # Called when the bot has successfully initiated a session with Discord. It
     # marks the point when gateway packets can be set (e. g. `#status_update`).
