@@ -13,8 +13,8 @@ module Discord
       SEND_FORMAT.from_json(parser)
     end
 
-    def self.to_json(value : Time, io : IO)
-      RECEIVE_FORMAT.to_json(value.to_utc, io)
+    def self.to_json(value : Time, builder : JSON::Builder)
+      RECEIVE_FORMAT.to_json(value.to_utc, builder)
     end
   end
 
@@ -24,8 +24,8 @@ module Discord
       parser.read_string.to_u64
     end
 
-    def self.to_json(value : UInt64, io : IO)
-      io.puts(value.to_s)
+    def self.to_json(value : UInt64, builder : JSON::Builder)
+      builder.puts(value.to_s)
     end
   end
 
@@ -41,11 +41,11 @@ module Discord
       end
     end
 
-    def self.to_json(value : UInt64?, io : IO)
+    def self.to_json(value : UInt64?, builder : JSON::Builder)
       if value
-        io.puts(value.to_s)
+        builder.puts(value.to_s)
       else
-        io.puts("null")
+        builder.puts("null")
       end
     end
   end
@@ -56,8 +56,8 @@ module Discord
       Array(String).new(parser).map &.to_u64
     end
 
-    def self.to_json(value : Array(UInt64), io : IO)
-      value.map(&.to_s).to_json(io)
+    def self.to_json(value : Array(UInt64), builder : JSON::Builder)
+      value.map(&.to_s).to_json(builder)
     end
   end
 end
