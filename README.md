@@ -16,9 +16,11 @@ overwhelmed by the complex documentation, try
 
 Unlike many other libs which handle a lot of stuff, like caching or resolving,
 themselves automatically, discordcr requires the user to do such things
-manually. It also doesn't provide any sort of abstractions for REST calls,
-the user has full control over them, but also full responsibility. discordcr
-does not support user accounts; it may work but likely doesn't.
+manually. It also doesn't provide any advanced abstractions for REST calls;
+the methods perform the HTTP request with the given data but nothing else.
+This means that the user has full control over them, but also full
+responsibility. discordcr does not support user accounts; it may work but
+likely doesn't.
 
 ## Installation
 
