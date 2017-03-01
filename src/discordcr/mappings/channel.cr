@@ -72,7 +72,7 @@ module Discord
     def initialize(@title : String? = nil, @type : String = "rich",
                    @description : String? = nil, @url : String? = nil,
                    @timestamp : Time? = nil, @colour : UInt32? = nil,
-                   @footer : EmbedFooter? = nil, @image : EmbedImage = nil,
+                   @footer : EmbedFooter? = nil, @image : EmbedImage? = nil,
                    @author : EmbedAuthor? = nil, @fields : Array(EmbedField)? = nil)
     end
 
