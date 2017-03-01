@@ -329,7 +329,33 @@ module Discord
       )
     end
 
-    # TODO: Add the upload file endpoint when the multipart PR is merged
+    # Uploads a file to a channel. Requires the "Send Messages" and "Attach
+    # Files" permissions.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
+    # (same as `#create_message` -- this method implements form data bodies
+    # while `#create_message` implements JSON bodies)
+    def upload_file(channel_id : UInt64, content : String?, file : File)
+      io = IO::Memory.new
+      boundary = "--------------------------#{SecureRandom.urlsafe_base64(18)}"
+      HTTP::FormData.generate(io, boundary) do |g|
+        g.field("content", content) if content
+        g.file("file", file, HTTP::FormData::FileMetadata.new(filename: File.basename(file.path)))
+      end
+
+      response = request(
+        :channels_cid_messages,
+        channel_id,
+        "POST",
+        "/channels/#{channel_id}/messages",
+        HTTP::Headers{"Content-Type" => "multipart/form-data; boundary=#{boundary}"},
+        io.to_s
+      )
+
+      io.close
+
+      Message.from_json(response.body)
+    end
 
     # Edits an existing message on the channel. This only works for messages
     # sent by the bot itself - you can't edit others' messages.
