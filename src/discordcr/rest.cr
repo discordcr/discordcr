@@ -343,7 +343,7 @@ module Discord
     def upload_file(channel_id : UInt64, content : String?, file : IO, filename : String? = nil)
       io = IO::Memory.new
 
-      if filename.nil?
+      unless filename
         if file.is_a? File
           filename = File.basename(file.path)
         else
