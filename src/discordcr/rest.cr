@@ -1,4 +1,5 @@
 require "http/client"
+require "http/formdata"
 require "openssl/ssl/context"
 require "time/format"
 
@@ -335,20 +336,30 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
     # (same as `#create_message` -- this method implements form data bodies
     # while `#create_message` implements JSON bodies)
-    def upload_file(channel_id : UInt64, content : String?, file : File)
+    def upload_file(channel_id : UInt64, content : String?, file : IO, filename : String? = nil)
       io = IO::Memory.new
-      boundary = "--------------------------#{SecureRandom.urlsafe_base64(18)}"
-      HTTP::FormData.generate(io, boundary) do |g|
-        g.field("content", content) if content
-        g.file("file", file, HTTP::FormData::FileMetadata.new(filename: File.basename(file.path)))
+
+      if filename.nil?
+        if file.is_a? File
+          filename = File.basename(file.path)
+        else
+          filename = ""
+        end
       end
+
+      builder = HTTP::FormData::Builder.new(io)
+
+      builder.field("content", content) if content
+      builder.file("file", file, HTTP::FormData::FileMetadata.new(filename: filename))
+
+      builder.finish
 
       response = request(
         :channels_cid_messages,
         channel_id,
         "POST",
         "/channels/#{channel_id}/messages",
-        HTTP::Headers{"Content-Type" => "multipart/form-data; boundary=#{boundary}"},
+        HTTP::Headers{"Content-Type" => builder.content_type},
         io.to_s
       )
 
