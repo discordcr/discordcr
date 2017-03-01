@@ -333,6 +333,10 @@ module Discord
     # Uploads a file to a channel. Requires the "Send Messages" and "Attach
     # Files" permissions.
     #
+    # If the specified `file` is a `File` object and no filename is specified,
+    # the file's filename will be used instead. If it is an `IO` without
+    # filename information, Discord will generate a placeholder filename.
+    #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
     # (same as `#create_message` -- this method implements form data bodies
     # while `#create_message` implements JSON bodies)
@@ -348,10 +352,8 @@ module Discord
       end
 
       builder = HTTP::FormData::Builder.new(io)
-
       builder.field("content", content) if content
       builder.file("file", file, HTTP::FormData::FileMetadata.new(filename: filename))
-
       builder.finish
 
       response = request(
