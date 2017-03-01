@@ -365,8 +365,6 @@ module Discord
         io.to_s
       )
 
-      io.close
-
       Message.from_json(response.body)
     end
 
