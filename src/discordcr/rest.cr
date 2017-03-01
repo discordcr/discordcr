@@ -1,4 +1,5 @@
 require "http/client"
+require "http/formdata"
 require "openssl/ssl/context"
 require "time/format"
 
@@ -329,7 +330,43 @@ module Discord
       )
     end
 
-    # TODO: Add the upload file endpoint when the multipart PR is merged
+    # Uploads a file to a channel. Requires the "Send Messages" and "Attach
+    # Files" permissions.
+    #
+    # If the specified `file` is a `File` object and no filename is specified,
+    # the file's filename will be used instead. If it is an `IO` without
+    # filename information, Discord will generate a placeholder filename.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
+    # (same as `#create_message` -- this method implements form data bodies
+    # while `#create_message` implements JSON bodies)
+    def upload_file(channel_id : UInt64, content : String?, file : IO, filename : String? = nil)
+      io = IO::Memory.new
+
+      unless filename
+        if file.is_a? File
+          filename = File.basename(file.path)
+        else
+          filename = ""
+        end
+      end
+
+      builder = HTTP::FormData::Builder.new(io)
+      builder.field("content", content) if content
+      builder.file("file", file, HTTP::FormData::FileMetadata.new(filename: filename))
+      builder.finish
+
+      response = request(
+        :channels_cid_messages,
+        channel_id,
+        "POST",
+        "/channels/#{channel_id}/messages",
+        HTTP::Headers{"Content-Type" => builder.content_type},
+        io.to_s
+      )
+
+      Message.from_json(response.body)
+    end
 
     # Edits an existing message on the channel. This only works for messages
     # sent by the bot itself - you can't edit others' messages.
