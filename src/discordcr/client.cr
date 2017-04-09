@@ -351,6 +351,10 @@ module Discord
         LOGGER.info "Received READY, v: #{payload.v}"
         call_event ready, payload
       when "RESUMED"
+        # RESUMED also means a connection was achieved, so reset the
+        # reconnection backoff here too
+        @backoff = 1.0
+
         payload = Gateway::ResumedPayload.from_json(data)
         call_event resumed, payload
       when "CHANNEL_CREATE"
