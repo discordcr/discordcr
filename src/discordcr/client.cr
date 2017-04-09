@@ -267,12 +267,14 @@ module Discord
       @websocket.send(packet.to_json)
     end
 
-    # Sends a status update to Discord. By setting the *idle_since* time to
-    # something other than `nil`, the client will appear as idle; by setting
-    # the *game* to a GamePlaying object the client can be set to appear as
-    # playing or streaming a game.
-    def status_update(idle_since : Int64? = nil, game : GamePlaying? = nil)
-      packet = Gateway::StatusUpdatePacket.new(idle_since, game)
+    # Sends a status update to Discord. The *status* can be `"online"`,
+    # `"idle"`, `"dnd"`, or `"invisible"`. Setting the *game* to a `GamePlaying`
+    # object makes the bot appear as playing some game on Discord. *since* and
+    # *afk* can be used in conjunction to signify to Discord that the status
+    # change is due to inactivity on the bot's part – this fulfills no cosmetic
+    # purpose.
+    def status_update(status : String? = nil, game : GamePlaying? = nil, afk : Bool = false, since : Int64 = 0_i64)
+      packet = Gateway::StatusUpdatePacket.new(status, game, afk, since)
       @websocket.send(packet.to_json)
     end
 
