@@ -83,6 +83,8 @@ module Discord
             LOG
         end
 
+        @session.try &.suspend
+
         wait_for_reconnect
 
         LOGGER.info "Reconnecting"
