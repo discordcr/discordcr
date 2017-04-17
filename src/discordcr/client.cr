@@ -1,4 +1,3 @@
-require "http/web_socket"
 require "json"
 
 require "./logger"
@@ -24,7 +23,7 @@ module Discord
     # the client receives the corresponding gateway dispatches.
     property cache : Cache?
 
-    @websocket : HTTP::WebSocket
+    @websocket : Discord::WebSocket
 
     # Default analytics properties sent in IDENTIFY
     DEFAULT_PROPERTIES = Gateway::IdentifyProperties.new(
@@ -105,16 +104,16 @@ module Discord
       @backoff = 115 + (rand * 10) if @backoff > 120 # Cap the backoff at 120 seconds and then add some random jitter
     end
 
-    private def initialize_websocket : HTTP::WebSocket
+    private def initialize_websocket : Discord::WebSocket
       url = URI.parse(get_gateway.url)
-      websocket = HTTP::WebSocket.new(
+      websocket = Discord::WebSocket.new(
         host: url.host.not_nil!,
         path: "#{url.path}/?encoding=json&v=6",
         port: 443,
         tls: true
       )
 
-      websocket.on_message(&->on_message(String))
+      websocket.on_message(&->on_message(Discord::WebSocket::Packet))
       websocket.on_close(&->on_close(String))
 
       websocket
@@ -141,10 +140,8 @@ module Discord
     OP_HELLO                 = 10
     OP_HEARTBEAT_ACK         = 11
 
-    private def on_message(message : String)
+    private def on_message(packet : Discord::WebSocket::Packet)
       spawn do
-        packet = parse_message(message)
-
         begin
           case packet.opcode
           when OP_HELLO
@@ -161,14 +158,14 @@ module Discord
             LOGGER.debug "Heartbeat received"
             @websocket.send({op: 1, d: packet.sequence}.to_json)
           else
-            LOGGER.warn "Unsupported message: #{message}"
+            LOGGER.warn "Unsupported payload: #{packet}"
           end
         rescue ex : JSON::ParseException
           LOGGER.error <<-LOG
             An exception occurred during message parsing! Please report this.
             #{ex}
             (pertaining to previous exception) Raised with packet:
-            #{message}
+            #{packet}
             LOG
         rescue ex
           LOGGER.error <<-LOG
@@ -186,43 +183,9 @@ module Discord
       nil
     end
 
-    # Injects a JSON *message* into the packet handler. Must be a valid gateway
-    # packet, including opcode, sequence and type.
-    def inject(message)
-      on_message(message)
-    end
-
-    private def parse_message(message : String)
-      parser = JSON::PullParser.new(message)
-
-      opcode = nil
-      sequence = nil
-      event_type = nil
-      data = IO::Memory.new
-
-      parser.read_object do |key|
-        case key
-        when "op"
-          opcode = parser.read_int
-        when "d"
-          # Read the raw JSON into memory
-          JSON.build(data) do |builder|
-            parser.read_raw(builder)
-          end
-        when "s"
-          sequence = parser.read_int_or_null
-        when "t"
-          event_type = parser.read_string_or_null
-        else
-          # Unknown field
-          parser.skip
-        end
-      end
-
-      # Rewind to beginning of JSON
-      data.rewind
-
-      Gateway::GatewayPacket.new(opcode, sequence, data, event_type)
+    # Injects a *packet* into the packet handler.
+    def inject(packet : Discord::WebSocket::Packet)
+      on_message(packet)
     end
 
     private def handle_hello(heartbeat_interval)
@@ -740,14 +703,6 @@ module Discord
 
   module Gateway
     alias ShardKey = {shard_id: Int32, num_shards: Int32}
-
-    # :nodoc:
-    struct GatewayPacket
-      getter opcode, sequence, data, event_type
-
-      def initialize(@opcode : Int64?, @sequence : Int64?, @data : IO::Memory, @event_type : String?)
-      end
-    end
 
     class Session
       getter session_id
