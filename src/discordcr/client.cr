@@ -23,6 +23,10 @@ module Discord
     # the client receives the corresponding gateway dispatches.
     property cache : Cache?
 
+    # The internal *session* the client is currently using, necessary to create
+    # a voice client, for example
+    getter session : Gateway::Session?
+
     @websocket : Discord::WebSocket
 
     # Default analytics properties sent in IDENTIFY
