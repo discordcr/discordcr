@@ -84,9 +84,9 @@ module Discord
     end
 
     struct StatusUpdatePacket
-      def initialize(idle_since, game)
+      def initialize(status, game, afk, since)
         @op = Discord::Client::OP_STATUS_UPDATE
-        @d = StatusUpdatePayload.new(idle_since, game)
+        @d = StatusUpdatePayload.new(status, game, afk, since)
       end
 
       JSON.mapping(
@@ -97,12 +97,14 @@ module Discord
 
     # :nodoc:
     struct StatusUpdatePayload
-      def initialize(@idle_since, @game)
+      def initialize(@status, @game, @afk, @since)
       end
 
       JSON.mapping(
-        idle_since: {type: Int64, nilable: true, emit_null: true},
-        game: {type: GamePlaying, nilable: true, emit_null: true}
+        status: {type: String, nilable: true, emit_null: true},
+        game: {type: GamePlaying, nilable: true, emit_null: true},
+        afk: Bool,
+        since: Int64
       )
     end
 
