@@ -73,7 +73,8 @@ module Discord
                    @description : String? = nil, @url : String? = nil,
                    @timestamp : Time? = nil, @colour : UInt32? = nil,
                    @footer : EmbedFooter? = nil, @image : EmbedImage? = nil,
-                   @author : EmbedAuthor? = nil, @fields : Array(EmbedField)? = nil)
+                   @thumbnail : EmbedThumbnail? = nil, @author : EmbedAuthor? = nil,
+                   @fields : Array(EmbedField)? = nil)
     end
 
     JSON.mapping(
