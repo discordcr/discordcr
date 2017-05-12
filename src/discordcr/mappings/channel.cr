@@ -15,7 +15,8 @@ module Discord
       mention_roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       attachments: Array(Attachment),
       embeds: Array(Embed),
-      pinned: {type: Bool, nilable: true}
+      pinned: {type: Bool, nilable: true},
+      reactions: Array(Reaction)?
     )
   end
 
@@ -58,6 +59,14 @@ module Discord
       type: String,
       allow: Permissions,
       deny: Permissions
+    )
+  end
+
+  struct Reaction
+    JSON.mapping(
+      emoji: ReactionEmoji,
+      count: UInt32,
+      me: Bool
     )
   end
 
