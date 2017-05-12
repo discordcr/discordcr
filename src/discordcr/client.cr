@@ -35,10 +35,10 @@ module Discord
       referring_domain: ""
     )
 
-    # Creates a new bot with the given *token* and *client_id*. Both of these
-    # things can be found on a bot's application page; the token will need to be
-    # revealed using the "click to reveal" thing on the token (**not** the
-    # OAuth2 secret!)
+    # Creates a new bot with the given *token* and optionally the *client_id*.
+    # Both of these things can be found on a bot's application page; the token
+    # will need to be revealed using the "click to reveal" thing on the token
+    # (**not** the OAuth2 secret!)
     #
     # If the *shard* key is set, the gateway will operate in sharded mode. This
     # means that this client's gateway connection will only receive packets from
@@ -60,13 +60,20 @@ module Discord
     # The *properties* define what values are sent to Discord as analytics
     # properties. It's not recommended to change these from the default values,
     # but if you desire to do so, you can.
-    def initialize(@token : String, @client_id : UInt64,
+    def initialize(@token : String, @client_id : UInt64? = nil,
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
                    @compress : Bool = false,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES)
       @websocket = initialize_websocket
       @backoff = 1.0
+    end
+
+    # Returns this client's ID as provided in its associated Oauth2 application.
+    # A getter for @client_id, this will make a REST call to obtain it
+    # if it was not provided in the initializer.
+    def client_id
+      @client_id ||= get_oauth2_application.id
     end
 
     # Connects this client to the gateway. This is required if the bot needs to
