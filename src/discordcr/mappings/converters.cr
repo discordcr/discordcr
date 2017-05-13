@@ -25,7 +25,7 @@ module Discord
     end
 
     def self.to_json(value : UInt64, builder : JSON::Builder)
-      builder.puts(value.to_s)
+      builder.scalar(value.to_s)
     end
   end
 
@@ -43,9 +43,9 @@ module Discord
 
     def self.to_json(value : UInt64?, builder : JSON::Builder)
       if value
-        builder.puts(value.to_s)
+        builder.scalar(value.to_s)
       else
-        builder.puts("null")
+        builder.null
       end
     end
   end
