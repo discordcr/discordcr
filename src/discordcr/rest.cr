@@ -1091,22 +1091,6 @@ module Discord
       User.from_json(response.body)
     end
 
-    # Queries users by username.
-    #
-    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#query-users)
-    def query_users(query : String, limit : Int32 = 25)
-      response = request(
-        :users,
-        nil,
-        "GET",
-        "/users?q=#{query}&limit=#{limit}",
-        HTTP::Headers.new,
-        nil
-      )
-
-      Array(User).from_json(response.body)
-    end
-
     # Gets the current bot user.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user)
