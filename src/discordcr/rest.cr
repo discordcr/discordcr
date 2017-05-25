@@ -830,14 +830,24 @@ module Discord
     # Creates a new role on the guild. Requires the "Manage Roles" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-role)
-    def create_guild_role(guild_id : UInt64)
+    def create_guild_role(guild_id : UInt64, name : String? = nil,
+                          permissions : Permissions? = nil, colour : UInt32 = 0,
+                          hoist : Bool = false, mentionable : Bool = false)
+      json = {
+        name:        name,
+        permissions: permissions,
+        color:       colour,
+        hoist:       hoist,
+        mentionable: mentionable,
+      }.to_json
+
       response = request(
         :get_guild_roles,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/roles",
         HTTP::Headers.new,
-        nil
+        json
       )
 
       Role.from_json(response.body)
