@@ -1241,8 +1241,13 @@ module Discord
       Invite.from_json(response.body)
     end
 
-    # Makes the user accept an invite. Will not work for bots.
-    #
+    # Makes a user accept an invite. Will not work for bots.
+    # For example, this can be used with a `Client` instantiated with an OAuth2
+    # `Bearer` token that has been granted the `guilds.join` scope.
+    # ```
+    # client = Discord::Client.new token: "Bearer XYZ"
+    # client.accept_invite("ABCdef")
+    # ```
     # [API docs for this method](https://discordapp.com/developers/docs/resources/invite#accept-invite)
     def accept_invite(code : String)
       response = request(
