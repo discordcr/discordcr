@@ -70,6 +70,14 @@ module Discord
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES)
       @websocket = initialize_websocket
       @backoff = 1.0
+
+      # Set some default value for the heartbeat interval. This should never
+      # actually be used as a delay between heartbeats because it will have an
+      # actual value before heartbeating starts.
+      @heartbeat_interval = 1000_u32
+      @send_heartbeats = false
+
+      setup_heartbeats
     end
 
     # Connects this client to the gateway. This is required if the bot needs to
@@ -86,6 +94,7 @@ module Discord
             LOG
         end
 
+        @send_heartbeats = false
         @session.try &.suspend
 
         wait_for_reconnect
@@ -127,6 +136,7 @@ module Discord
       # TODO: make more sophisticated
       LOGGER.warn "Closed with: " + message
 
+      @send_heartbeats = false
       @session.try &.suspend
       nil
     end
@@ -193,7 +203,8 @@ module Discord
     end
 
     private def handle_hello(heartbeat_interval)
-      setup_heartbeats(heartbeat_interval)
+      @heartbeat_interval = heartbeat_interval
+      @send_heartbeats = true
 
       # If it seems like we can resume, we will - worst case we get an op9
       if @session.try &.should_resume?
@@ -203,15 +214,25 @@ module Discord
       end
     end
 
-    private def setup_heartbeats(heartbeat_interval)
+    private def setup_heartbeats
       spawn do
         loop do
-          LOGGER.debug "Sending heartbeat"
+          if @send_heartbeats
+            LOGGER.debug "Sending heartbeat"
 
-          seq = @session.try &.sequence || 0
-          @websocket.send({op: 1, d: seq}.to_json)
+            begin
+              seq = @session.try &.sequence || 0
+              @websocket.send({op: 1, d: seq}.to_json)
+              @last_heartbeat_acked = false
+            rescue ex
+              LOGGER.error <<-LOG
+                Heartbeat failed!
+                #{ex}
+                LOG
+            end
+          end
 
-          sleep heartbeat_interval.milliseconds
+          sleep @heartbeat_interval.milliseconds
         end
       end
     end
@@ -497,9 +518,10 @@ module Discord
       # Close the websocket - the reconnection logic will kick in. We want this
       # to happen instantly so set the backoff to 0 seconds
       @backoff = 0.0
+      @send_heartbeats = false
       @websocket.close
 
-      # Suspend the session so we 1. resume and 2. don't send heartbeats
+      # Suspend the session so we resume
       @session.try &.suspend
     end
 
