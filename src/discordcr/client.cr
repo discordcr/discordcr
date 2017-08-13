@@ -28,6 +28,7 @@ module Discord
     getter session : Gateway::Session?
 
     @websocket : Discord::WebSocket
+    @backoff : Float64
 
     # Default analytics properties sent in IDENTIFY
     DEFAULT_PROPERTIES = Gateway::IdentifyProperties.new(
@@ -76,6 +77,10 @@ module Discord
       # actual value before heartbeating starts.
       @heartbeat_interval = 1000_u32
       @send_heartbeats = false
+
+      # Initially, this flag is set to true so the client doesn't immediately
+      # try to reconnect at the next heartbeat.
+      @last_heartbeat_acked = true
 
       setup_heartbeats
     end
@@ -171,6 +176,8 @@ module Discord
             # We got a received heartbeat, reply with the same sequence
             LOGGER.debug "Heartbeat received"
             @websocket.send({op: 1, d: packet.sequence}.to_json)
+          when OP_HEARTBEAT_ACK
+            handle_heartbeat_ack
           else
             LOGGER.warn "Unsupported payload: #{packet}"
           end
@@ -205,6 +212,7 @@ module Discord
     private def handle_hello(heartbeat_interval)
       @heartbeat_interval = heartbeat_interval
       @send_heartbeats = true
+      @last_heartbeat_acked = true
 
       # If it seems like we can resume, we will - worst case we get an op9
       if @session.try &.should_resume?
@@ -218,8 +226,21 @@ module Discord
       spawn do
         loop do
           if @send_heartbeats
+            unless @last_heartbeat_acked
+              LOGGER.warn "Last heartbeat not acked, reconnecting"
+
+              # Give the new connection another chance by resetting the last
+              # acked flag; otherwise it would try to reconnect again at the
+              # first heartbeat
+              @last_heartbeat_acked = true
+
+              reconnect(should_suspend: true)
+              next
+            end
+
             LOGGER.debug "Sending heartbeat"
 
+<<<<<<< HEAD
             begin
               seq = @session.try &.sequence || 0
               @websocket.send({op: 1, d: seq}.to_json)
@@ -230,6 +251,11 @@ module Discord
                 #{ex}
                 LOG
             end
+=======
+            seq = @session.try &.sequence || 0
+            @websocket.send({op: 1, d: seq}.to_json)
+            @last_heartbeat_acked = false
+>>>>>>> 0d07475... Implement heartbeat ACK handling (see also #72)
           end
 
           sleep @heartbeat_interval.milliseconds
@@ -255,6 +281,21 @@ module Discord
 
       packet = Gateway::ResumePacket.new(@token, session.session_id, sequence)
       @websocket.send(packet.to_json)
+    end
+
+    # Reconnects the websocket connection entirely. If *should_suspend* is set,
+    # the session will be suspended, which means (unless other factors prevent
+    # this) that the session will be resumed after reconnection. If
+    # *backoff_override* is set to anything other than `nil`, the reconnection
+    # backoff will not use the standard formula and instead wait the value
+    # provided; use `0.0` to skip waiting entirely.
+    def reconnect(should_suspend = false, backoff_override = nil)
+      @backoff = backoff_override if backoff_override
+      @send_heartbeats = false
+      @websocket.close
+
+      # Suspend the session so we resume, if desired
+      @session.try &.suspend if should_suspend
     end
 
     # Sends a status update to Discord. The *status* can be `"online"`,
@@ -515,19 +556,19 @@ module Discord
     end
 
     private def handle_reconnect
-      # Close the websocket - the reconnection logic will kick in. We want this
-      # to happen instantly so set the backoff to 0 seconds
-      @backoff = 0.0
-      @send_heartbeats = false
-      @websocket.close
-
-      # Suspend the session so we resume
-      @session.try &.suspend
+      # We want the reconnection to happen instantly, and we want a resume to be
+      # attempted, so set the respective parameters
+      reconnect(should_suspend: true, backoff_override: 0.0)
     end
 
     private def handle_invalid_session
       @session.try &.invalidate
       identify
+    end
+
+    private def handle_heartbeat_ack
+      LOGGER.debug "Heartbeat ACK received"
+      @last_heartbeat_acked = true
     end
 
     # :nodoc:
