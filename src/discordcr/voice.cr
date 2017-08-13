@@ -1,0 +1,272 @@
+require "uri"
+
+require "./mappings/gateway"
+require "./mappings/vws"
+require "./websocket"
+require "./sodium"
+
+module Discord
+  class VoiceClient
+    UDP_PROTOCOL = "udp"
+
+    # The mode that tells Discord we want to send encrypted audio
+    ENCRYPTED_MODE = "xsalsa20_poly1305"
+
+    OP_IDENTIFY            = 0
+    OP_SELECT_PROTOCOL     = 1
+    OP_READY               = 2
+    OP_HEARTBEAT           = 3
+    OP_SESSION_DESCRIPTION = 4
+    OP_SPEAKING            = 5
+    OP_HELLO               = 8
+
+    # The heartbeat is the same every time, so it can be a constant
+    HEARTBEAT_JSON = {op: OP_HEARTBEAT, d: nil}.to_json
+
+    @udp : VoiceUDP
+
+    @sequence : UInt16 = 0_u16
+    @time : UInt32 = 0_u32
+
+    @endpoint : String
+    @server_id : UInt64
+    @session_id : String
+    @token : String
+
+    @heartbeat_interval : Int32?
+
+    # Creates a new voice client. The *payload* should be a payload received
+    # from Discord as part of a VOICE_SERVER_UPDATE dispatch, received after
+    # sending a voice state update (gateway op 4) packet. The *session* should
+    # be the session currently in use by the gateway client on which the
+    # aforementioned dispatch was received, and the *user_id* should be the
+    # user ID of the account on which the voice client is created. (It is
+    # received as part of the gateway READY dispatch, for example)
+    def initialize(payload : Discord::Gateway::VoiceServerUpdatePayload,
+                   session : Discord::Gateway::Session, @user_id : UInt64)
+      @endpoint = payload.endpoint.gsub(":80", "")
+
+      @server_id = payload.guild_id
+      @session_id = session.session_id
+      @token = payload.token
+
+      @websocket = Discord::WebSocket.new(
+        host: @endpoint,
+        path: "/",
+        port: 443,
+        tls: true
+      )
+
+      @websocket.on_message(&->on_message(Discord::WebSocket::Packet))
+      @websocket.on_close(&->on_close(String))
+
+      @udp = VoiceUDP.new
+    end
+
+    # Initiates the connection process and blocks forever afterwards.
+    def run
+      spawn { heartbeat_loop }
+      @websocket.run
+    end
+
+    # Closes the VWS connection, in effect disconnecting from voice.
+    delegate close, to: @websocket
+
+    # Sets the handler that should be run once the voice client has connected
+    # successfully.
+    def on_ready(&@ready_handler : ->)
+    end
+
+    # Sends a packet to indicate to Discord whether or not we are speaking
+    # right now
+    def send_speaking(speaking : Bool, delay : Int32 = 0)
+      packet = VWS::SpeakingPacket.new(speaking, delay)
+      @websocket.send(packet.to_json)
+    end
+
+    # Plays a single opus packet
+    def play_opus(buf : Bytes)
+      increment_packet_metadata
+      @udp.send_audio(buf, @sequence, @time)
+    end
+
+    # Increment sequence and time
+    private def increment_packet_metadata
+      @sequence += 1
+      @time += 960
+    end
+
+    private def heartbeat_loop
+      loop do
+        if @heartbeat_interval
+          @websocket.send(HEARTBEAT_JSON)
+          sleep @heartbeat_interval.not_nil!.milliseconds
+        else
+          sleep 1
+        end
+      end
+    end
+
+    private def on_message(packet : Discord::WebSocket::Packet)
+      LOGGER.debug("VWS packet received: #{packet} #{packet.data.to_s}")
+
+      case packet.opcode
+      when OP_READY
+        payload = VWS::ReadyPayload.from_json(packet.data)
+        handle_ready(payload)
+      when OP_SESSION_DESCRIPTION
+        payload = VWS::SessionDescriptionPayload.from_json(packet.data)
+        handle_session_description(payload)
+      when OP_HELLO
+        payload = VWS::HelloPayload.from_json(packet.data)
+        handle_hello(payload)
+      end
+    end
+
+    private def on_close(message : String)
+      if message.bytesize < 2
+        LOGGER.warn("VWS closed with data: #{message.bytes}")
+        return nil
+      end
+
+      code = IO::Memory.new(message.byte_slice(0, 2)).read_bytes(UInt16, IO::ByteFormat::BigEndian)
+      reason = message.byte_slice(2, message.bytesize - 2)
+      LOGGER.warn("VWS closed with code #{code}, reason: #{reason}")
+      nil
+    end
+
+    private def handle_ready(payload : VWS::ReadyPayload)
+      # We get a new heartbeat interval here that replaces the old one
+      @heartbeat_interval = payload.heartbeat_interval
+      udp_connect(payload.port.to_u32, payload.ssrc.to_u32)
+    end
+
+    private def udp_connect(port, ssrc)
+      @udp.connect(@endpoint, port, ssrc)
+      @udp.send_discovery
+      ip, port = @udp.receive_discovery_reply
+      send_select_protocol(UDP_PROTOCOL, ip, port, ENCRYPTED_MODE)
+    end
+
+    private def send_identify(server_id, user_id, session_id, token)
+      packet = VWS::IdentifyPacket.new(server_id, user_id, session_id, token)
+      @websocket.send(packet.to_json)
+    end
+
+    private def send_select_protocol(protocol, address, port, mode)
+      data = VWS::ProtocolData.new(address, port, mode)
+      packet = VWS::SelectProtocolPacket.new(protocol, data)
+      @websocket.send(packet.to_json)
+    end
+
+    private def handle_session_description(payload : VWS::SessionDescriptionPayload)
+      @udp.secret_key = Bytes.new(payload.secret_key.to_unsafe, payload.secret_key.size)
+
+      # Once the secret key has been received, we are ready to send audio data.
+      # Notify the user of this
+      spawn { @ready_handler.try(&.call) }
+    end
+
+    private def handle_hello(payload : VWS::HelloPayload)
+      @heartbeat_interval = payload.heartbeat_interval
+      send_identify(@server_id, @user_id, @session_id, @token)
+    end
+  end
+
+  # Client for Discord's voice UDP protocol, on which the actual audio data is
+  # sent. There should be no reason to manually use this class: use
+  # `VoiceClient` instead which uses this class internally.
+  class VoiceUDP
+    @secret_key : Bytes?
+    property secret_key
+
+    def initialize
+      @socket = UDPSocket.new
+    end
+
+    def connect(endpoint : String, port : UInt32, ssrc : UInt32)
+      @ssrc = ssrc
+      @socket.connect(endpoint, port)
+    end
+
+    # Sends a discovery packet to Discord, telling them that we want to know our
+    # IP so we can select the protocol on the VWS
+    def send_discovery
+      io = IO::Memory.new(70)
+
+      io.write_bytes(@ssrc.not_nil!, IO::ByteFormat::BigEndian)
+      io.write(Bytes.new(70 - sizeof(UInt32), 0_u8))
+
+      @socket.write(io.to_slice)
+    end
+
+    # Awaits a response to the discovery request and returns our local IP and
+    # port once the response is received
+    def receive_discovery_reply : {String, UInt16}
+      buf = Bytes.new(70)
+      @socket.receive(buf)
+      io = IO::Memory.new(buf)
+
+      io.seek(4) # The first four bytes are just the SSRC again, we don't care about that
+      ip = io.read_string(64).delete("\0")
+      port = io.read_bytes(UInt16, IO::ByteFormat::BigEndian)
+
+      {ip, port}
+    end
+
+    # Sends 20 ms of opus audio data to Discord, with the specified sequence and
+    # time (used on the receiving client to synchronise packets)
+    def send_audio(buf, sequence, time)
+      header = create_header(sequence, time)
+
+      buf = encrypt_audio(header, buf)
+
+      new_buf = Bytes.new(header.size + buf.size)
+      header.copy_to(new_buf)
+      buf.copy_to(new_buf + header.size)
+
+      @socket.write(new_buf)
+    end
+
+    private def create_header(sequence : UInt16, time : UInt32) : Bytes
+      io = IO::Memory.new(12)
+
+      # Write the magic bytes required by Discord
+      io.write_byte(0x80_u8)
+      io.write_byte(0x78_u8)
+
+      # Write the actual information in the header
+      io.write_bytes(sequence, IO::ByteFormat::BigEndian)
+      io.write_bytes(time, IO::ByteFormat::BigEndian)
+      io.write_bytes(@ssrc.not_nil!, IO::ByteFormat::BigEndian)
+
+      io.to_slice
+    end
+
+    private def encrypt_audio(header : Bytes, buf : Bytes) : Bytes
+      raise "No secret key was set!" unless @secret_key
+
+      nonce = Bytes.new(24, 0_u8) # 24 null bytes
+      header.copy_to(nonce)       # First 12 bytes of nonce is the header
+
+      # Sodium constants
+      zero_bytes = Sodium.crypto_secretbox_xsalsa20poly1305_zerobytes
+      box_zero_bytes = Sodium.crypto_secretbox_xsalsa20poly1305_boxzerobytes
+
+      # Prepend the buf with zero_bytes zero bytes
+      message = Bytes.new(buf.size + zero_bytes, 0_u8)
+      buf.copy_to(message + zero_bytes)
+
+      # Create a buffer for the ciphertext
+      c = Bytes.new(message.size)
+
+      # Encrypt
+      Sodium.crypto_secretbox_xsalsa20poly1305(c, message, message.bytesize, nonce, @secret_key.not_nil!)
+
+      # The resulting ciphertext buffer has box_zero_bytes zero bytes prepended;
+      # we don't want them in the result, so move the slice forward by that many
+      # bytes
+      c + box_zero_bytes
+    end
+  end
+end
