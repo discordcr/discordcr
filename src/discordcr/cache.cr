@@ -33,6 +33,42 @@ module Discord
   # likely to occur, a client without a gateway connection should probably
   # refrain from caching at all.
   class Cache
+    # A map of cached users. These aren't necessarily all the users in servers
+    # the bot has access to, but rather all the users that have been seen by
+    # the bot in the past (and haven't been deleted by means of `delete_user`).
+    getter users
+
+    # A map of cached channels, i. e. all channels on all servers the bot is on,
+    # as well as all DM channels.
+    getter channels
+
+    # A map of guilds (servers) the bot is on. Doesn't ignore guilds temporarily
+    # deleted due to an outage; so if an outage is going on right now the
+    # affected guilds would be missing here too.
+    getter guilds
+
+    # A double map of members on servers, represented as {guild ID => {user ID
+    # => member}}. Will only contain previously and currently online members as
+    # well as all members that have been chunked (see
+    # `Client#request_guild_members`).
+    getter members
+
+    # A map of all roles on servers the bot is on. Does not discriminate by
+    # guild, as role IDs are unique even across guilds.
+    getter roles
+
+    # Mapping of users to the respective DM channels the bot has open with them,
+    # represented as {user ID => channel ID}.
+    getter dm_channels
+
+    # Mapping of guilds to the roles on them, represented as {guild ID =>
+    # [role IDs]}.
+    getter guild_roles
+
+    # Mapping of guilds to the channels on them, represented as {guild ID =>
+    # [channel IDs]}.
+    getter guild_channels
+
     # Creates a new cache with a *client* that requests (in case of cache
     # misses) should be done on.
     def initialize(@client : Client)
