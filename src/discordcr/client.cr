@@ -475,7 +475,7 @@ module Discord
         cache payload.user
         @cache.try do |c|
           member = c.resolve_member(payload.guild_id, payload.user.id)
-          new_member = GuildMember.new(member, payload.roles)
+          new_member = GuildMember.new(member, payload.roles, payload.nick)
           c.cache(new_member, payload.guild_id)
         end
 
