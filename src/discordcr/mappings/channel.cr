@@ -39,7 +39,11 @@ module Discord
       last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       bitrate: {type: UInt32, nilable: true},
       user_limit: {type: UInt32, nilable: true},
-      recipients: {type: Array(User), nilable: true}
+      recipients: {type: Array(User), nilable: true},
+      nsfw: {type: Bool, nilable: true},
+      icon: {type: String, nilable: true},
+      owner_id: {type: UInt64, nilable: true, converter: MaybeSnowflakeConverter},
+      application_id: {type: UInt64, nilable: true, converter: MaybeSnowflakeConverter}
     )
   end
 
