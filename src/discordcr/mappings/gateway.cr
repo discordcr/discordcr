@@ -42,7 +42,7 @@ module Discord
         properties:      IdentifyProperties,
         compress:        Bool,
         large_threshold: Int32,
-        shard:           {type: {Int32, Int32}, nilable: true},
+        shard:           Tuple(Int32, Int32)?,
       })
     end
 
@@ -101,8 +101,8 @@ module Discord
       end
 
       JSON.mapping(
-        status: {type: String, nilable: true, emit_null: true},
-        game: {type: GamePlaying, nilable: true, emit_null: true},
+        status: {type: String?, emit_null: true},
+        game: {type: GamePlaying?, emit_null: true},
         afk: Bool,
         since: Int64
       )
@@ -127,7 +127,7 @@ module Discord
 
       JSON.mapping(
         guild_id: UInt64,
-        channel_id: {type: UInt64, nilable: true, emit_null: true},
+        channel_id: {type: UInt64?, emit_null: true},
         self_mute: Bool,
         self_deaf: Bool
       )
@@ -170,19 +170,19 @@ module Discord
       JSON.mapping(
         id: {type: UInt64, converter: SnowflakeConverter},
         name: String,
-        icon: {type: String, nilable: true},
-        splash: {type: String, nilable: true},
+        icon: String?,
+        splash: String?,
         owner_id: {type: UInt64, converter: SnowflakeConverter},
         region: String,
         afk_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-        afk_timeout: {type: Int32, nilable: true},
+        afk_timeout: Int32?,
         verification_level: UInt8,
         roles: Array(Role),
         emoji: {type: Array(Emoji), key: "emojis"},
         features: Array(String),
         large: Bool,
         voice_states: Array(VoiceState),
-        unavailable: {type: Bool, nilable: true},
+        unavailable: Bool?,
         member_count: Int32,
         members: Array(GuildMember),
         channels: Array(Channel),
@@ -199,7 +199,7 @@ module Discord
     struct GuildDeletePayload
       JSON.mapping(
         id: {type: UInt64, converter: SnowflakeConverter},
-        unavailable: {type: Bool, nilable: true}
+        unavailable: Bool?
       )
     end
 
@@ -209,7 +209,7 @@ module Discord
         id: {type: UInt64, converter: SnowflakeConverter},
         discriminator: String,
         avatar: String,
-        bot: {type: Bool, nilable: true},
+        bot: Bool?,
         guild_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
@@ -236,7 +236,7 @@ module Discord
     struct GuildMemberAddPayload
       JSON.mapping(
         user: User,
-        nick: {type: String, nilable: true},
+        nick: String?,
         roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
         joined_at: {type: Time?, converter: DATE_FORMAT},
         deaf: Bool,
@@ -299,19 +299,19 @@ module Discord
 
     struct MessageUpdatePayload
       JSON.mapping(
-        type: {type: UInt8, nilable: true},
-        content: {type: String, nilable: true},
+        type: UInt8?,
+        content: String?,
         id: {type: UInt64, converter: SnowflakeConverter},
         channel_id: {type: UInt64, converter: SnowflakeConverter},
-        author: {type: User, nilable: true},
-        timestamp: {type: Time, nilable: true, converter: DATE_FORMAT},
-        tts: {type: Bool, nilable: true},
-        mention_everyone: {type: Bool, nilable: true},
-        mentions: {type: Array(User), nilable: true},
-        mention_roles: {type: Array(UInt64), nilable: true, converter: SnowflakeArrayConverter},
-        attachments: {type: Array(Attachment), nilable: true},
-        embeds: {type: Array(Embed), nilable: true},
-        pinned: {type: Bool, nilable: true}
+        author: User?,
+        timestamp: {type: Time?, converter: DATE_FORMAT},
+        tts: Bool?,
+        mention_everyone: Bool?,
+        mentions: Array(User)?,
+        mention_roles: {type: Array(UInt64)?, converter: SnowflakeArrayConverter},
+        attachments: Array(Attachment)?,
+        embeds: Array(Embed)?,
+        pinned: Bool?
       )
     end
 
@@ -333,8 +333,8 @@ module Discord
       JSON.mapping(
         user: PartialUser,
         roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
-        game: {type: GamePlaying, nilable: true},
-        nick: {type: String, nilable: true},
+        game: GamePlaying?,
+        nick: String?,
         guild_id: {type: UInt64, converter: SnowflakeConverter},
         status: String
       )
