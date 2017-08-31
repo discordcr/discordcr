@@ -359,5 +359,12 @@ module Discord
         endpoint: String
       )
     end
+
+    struct WebhooksUpdatePayload
+      JSON.mapping(
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end
