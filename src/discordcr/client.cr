@@ -240,7 +240,6 @@ module Discord
 
             LOGGER.debug "Sending heartbeat"
 
-<<<<<<< HEAD
             begin
               seq = @session.try &.sequence || 0
               @websocket.send({op: 1, d: seq}.to_json)
@@ -251,11 +250,6 @@ module Discord
                 #{ex}
                 LOG
             end
-=======
-            seq = @session.try &.sequence || 0
-            @websocket.send({op: 1, d: seq}.to_json)
-            @last_heartbeat_acked = false
->>>>>>> 0d07475... Implement heartbeat ACK handling (see also #72)
           end
 
           sleep @heartbeat_interval.milliseconds
