@@ -16,20 +16,20 @@ module Discord
       username: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       discriminator: String,
-      avatar: {type: String, nilable: true},
-      email: {type: String, nilable: true},
-      bot: {type: Bool, nilable: true}
+      avatar: String?,
+      email: String?,
+      bot: Bool?
     )
   end
 
   struct PartialUser
     JSON.mapping(
-      username: {type: String, nilable: true},
+      username: String?,
       id: {type: UInt64, converter: SnowflakeConverter},
-      discriminator: {type: String, nilable: true},
-      avatar: {type: String, nilable: true},
-      email: {type: String, nilable: true},
-      bot: {type: Bool, nilable: true}
+      discriminator: String?,
+      avatar: String?,
+      email: String?,
+      bot: Bool?
     )
 
     def full? : Bool

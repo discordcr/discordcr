@@ -661,6 +661,37 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    # Gets the vanity URL of a guild. Requires the guild to be partnered.
+    #
+    # There are no API docs for this method.
+    def get_guild_vanity_url(guild_id : UInt64)
+      response = request(
+        :guilds_gid_vanityurl,
+        guild_id,
+        "GET",
+        "/guilds/#{guild_id}/vanity-url",
+        HTTP::Headers.new,
+        nil
+      )
+
+      GuildVanityURLResponse.from_json(response.body).code
+    end
+
+    # Sets the vanity URL on this guild. Requires the guild to be
+    # partnered.
+    #
+    # There are no API docs for this method.
+    def modify_guild_vanity_url(guild_id : UInt64, code : String)
+      response = request(
+        :guilds_gid_vanityurl,
+        guild_id,
+        "PATCH",
+        "/guilds/#{guild_id}/vanity-url",
+        HTTP::Headers.new,
+        {code: code}.to_json
+      )
+    end
+
     # Modifies a guild channel's position. Requires the "Manage Channels"
     # permission.
     #
@@ -1091,22 +1122,6 @@ module Discord
       User.from_json(response.body)
     end
 
-    # Queries users by username.
-    #
-    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#query-users)
-    def query_users(query : String, limit : Int32 = 25)
-      response = request(
-        :users,
-        nil,
-        "GET",
-        "/users?q=#{query}&limit=#{limit}",
-        HTTP::Headers.new,
-        nil
-      )
-
-      Array(User).from_json(response.body)
-    end
-
     # Gets the current bot user.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user)
@@ -1257,8 +1272,13 @@ module Discord
       Invite.from_json(response.body)
     end
 
-    # Makes the user accept an invite. Will not work for bots.
-    #
+    # Makes a user accept an invite. Will not work for bots.
+    # For example, this can be used with a `Client` instantiated with an OAuth2
+    # `Bearer` token that has been granted the `guilds.join` scope.
+    # ```
+    # client = Discord::Client.new token: "Bearer XYZ"
+    # client.accept_invite("ABCdef")
+    # ```
     # [API docs for this method](https://discordapp.com/developers/docs/resources/invite#accept-invite)
     def accept_invite(code : String)
       response = request(
