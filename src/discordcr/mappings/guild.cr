@@ -17,23 +17,32 @@ module Discord
       @roles = payload.roles
       @emoji = payload.emoji
       @features = payload.features
+      @widget_channel_id = payload.widget_channel_id
+      @default_message_notifications = payload.default_message_notifications
+      @explicit_content_filter = payload.explicit_content_filter
+      @system_channel_id = payload.system_channel_id
     end
 
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
       name: String,
-      icon: {type: String, nilable: true},
-      splash: {type: String, nilable: true},
+      icon: String?,
+      splash: String?,
       owner_id: {type: UInt64, converter: SnowflakeConverter},
       region: String,
       afk_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      afk_timeout: {type: Int32, nilable: true},
-      embed_enabled: {type: Bool, nilable: true},
+      afk_timeout: Int32?,
+      embed_enabled: Bool?,
       embed_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       verification_level: UInt8,
       roles: Array(Role),
       emoji: {type: Array(Emoji), key: "emojis"},
-      features: Array(String)
+      features: Array(String),
+      widget_enabled: {type: Bool, nilable: true},
+      widget_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      default_message_notifications: UInt8,
+      explicit_content_filter: UInt8,
+      system_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
     )
 
     {% unless flag?(:correct_english) %}
@@ -78,11 +87,11 @@ module Discord
 
     JSON.mapping(
       user: User,
-      nick: {type: String, nilable: true},
+      nick: String?,
       roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
       joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
-      deaf: {type: Bool, nilable: true},
-      mute: {type: Bool, nilable: true}
+      deaf: Bool?,
+      mute: Bool?
     )
   end
 
@@ -149,16 +158,16 @@ module Discord
     end
 
     JSON.mapping(
-      name: {type: String, nilable: true},
-      type: {type: Int64 | String, nilable: true},
-      url: {type: String, nilable: true}
+      name: String?,
+      type: Int64? | String?,
+      url: String?
     )
   end
 
   struct Presence
     JSON.mapping(
       user: PartialUser,
-      game: {type: GamePlaying, nilable: true},
+      game: GamePlaying?,
       status: String
     )
   end

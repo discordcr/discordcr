@@ -661,6 +661,37 @@ module Discord
       Channel.from_json(response.body)
     end
 
+    # Gets the vanity URL of a guild. Requires the guild to be partnered.
+    #
+    # There are no API docs for this method.
+    def get_guild_vanity_url(guild_id : UInt64)
+      response = request(
+        :guilds_gid_vanityurl,
+        guild_id,
+        "GET",
+        "/guilds/#{guild_id}/vanity-url",
+        HTTP::Headers.new,
+        nil
+      )
+
+      GuildVanityURLResponse.from_json(response.body).code
+    end
+
+    # Sets the vanity URL on this guild. Requires the guild to be
+    # partnered.
+    #
+    # There are no API docs for this method.
+    def modify_guild_vanity_url(guild_id : UInt64, code : String)
+      response = request(
+        :guilds_gid_vanityurl,
+        guild_id,
+        "PATCH",
+        "/guilds/#{guild_id}/vanity-url",
+        HTTP::Headers.new,
+        {code: code}.to_json
+      )
+    end
+
     # Modifies a guild channel's position. Requires the "Manage Channels"
     # permission.
     #
