@@ -104,7 +104,7 @@ module Discord
         status: {type: String?, emit_null: true},
         game: {type: GamePlaying?, emit_null: true},
         afk: Bool,
-        since: Int64
+        since: {type: Int64, nilable: true, emit_null: true}
       )
     end
 
