@@ -93,8 +93,8 @@ module Discord
       JSON.mapping(
         dca: DCA,
         opus: Opus,
-        info: {type: Info, nilable: true},
-        origin: {type: Origin, nilable: true},
+        info: Info?,
+        origin: Origin?,
         extra: JSON::Any
       )
     end
@@ -110,8 +110,8 @@ module Discord
       JSON.mapping(
         name: String,
         version: String,
-        url: {type: String, nilable: true},
-        author: {type: String, nilable: true}
+        url: String?,
+        author: String?
       )
     end
 
@@ -128,22 +128,22 @@ module Discord
 
     struct Info
       JSON.mapping(
-        title: {type: String, nilable: true},
-        artist: {type: String, nilable: true},
-        album: {type: String, nilable: true},
-        genre: {type: String, nilable: true},
-        comments: {type: String, nilable: true},
-        cover: {type: String, nilable: true}
+        title: String?,
+        artist: String?,
+        album: String?,
+        genre: String?,
+        comments: String?,
+        cover: String?
       )
     end
 
     struct Origin
       JSON.mapping(
-        source: {type: String, nilable: true},
-        abr: {type: Int32, nilable: true},
-        channels: {type: Int32, nilable: true},
-        encoding: {type: String, nilable: true},
-        url: {type: String, nilable: true}
+        source: String?,
+        abr: Int32?,
+        channels: Int32?,
+        encoding: String?,
+        url: String?
       )
     end
   end
