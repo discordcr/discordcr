@@ -186,7 +186,11 @@ module Discord
         member_count: Int32,
         members: Array(GuildMember),
         channels: Array(Channel),
-        presences: Array(Presence)
+        presences: Array(Presence),
+        widget_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+        default_message_notifications: UInt8,
+        explicit_content_filter: UInt8,
+        system_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
       )
 
       {% unless flag?(:correct_english) %}

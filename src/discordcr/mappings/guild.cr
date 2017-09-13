@@ -17,6 +17,10 @@ module Discord
       @roles = payload.roles
       @emoji = payload.emoji
       @features = payload.features
+      @widget_channel_id = payload.widget_channel_id
+      @default_message_notifications = payload.default_message_notifications
+      @explicit_content_filter = payload.explicit_content_filter
+      @system_channel_id = payload.system_channel_id
     end
 
     JSON.mapping(
@@ -33,7 +37,12 @@ module Discord
       verification_level: UInt8,
       roles: Array(Role),
       emoji: {type: Array(Emoji), key: "emojis"},
-      features: Array(String)
+      features: Array(String),
+      widget_enabled: {type: Bool, nilable: true},
+      widget_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      default_message_notifications: UInt8,
+      explicit_content_filter: UInt8,
+      system_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
     )
 
     {% unless flag?(:correct_english) %}
