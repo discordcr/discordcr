@@ -1162,12 +1162,22 @@ module Discord
     # Gets a list of user guilds the current user is on.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
-    def get_current_user_guilds
+    def get_current_user_guilds(limit : UInt8 = 100, before : UInt64 = 0, after : UInt64 = 0)
+      path = "/users/@me/guilds?limit=#{limit}"
+
+      if before > 0
+          path += "&before=#{before}"
+      end
+
+      if after > 0
+          path += "&after=#{after}"
+      end
+
       response = request(
         :users_me_guilds,
         nil,
         "GET",
-        "/users/@me/guilds",
+        path,
         HTTP::Headers.new,
         nil
       )
