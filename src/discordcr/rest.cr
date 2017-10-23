@@ -628,7 +628,7 @@ module Discord
         :guilds_gid_channels,
         guild_id,
         "GET",
-        "/guilds/#{channel_id}/channels",
+        "/guilds/#{guild_id}/channels",
         HTTP::Headers.new,
         nil
       )
