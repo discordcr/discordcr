@@ -1166,11 +1166,11 @@ module Discord
       path = "/users/@me/guilds?limit=#{limit}"
 
       if before > 0
-          path += "&before=#{before}"
+        path += "&before=#{before}"
       end
 
       if after > 0
-          path += "&after=#{after}"
+        path += "&after=#{after}"
       end
 
       response = request(
