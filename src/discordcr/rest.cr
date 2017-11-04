@@ -112,6 +112,22 @@ module Discord
       GatewayResponse.from_json(response.body)
     end
 
+    # Gets the OAuth2 application tied to a client.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/topics/oauth2#get-current-application-information)
+    def get_oauth2_application
+      response = request(
+        :ouath2_applications_me,
+        nil,
+        "GET",
+        "/oauth2/applications/@me",
+        HTTP::Headers.new,
+        nil
+      )
+
+      OAuth2Application.from_json(response.body)
+    end
+
     # Gets a channel by ID.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel)
