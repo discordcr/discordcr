@@ -40,7 +40,7 @@ module Discord
       last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       bitrate: UInt32?,
       user_limit: UInt32?,
-      recipients: Array(User)?
+      recipients: Array(User)?,
       nsfw: Bool?,
       icon: Bool?,
       owner_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
