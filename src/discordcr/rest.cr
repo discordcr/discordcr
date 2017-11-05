@@ -476,8 +476,8 @@ module Discord
     # permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-channel-invite)
-    def create_channel_invite(channel_id : UInt64, max_age : UInt32 = 0,
-                              max_uses : UInt32 = 0, temporary : Bool = false)
+    def create_channel_invite(channel_id : UInt64, max_age : UInt32 = 0_u32,
+                              max_uses : UInt32 = 0_u32, temporary : Bool = false)
       json = {
         max_age:   max_age,
         max_uses:  max_uses,
@@ -931,7 +931,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-role)
     def create_guild_role(guild_id : UInt64, name : String? = nil,
-                          permissions : Permissions? = nil, colour : UInt32 = 0,
+                          permissions : Permissions? = nil, colour : UInt32 = 0_u32,
                           hoist : Bool = false, mentionable : Bool = false)
       json = {
         name:        name,
