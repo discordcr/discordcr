@@ -18,7 +18,7 @@ module Discord
       discriminator: String,
       avatar: String?,
       email: String?,
-      bot: Bool?
+      bot: Bool?,
       mfa_enabled: Bool?,
       verified: Bool?
     )
