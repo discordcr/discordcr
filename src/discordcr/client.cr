@@ -431,6 +431,11 @@ module Discord
           @cache.try &.add_guild_role(guild.id, role.id)
         end
 
+        payload.members.each do |member|
+          cache member.user
+          @cache.try &.cache(member, guild.id)
+        end
+
         call_event guild_create, payload
       when "GUILD_UPDATE"
         payload = Guild.from_json(data)
@@ -470,7 +475,7 @@ module Discord
         cache payload.user
         @cache.try do |c|
           member = c.resolve_member(payload.guild_id, payload.user.id)
-          new_member = GuildMember.new(member, payload.roles)
+          new_member = GuildMember.new(member, payload.roles, payload.nick)
           c.cache(new_member, payload.guild_id)
         end
 
