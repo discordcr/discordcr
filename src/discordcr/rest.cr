@@ -636,6 +636,59 @@ module Discord
       Guild.from_json(response.body)
     end
 
+    # Gets a list of emoji on the guild.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/emoji#list-guild-emojis)
+    def get_guild_emojis(guild_id : UInt64)
+      response = request(
+        :guild_gid_emojis,
+        guild_id,
+        "GET",
+        "/guilds/#{guild_id}/emojis",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Emoji).from_json(response.body)
+    end
+
+    # Modifies a guild emoji. Requires the "Manage Emojis" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/emoji#modify-guild-emoji)
+    def modify_guild_emoji(guild_id : UInt64, emoji_id : UInt64, name : String)
+      response = request(
+        :guilds_gid_emojis,
+        guild_id,
+        "PATCH",
+        "/guilds/#{guild_id}/emojis/#{emoji_id}",
+        HTTP::Headers.new,
+        {name: name}.to_json
+      )
+
+      Emoji.from_json(response.body)
+    end
+
+    # Creates a guild emoji. Requires the "Manage Emojis" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/emoji#create-guild-emoji)
+    def create_guild_emoji(guild_id : UInt64, name : String, image : String)
+      json = {
+        name:  name,
+        image: image,
+      }.to_json
+
+      response = request(
+        :guild_gid_emojis,
+        guild_id,
+        "POST",
+        "/guilds/#{guild_id}/emojis",
+        HTTP::Headers.new,
+        json
+      )
+
+      Emoji.from_json(response.body)
+    end
+
     # Gets a list of channels in a guild.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-channels)
