@@ -19,6 +19,8 @@ module Discord
       avatar: String?,
       email: String?,
       bot: Bool?
+      mfa_enabled: Bool?,
+      verified: Bool?
     )
   end
 
