@@ -455,7 +455,7 @@ module Discord
       when "GUILD_BAN_REMOVE"
         payload = Gateway::GuildBanPayload.from_json(data)
         call_event guild_ban_remove, payload
-      when "GUILD_EMOJI_UPDATE"
+      when "GUILD_EMOJIS_UPDATE"
         payload = Gateway::GuildEmojiUpdatePayload.from_json(data)
         call_event guild_emoji_update, payload
       when "GUILD_INTEGRATIONS_UPDATE"
