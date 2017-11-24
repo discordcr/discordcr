@@ -65,4 +65,22 @@ describe Discord do
       obj.data[2].should eq 10000000000
     end
   end
+
+  describe Discord::REST::ModifyChannelPositionPayload do
+    describe "#to_json" do
+      context "parent_id is MaybeField::Unchanged" do
+        it "doesn't emit parent_id" do
+          payload = {Discord::REST::ModifyChannelPositionPayload.new(0_u64, 0, Discord::REST::MaybeField::Unchanged, true)}
+          payload.to_json.should eq %([{"id":"0","position":0,"lock_permissions":true}])
+        end
+      end
+
+      context "parent_id is MaybeField::None" do
+        it "emits null for parent_id" do
+          payload = {Discord::REST::ModifyChannelPositionPayload.new(0_u64, 0, Discord::REST::MaybeField::None, true)}
+          payload.to_json.should eq %([{"id":"0","position":0,"parent_id":null,"lock_permissions":true}])
+        end
+      end
+    end
+  end
 end
