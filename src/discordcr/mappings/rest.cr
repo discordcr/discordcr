@@ -45,16 +45,13 @@ module Discord
 
           builder.field("position", @position)
 
-          parent = @parent_id
-
-          if parent.is_a?(MaybeField)
-            if parent.none?
-              builder.field("parent_id", nil)
-            end
-          else
-            builder.field("parent_id") do
-              SnowflakeConverter.to_json(parent, builder)
-            end
+          case parent = @parent_id
+          when UInt64
+            SnowflakeConverter.to_json(parent, builder)
+          when MaybeField::None
+            builder.field("parent_id", nil)
+          when MaybeField::Unchanged
+            # no field
           end
 
           builder.field("lock_permissions", @lock_permissions) unless @lock_permissions.nil?
