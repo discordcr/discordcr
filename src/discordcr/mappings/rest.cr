@@ -22,5 +22,18 @@ module Discord
         code: String
       )
     end
+
+    # A request payload to rearrange channels in a `Guild` by a REST API call.
+    struct ModifyChannelPositionPayload
+      JSON.mapping(
+        id: {type: UInt64, converter: SnowflakeConverter},
+        position: Int32,
+        parent_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+        lock_permissions: Bool?
+      )
+
+      def initialize(@id, @position, @parent_id = nil, @lock_permissions = nil)
+      end
+    end
   end
 end
