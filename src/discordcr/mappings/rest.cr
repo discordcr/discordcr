@@ -2,13 +2,6 @@ require "./converters"
 
 module Discord
   module REST
-    # Enum for controlling emission of JSON key/value pairs where
-    # JSON `null` is a significant value.
-    enum MaybeField
-      None
-      Unchanged
-    end
-
     # A response to the Get Gateway REST API call.
     struct GatewayResponse
       JSON.mapping(
@@ -33,7 +26,7 @@ module Discord
     # A request payload to rearrange channels in a `Guild` by a REST API call.
     struct ModifyChannelPositionPayload
       def initialize(@id : UInt64, @position : Int32,
-                     @parent_id : UInt64 | MaybeField = MaybeField::Unchanged,
+                     @parent_id : UInt64 | ChannelParent = ChannelParent::Unchanged,
                      @lock_permissions : Bool? = nil)
       end
 
@@ -48,9 +41,9 @@ module Discord
           case parent = @parent_id
           when UInt64
             SnowflakeConverter.to_json(parent, builder)
-          when MaybeField::None
+          when ChannelParent::None
             builder.field("parent_id", nil)
-          when MaybeField::Unchanged
+          when ChannelParent::Unchanged
             # no field
           end
 

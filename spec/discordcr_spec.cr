@@ -68,16 +68,16 @@ describe Discord do
 
   describe Discord::REST::ModifyChannelPositionPayload do
     describe "#to_json" do
-      context "parent_id is MaybeField::Unchanged" do
+      context "parent_id is ChannelParent::Unchanged" do
         it "doesn't emit parent_id" do
-          payload = {Discord::REST::ModifyChannelPositionPayload.new(0_u64, 0, Discord::REST::MaybeField::Unchanged, true)}
+          payload = {Discord::REST::ModifyChannelPositionPayload.new(0_u64, 0, Discord::REST::ChannelParent::Unchanged, true)}
           payload.to_json.should eq %([{"id":"0","position":0,"lock_permissions":true}])
         end
       end
 
-      context "parent_id is MaybeField::None" do
+      context "parent_id is ChannelParent::None" do
         it "emits null for parent_id" do
-          payload = {Discord::REST::ModifyChannelPositionPayload.new(0_u64, 0, Discord::REST::MaybeField::None, true)}
+          payload = {Discord::REST::ModifyChannelPositionPayload.new(0_u64, 0, Discord::REST::ChannelParent::None, true)}
           payload.to_json.should eq %([{"id":"0","position":0,"parent_id":null,"lock_permissions":true}])
         end
       end
