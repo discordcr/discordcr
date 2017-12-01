@@ -86,4 +86,15 @@ module Discord
       value.to_json(builder)
     end
   end
+
+  # :nodoc:
+  module ChannelTypeConverter
+    def self.from_json(parser : JSON::PullParser)
+      if value = parser.read?(UInt8)
+        ChannelType.new(value)
+      else
+        raise "Unexpected channel type value: #{parser.read_raw}"
+      end
+    end
+  end
 end

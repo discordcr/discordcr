@@ -31,6 +31,12 @@ struct StructWithMessageType
   )
 end
 
+struct StructWithChannelType
+  JSON.mapping(
+    data: {type: Discord::ChannelType, converter: Discord::ChannelTypeConverter}
+  )
+end
+
 describe Discord do
   describe "VERSION" do
     it "matches shards.yml" do
@@ -108,6 +114,25 @@ describe Discord do
 
         expect_raises(Exception, %(Unexpected message type value: "foo")) do
           StructWithMessageType.from_json(json)
+        end
+      end
+    end
+  end
+
+  describe Discord::ChannelTypeConverter do
+    it "converts an integer into a ChannelType" do
+      json = %({"data": 0})
+
+      obj = StructWithChannelType.from_json(json)
+      obj.data.should eq Discord::ChannelType::GuildText
+    end
+
+    context "with an invalid json value" do
+      it "raises" do
+        json = %({"data":"foo"})
+
+        expect_raises(Exception, %(Unexpected channel type value: "foo")) do
+          StructWithChannelType.from_json(json)
         end
       end
     end
