@@ -25,6 +25,12 @@ struct StructWithTime
   )
 end
 
+struct StructWithMessageType
+  JSON.mapping(
+    data: {type: Discord::MessageType, converter: Discord::MessageTypeConverter}
+  )
+end
+
 describe Discord do
   describe "VERSION" do
     it "matches shards.yml" do
@@ -85,6 +91,25 @@ describe Discord do
       obj.data[0].should eq 1
       obj.data[1].should eq 2
       obj.data[2].should eq 10000000000
+    end
+  end
+
+  describe Discord::MessageTypeConverter do
+    it "converts an integer into a MessageType" do
+      json = %({"data": 0})
+
+      obj = StructWithMessageType.from_json(json)
+      obj.data.should eq Discord::MessageType::Default
+    end
+
+    context "with an invalid json value" do
+      it "raises" do
+        json = %({"data":"foo"})
+
+        expect_raises(Exception, %(Unexpected message type value: "foo")) do
+          StructWithMessageType.from_json(json)
+        end
+      end
     end
   end
 end

@@ -1,9 +1,20 @@
 require "./converters"
 
 module Discord
+  enum MessageType : UInt8
+    Default              = 0
+    RecipientAdd         = 1
+    RecipientRemove      = 2
+    Call                 = 3
+    ChannelNameChange    = 4
+    ChannelIconChange    = 5
+    ChannelPinnedMessage = 6
+    GuildMemberJoin      = 7
+  end
+
   struct Message
     JSON.mapping(
-      type: UInt8?,
+      type: {type: MessageType, converter: MessageTypeConverter},
       content: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
