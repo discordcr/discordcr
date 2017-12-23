@@ -805,7 +805,7 @@ module Discord
     # to specify what ID to start at.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#list-guild-members)
-    def list_guild_members(guild_id : UInt64, limit : UInt8 = 1, after : UInt64 = 0)
+    def list_guild_members(guild_id : UInt64, limit : Int32 = 1000, after : UInt64 = 0_u64)
       path = "/guilds/#{guild_id}/members?limit=#{limit}&after=#{after}"
 
       response = request(
