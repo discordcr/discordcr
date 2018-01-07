@@ -1377,5 +1377,176 @@ module Discord
 
       Array(VoiceRegion).from_json(response.body)
     end
+
+    # Get a webhook.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-webhook).
+    def get_webhook(webhook_id : UInt64)
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "GET",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers.new,
+        nil
+      )
+      Webhook.from_json(response.body)
+    end
+
+    # Get a webhook, with a token.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-webhook-with-token).
+    def get_webhook(webhook_id : UInt64, token : String)
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "GET",
+        "/webhooks/#{webhook_id}/#{token}",
+        HTTP::Headers.new,
+        nil
+      )
+      Webhook.from_json(response.body)
+    end
+
+    # Get an array of guild webhooks.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-guild-webhooks).
+    def get_guild_webhooks(guild_id : UInt64)
+      response = request(
+        :guilds_gid_webhooks,
+        guild_id,
+        "GET",
+        "/guilds/#{guild_id}/webhooks",
+        HTTP::Headers.new,
+        nil
+      )
+      Array(Webhook).from_json(response.body)
+    end
+
+    # Create a channel webhook.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#create-webhook).
+    def create_channel_webhook(channel_id : UInt64, name : String,
+                               avatar : String)
+      json = {
+        name:   name,
+        avatar: avatar,
+      }.to_json
+
+      response = request(
+        :channels_cid_webhooks,
+        channel_id,
+        "POST",
+        "/channels/#{channel_id}/webhooks",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Webhook.from_json(response.body)
+    end
+
+    # Get an array of channel webhooks.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-channel-webhooks).
+    def get_channel_webhooks(channel_id : UInt64)
+      response = request(
+        :channels_cid_webhooks,
+        channel_id,
+        "GET",
+        "/channels/#{channel_id}/webhooks",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Webhook).from_json(response.body)
+    end
+
+    # Modify a webhook. Accepts optional parameters `name`, `avatar`, and `channel_id`.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#modify-webhook).
+    def modify_webhook(webhook_id : UInt64, name : String? = nil, avatar : String? = nil,
+                       channel_id : UInt64? = nil)
+      json = ModifyWebhookPayload.new(name, avatar, channel_id).to_json
+
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "PATCH",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Webhook.from_json(response.body)
+    end
+
+    # Modify a webhook, with a token. Accepts optional parameters `name`, `avatar`, and `channel_id`.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#modify-webhook-with-token).
+    def modify_webhook_with_token(webhook_id : UInt64, token : String, name : String? = nil,
+                                  avatar : String? = nil, channel_id : UInt64? = nil)
+      json = ModifyWebhookPayload.new(name, avatar, channel_id).to_json
+
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "PATCH",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Webhook.from_json(response.body)
+    end
+
+    # Deletes a webhook. User must be owner.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#delete-webhook)
+    def delete_webhook(webhook_id : UInt64)
+      request(
+        :webhooks_wid,
+        webhook_id,
+        "DELETE",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Deletes a webhook with a token. Does not require authentication.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#delete-webhook-with-token)
+    def delete_webhook(webhook_id : UInt64, token : String)
+      request(
+        :webhooks_wid,
+        webhook_id,
+        "DELETE",
+        "/webhooks/#{webhook_id}/#{token}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Executes a webhook, with a token.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#execute-webhook)
+    def execute_webhook(webhook_id : UInt64, token : String, content : String? = nil,
+                        file : String? = nil, embeds : Array(Embed)? = nil,
+                        tts : Bool? = nil, avatar_url : String? = nil,
+                        username : String? = nil, wait : Bool? = false)
+      json = ExecuteWebhookPayload.new(content, file, embeds, tts,
+        avatar_url, username).to_json
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "POST",
+        "/webhooks/#{webhook_id}/#{token}?wait=#{wait}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      # Expecting response
+      Message.from_json(response.body) if wait
+    end
   end
 end

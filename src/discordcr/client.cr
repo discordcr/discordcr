@@ -556,6 +556,9 @@ module Discord
       when "VOICE_SERVER_UPDATE"
         payload = Gateway::VoiceServerUpdatePayload.from_json(data)
         call_event voice_server_update, payload
+      when "WEBHOOKS_UPDATE"
+        payload = Gateway::WebhooksUpdatePayload.from_json(data)
+        call_event webhooks_update, payload
       else
         LOGGER.warn "Unsupported dispatch: #{type} #{data}"
       end
@@ -772,6 +775,11 @@ module Discord
     #
     # [API docs for this event](https://discordapp.com/developers/docs/topics/gateway#voice-server-update)
     event voice_server_update, Gateway::VoiceServerUpdatePayload
+
+    # Sent when a guild channel's webhook is created, updated, or deleted.
+    #
+    # [API docs for this event](https://discordapp.com/developers/docs/topics/gateway#webhooks-update)
+    event webhooks_update, Gateway::WebhooksUpdatePayload
   end
 
   module Gateway
