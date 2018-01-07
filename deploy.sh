@@ -43,7 +43,7 @@ rm -rf out/doc/$SOURCE_BRANCH/**/* || exit 0
 doCompile
 
 # Move results
-mv doc/* out/doc/$SOURCE_BRANCH/
+mv docs/* out/doc/$SOURCE_BRANCH/
 
 # Now let's go have some fun with the cloned repo
 cd out
