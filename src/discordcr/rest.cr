@@ -1231,7 +1231,7 @@ module Discord
     # Gets a list of user guilds the current user is on.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
-    def get_current_user_guilds(limit : UInt8 = 100, before : UInt64 = 0, after : UInt64 = 0)
+    def get_current_user_guilds(limit : UInt8 = 100_u8, before : UInt64 = 0_u64, after : UInt64 = 0_u64)
       params = HTTP::Params.build do |form|
         form.add "limit", limit.to_s
 
