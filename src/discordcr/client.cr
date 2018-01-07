@@ -102,7 +102,7 @@ module Discord
         rescue ex
           LOGGER.error <<-LOG
             Received exception from WebSocket#run:
-            #{ex}
+            #{ex.inspect_with_backtrace}
             LOG
         end
 
@@ -191,14 +191,14 @@ module Discord
         rescue ex : JSON::ParseException
           LOGGER.error <<-LOG
             An exception occurred during message parsing! Please report this.
-            #{ex}
+            #{ex.inspect_with_backtrace}
             (pertaining to previous exception) Raised with packet:
             #{packet}
             LOG
         rescue ex
           LOGGER.error <<-LOG
             A miscellaneous exception occurred during message handling.
-            #{ex}
+            #{ex.inspect_with_backtrace}
             LOG
         end
 
@@ -254,7 +254,7 @@ module Discord
             rescue ex
               LOGGER.error <<-LOG
                 Heartbeat failed!
-                #{ex}
+                #{ex.inspect_with_backtrace}
                 LOG
             end
           end
@@ -343,7 +343,7 @@ module Discord
         rescue ex
           LOGGER.error <<-LOG
             An exception occurred in a user-defined event handler!
-            #{ex}
+            #{ex.inspect_with_backtrace}
             LOG
         end
       end
