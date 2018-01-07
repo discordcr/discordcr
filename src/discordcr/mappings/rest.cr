@@ -57,19 +57,5 @@ module Discord
       def initialize(@name, @avatar, @channel_id)
       end
     end
-
-    class ExecuteWebhookPayload
-      JSON.mapping(
-        content: String?,
-        file: String?,
-        embeds: Array(Embed)?,
-        tts: Bool?,
-        avatar_url: String?,
-        username: String?
-      )
-
-      def initialize(@content, @file, @embeds, @tts, @avatar_url, @username)
-      end
-    end
   end
 end
