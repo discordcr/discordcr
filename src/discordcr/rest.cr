@@ -697,7 +697,7 @@ module Discord
         :guilds_gid_channels,
         guild_id,
         "GET",
-        "/guilds/#{channel_id}/channels",
+        "/guilds/#{guild_id}/channels",
         HTTP::Headers.new,
         nil
       )
@@ -1231,12 +1231,25 @@ module Discord
     # Gets a list of user guilds the current user is on.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
-    def get_current_user_guilds
+    def get_current_user_guilds(limit : UInt8 = 100, before : UInt64 = 0, after : UInt64 = 0)
+      params = HTTP::Params.build do |form|
+        form.add "limit", limit.to_s
+
+        if before > 0
+          form.add "before", before.to_s
+        end
+
+        if after > 0
+          form.add "after", after.to_s
+        end
+      end
+
+      path = "/users/@me/guilds?#{params}"
       response = request(
         :users_me_guilds,
         nil,
         "GET",
-        "/users/@me/guilds",
+        path,
         HTTP::Headers.new,
         nil
       )
