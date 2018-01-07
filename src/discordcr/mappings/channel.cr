@@ -18,55 +18,6 @@ module Discord
       pinned: Bool?,
       reactions: Array(Reaction)?
     )
-
-    # A hash map of regex describing how mentions are parsed by type
-    MENTION_REGEX = {
-      MentionType::User     => /<@!?(?<id>\d+)>/,
-      MentionType::Role     => /<@&(?<id>\d+)>/,
-      MentionType::Channel  => /<#(?<id>\d+)>/,
-      MentionType::Emoji    => /<:(?<name>\w+):(?<id>\d+)>/,
-      MentionType::Everyone => /@everyone/,
-      MentionType::Here     => /@here/,
-    }
-
-    # Returns an array of all mentions contained in the message.
-    def parse_mentions
-      mentions = [] of Mention
-
-      parse_mentions { |m| mentions << m }
-
-      mentions
-    end
-
-    # Returns an array of mentions in the message of a particular type.
-    def parse_mentions(typ : MentionType)
-      content.scan(MENTION_REGEX[typ]).map do |match|
-        id = match["id"]?.try &.to_u64
-        Mention.new(MentionType.new(typ.to_i), id, match["name"]?)
-      end
-    end
-
-    # Does work on the mentions contained in the message with
-    # a provided block.
-    def parse_mentions(&block : Mention ->)
-      MentionType.each do |typ|
-        parse_mentions(typ).each { |mention| yield mention }
-      end
-    end
-  end
-
-  # A mention contained within a message, constructed by its type,
-  # the snowflake, and its name if it is an emoji.
-  record Mention, type : MentionType, id : UInt64?, name : String?
-
-  # An enum of the different kinds of Discord mentions
-  enum MentionType
-    User
-    Role
-    Channel
-    Emoji
-    Everyone
-    Here
   end
 
   struct Channel
