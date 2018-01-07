@@ -8,7 +8,7 @@ module Discord
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
       author: User,
-      timestamp: {type: Time, converter: DATE_FORMAT},
+      timestamp: {type: Time, converter: TimestampConverter},
       tts: Bool,
       mention_everyone: Bool,
       mentions: Array(User),
