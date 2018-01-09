@@ -896,7 +896,7 @@ module Discord
         nil
       )
 
-      Array(User).from_json(response.body)
+      Array(GuildBan).from_json(response.body)
     end
 
     # Bans a member from the guild. Requires the "Ban Members" permission.
