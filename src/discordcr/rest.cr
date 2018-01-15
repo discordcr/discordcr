@@ -882,6 +882,34 @@ module Discord
       )
     end
 
+    # Adds a role to a member. Requires the "Manage Roles" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#add-guild-member-role)
+    def add_guild_member_role(guild_id : UInt64, user_id : UInt64, role_id : UInt64)
+      request(
+        :guilds_gid_members_uid_roles_rid,
+        guild_id,
+        "PUT",
+        "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Removes a role from a member. Requires the "Manage Roles" permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#remove-guild-member-role)
+    def remove_guild_member_role(guild_id : UInt64, user_id : UInt64, role_id : UInt64)
+      request(
+        :guilds_gid_members_uid_roles_rid,
+        guild_id,
+        "DELETE",
+        "/guilds/#{guild_id}/members/#{user_id}/roles/#{role_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
     # Gets a list of members banned from this server. Requires the "Ban Members"
     # permission.
     #
