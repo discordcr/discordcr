@@ -10,6 +10,18 @@ module Discord
 
       def initialize(@opcode : Int64?, @sequence : Int64?, @data : IO::Memory, @event_type : String?)
       end
+
+      def inspect(io : IO)
+        io << "Discord::WebSocket::Packet(@opcode="
+        opcode.inspect(io)
+        io << " @sequence="
+        sequence.inspect(io)
+        io << " @data="
+        data.to_s.inspect(io)
+        io << " @event_type="
+        event_type.inspect(io)
+        io << ')'
+      end
     end
 
     def initialize(@host : String, @path : String, @port : Int32, @tls : Bool)
