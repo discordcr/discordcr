@@ -13,6 +13,10 @@ module Discord
         Time::Format.new("%FT%T%:z", Time::Kind::Utc).parse(time_str)
       end
     end
+
+    def self.to_json(value : Time, builder : JSON::Builder)
+      Time::Format.new("%FT%T.%L%:z").to_json(value, builder)
+    end
   end
 
   # :nodoc:
