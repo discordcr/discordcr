@@ -87,6 +87,7 @@ module Discord
 
       # If the websocket is closed, whether we should immediately try and reconnect
       @should_reconnect = true
+      @client_name = shard ? "Client #{shard}" : "Client"
 
       setup_heartbeats
     end
@@ -107,7 +108,7 @@ module Discord
           websocket.run
         rescue ex
           LOGGER.error <<-LOG
-            Received exception from WebSocket#run:
+            [#{@client_name}] Received exception from WebSocket#run:
             #{ex.inspect_with_backtrace}
             LOG
         end
@@ -119,7 +120,7 @@ module Discord
 
         wait_for_reconnect
 
-        LOGGER.info "Reconnecting"
+        LOGGER.info "[#{@client_name}] Reconnecting"
         @websocket = initialize_websocket
       end
     end
@@ -134,7 +135,7 @@ module Discord
     # unexpected way
     def wait_for_reconnect
       # Wait before reconnecting so we don't spam Discord's servers.
-      LOGGER.debug "Attempting to reconnect in #{@backoff} seconds."
+      LOGGER.debug "[#{@client_name}] Attempting to reconnect in #{@backoff} seconds."
       sleep @backoff.seconds
 
       # Calculate new backoff
@@ -160,7 +161,7 @@ module Discord
 
     private def on_close(message : String)
       # TODO: make more sophisticated
-      LOGGER.warn "Closed with: " + message
+      LOGGER.warn "[#{@client_name}] Closed with: " + message
 
       @send_heartbeats = false
       @session.try &.suspend
@@ -195,23 +196,23 @@ module Discord
             handle_invalid_session
           when OP_HEARTBEAT
             # We got a received heartbeat, reply with the same sequence
-            LOGGER.debug "Heartbeat received"
+            LOGGER.debug "[#{@client_name}] Heartbeat received"
             websocket.send({op: 1, d: packet.sequence}.to_json)
           when OP_HEARTBEAT_ACK
             handle_heartbeat_ack
           else
-            LOGGER.warn "Unsupported payload: #{packet}"
+            LOGGER.warn "[#{@client_name}] Unsupported payload: #{packet}"
           end
         rescue ex : JSON::ParseException
           LOGGER.error <<-LOG
-            An exception occurred during message parsing! Please report this.
+            [#{@client_name}] An exception occurred during message parsing! Please report this.
             #{ex.inspect_with_backtrace}
             (pertaining to previous exception) Raised with packet:
             #{packet}
             LOG
         rescue ex
           LOGGER.error <<-LOG
-            A miscellaneous exception occurred during message handling.
+            [#{@client_name}] A miscellaneous exception occurred during message handling.
             #{ex.inspect_with_backtrace}
             LOG
         end
@@ -248,7 +249,7 @@ module Discord
         loop do
           if @send_heartbeats
             unless @last_heartbeat_acked
-              LOGGER.warn "Last heartbeat not acked, reconnecting"
+              LOGGER.warn "[#{@client_name}] Last heartbeat not acked, reconnecting"
 
               # Give the new connection another chance by resetting the last
               # acked flag; otherwise it would try to reconnect again at the
@@ -259,7 +260,7 @@ module Discord
               next
             end
 
-            LOGGER.debug "Sending heartbeat"
+            LOGGER.debug "[#{@client_name}] Sending heartbeat"
 
             begin
               seq = @session.try &.sequence || 0
@@ -267,7 +268,7 @@ module Discord
               @last_heartbeat_acked = false
             rescue ex
               LOGGER.error <<-LOG
-                Heartbeat failed!
+                [#{@client_name}] Heartbeat failed!
                 #{ex.inspect_with_backtrace}
                 LOG
             end
@@ -356,7 +357,7 @@ module Discord
           handler.call({{payload}})
         rescue ex
           LOGGER.error <<-LOG
-            An exception occurred in a user-defined event handler!
+            [#{@client_name}] An exception occurred in a user-defined event handler!
             #{ex.inspect_with_backtrace}
             LOG
         end
@@ -392,7 +393,7 @@ module Discord
           end
         end
 
-        LOGGER.info "Received READY, v: #{payload.v}"
+        LOGGER.info "[#{@client_name}] Received READY, v: #{payload.v}"
         call_event ready, payload
       when "RESUMED"
         # RESUMED also means a connection was achieved, so reset the
@@ -532,7 +533,6 @@ module Discord
         call_event guild_role_delete, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
-        LOGGER.debug "Received message with content #{payload.content}"
         call_event message_create, payload
       when "MESSAGE_REACTION_ADD"
         payload = Gateway::MessageReactionPayload.from_json(data)
@@ -577,7 +577,7 @@ module Discord
         payload = Gateway::WebhooksUpdatePayload.from_json(data)
         call_event webhooks_update, payload
       else
-        LOGGER.warn "Unsupported dispatch: #{type} #{data}"
+        LOGGER.warn "[#{@client_name}] Unsupported dispatch: #{type} #{data}"
       end
     end
 
@@ -593,7 +593,7 @@ module Discord
     end
 
     private def handle_heartbeat_ack
-      LOGGER.debug "Heartbeat ACK received"
+      LOGGER.debug "[#{@client_name}] Heartbeat ACK received"
       @last_heartbeat_acked = true
     end
 

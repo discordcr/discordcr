@@ -35,6 +35,7 @@ module Discord
 
     def on_message(&handler : Packet ->)
       @websocket.on_message do |message|
+        LOGGER.debug "[WS IN] #{message}" if LOGGER.debug?
         payload = parse_message(message)
         handler.call(payload)
       end
@@ -44,7 +45,12 @@ module Discord
       @websocket.on_close(&handler)
     end
 
-    delegate run, close, send, to: @websocket
+    delegate run, close, to: @websocket
+
+    def send(message)
+      LOGGER.debug "[WS OUT] #{message}" if LOGGER.debug?
+      @websocket.send(message)
+    end
 
     private def parse_message(message : String)
       parser = JSON::PullParser.new(message)
