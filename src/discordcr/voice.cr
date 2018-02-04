@@ -45,6 +45,7 @@ module Discord
     def initialize(payload : Discord::Gateway::VoiceServerUpdatePayload,
                    session : Discord::Gateway::Session, @user_id : UInt64,
                    @logger = Logger.new(STDOUT))
+      @logger.progname = "discordcr"
       @endpoint = payload.endpoint.gsub(":80", "")
 
       @server_id = payload.guild_id

@@ -34,8 +34,8 @@ module Discord
         mutexes[rate_limit_key].synchronize { }
         global_mutex.synchronize { }
 
-        LOGGER.info "[HTTP OUT] #{method} #{path} (#{body.try &.size || 0} bytes)"
-        LOGGER.debug "[HTTP OUT] BODY: #{body}" if LOGGER.debug?
+        @logger.info "[HTTP OUT] #{method} #{path} (#{body.try &.size || 0} bytes)"
+        @logger.debug "[HTTP OUT] BODY: #{body}" if @logger.debug?
 
         response = HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
 
@@ -58,10 +58,10 @@ module Discord
           end
 
           if response.headers["X-RateLimit-Global"]?
-            LOGGER.warn "Global rate limit exceeded! Pausing all requests for #{retry_after}"
+            @logger.warn "Global rate limit exceeded! Pausing all requests for #{retry_after}"
             global_mutex.synchronize { sleep retry_after }
           else
-            LOGGER.warn "Pausing requests for #{rate_limit_key[:route_key]} in #{rate_limit_key[:major_parameter]} for #{retry_after}"
+            @logger.warn "Pausing requests for #{rate_limit_key[:route_key]} in #{rate_limit_key[:major_parameter]} for #{retry_after}"
             mutexes[rate_limit_key].synchronize { sleep retry_after }
           end
 
