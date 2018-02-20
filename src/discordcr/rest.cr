@@ -834,6 +834,37 @@ module Discord
       Array(GuildMember).from_json(response.body)
     end
 
+    # Adds a user to the guild, provided you have a valid OAuth2 access token
+    # for the user with the `guilds.join` scope.
+    #
+    # NOTE: The bot must be a member of the target guild, and have permissions
+    #   to create instant invites.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#add-guild-member)
+    def add_guild_member(guild_id : UInt64, user_id : UInt64,
+                         access_token : String, nick : String? = nil,
+                         roles : Array(UInt64)? = nil, mute : Bool? = nil,
+                         deaf : Bool? = nil)
+      json = encode_tuple(
+        access_token: access_token,
+        nick: nick,
+        roles: roles,
+        mute: mute,
+        deaf: deaf
+      )
+
+      response = request(
+        :guilds_gid_members_uid,
+        guild_id,
+        "PUT",
+        "/guilds/#{guild_id}/members/#{user_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      GuildMember.from_json(response.body)
+    end
+
     # Changes a specific member's properties. Requires:
     #
     #  - the "Manage Roles" permission and the role to change to be lower
