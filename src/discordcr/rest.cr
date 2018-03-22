@@ -124,6 +124,22 @@ module Discord
       GatewayResponse.from_json(response.body)
     end
 
+    # Gets the gateway Bot URL to connect to, and the recommended amount of shards to make.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/topics/gateway#get-gateway-bot)
+    def get_gateway_bot
+      response = request(
+        :gateway_bot,
+        nil,
+        "GET",
+        "/gateway/bot",
+        HTTP::Headers.new,
+        nil
+      )
+
+      GatewayBotResponse.from_json(response.body)
+    end
+
     # Gets the OAuth2 application tied to a client.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/topics/oauth2#get-current-application-information)
