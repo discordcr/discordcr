@@ -24,25 +24,25 @@ module Discord
     end
 
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       icon: String?,
       splash: String?,
-      owner_id: {type: UInt64, converter: SnowflakeConverter},
+      owner_id: Snowflake,
       region: String,
-      afk_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      afk_channel_id: Snowflake?,
       afk_timeout: Int32?,
       embed_enabled: Bool?,
-      embed_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      embed_channel_id: Snowflake?,
       verification_level: UInt8,
       roles: Array(Role),
       emoji: {type: Array(Emoji), key: "emojis"},
       features: Array(String),
       widget_enabled: {type: Bool, nilable: true},
-      widget_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      widget_channel_id: Snowflake?,
       default_message_notifications: UInt8,
       explicit_content_filter: UInt8,
-      system_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
+      system_channel_id: Snowflake?
     )
 
     {% unless flag?(:correct_english) %}
@@ -54,7 +54,7 @@ module Discord
 
   struct UnavailableGuild
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       unavailable: Bool
     )
   end
@@ -62,13 +62,13 @@ module Discord
   struct GuildEmbed
     JSON.mapping(
       enabled: Bool,
-      channel_id: {type: UInt64, converter: SnowflakeConverter}
+      channel_id: Snowflake?
     )
   end
 
   struct GuildMember
     # :nodoc:
-    def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(UInt64), nick : String?)
+    def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(Snowflake), nick : String?)
       initialize(payload)
       @nick = nick
       @roles = roles
@@ -95,7 +95,7 @@ module Discord
     JSON.mapping(
       user: User,
       nick: String?,
-      roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+      roles: Array(Snowflake),
       joined_at: {type: Time?, converter: TimestampConverter},
       deaf: Bool?,
       mute: Bool?
@@ -104,12 +104,12 @@ module Discord
 
   struct Integration
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       type: String,
       enabled: Bool,
       syncing: Bool,
-      role_id: {type: UInt64, converter: SnowflakeConverter},
+      role_id: Snowflake,
       expire_behaviour: {type: UInt8, key: "expire_behavior"},
       expire_grace_period: Int32,
       user: User,
@@ -133,9 +133,9 @@ module Discord
 
   struct Emoji
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
-      roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+      roles: Array(Snowflake),
       require_colons: Bool,
       managed: Bool
     )
@@ -143,7 +143,7 @@ module Discord
 
   struct Role
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       permissions: Permissions,
       colour: {type: UInt32, key: "color"},

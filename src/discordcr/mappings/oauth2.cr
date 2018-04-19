@@ -7,7 +7,7 @@ module Discord
   # among other OAuth2 properties.
   struct OAuth2Application
     JSON.mapping({
-      id:                     {type: UInt64, converter: SnowflakeConverter},
+      id:                     Snowflake,
       name:                   String,
       icon:                   String?,
       description:            String?,

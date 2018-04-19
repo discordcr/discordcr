@@ -30,6 +30,7 @@ module Discord
 
     @endpoint : String
     @server_id : UInt64
+    @user_id : UInt64
     @session_id : String
     @token : String
 
@@ -43,10 +44,11 @@ module Discord
     # user ID of the account on which the voice client is created. (It is
     # received as part of the gateway READY dispatch, for example)
     def initialize(payload : Discord::Gateway::VoiceServerUpdatePayload,
-                   session : Discord::Gateway::Session, @user_id : UInt64)
+                   session : Discord::Gateway::Session, user_id : UInt64 | Snowflake)
+      @user_id = user_id.to_u64
       @endpoint = payload.endpoint.gsub(":80", "")
 
-      @server_id = payload.guild_id
+      @server_id = payload.guild_id.to_u64
       @session_id = session.session_id
       @token = payload.token
 

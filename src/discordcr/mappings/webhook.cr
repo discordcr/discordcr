@@ -4,9 +4,9 @@ require "./user"
 module Discord
   struct Webhook
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
-      guild_id: {type: UInt64?, converter: SnowflakeConverter},
-      channel_id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
+      guild_id: Snowflake?,
+      channel_id: Snowflake,
       user: User?,
       name: String,
       avatar: String?,

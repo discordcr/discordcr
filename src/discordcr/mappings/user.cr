@@ -14,7 +14,7 @@ module Discord
 
     JSON.mapping(
       username: String,
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       discriminator: String,
       avatar: String?,
       email: String?,
@@ -27,7 +27,7 @@ module Discord
   struct PartialUser
     JSON.mapping(
       username: String?,
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       discriminator: String?,
       avatar: String?,
       email: String?,
@@ -41,7 +41,7 @@ module Discord
 
   struct UserGuild
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       icon: String?,
       owner: Bool,
@@ -51,7 +51,7 @@ module Discord
 
   struct Connection
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       type: String,
       revoked: Bool

@@ -168,13 +168,13 @@ module Discord
     # and presences.
     struct GuildCreatePayload
       JSON.mapping(
-        id: {type: UInt64, converter: SnowflakeConverter},
+        id: Snowflake,
         name: String,
         icon: String?,
         splash: String?,
-        owner_id: {type: UInt64, converter: SnowflakeConverter},
+        owner_id: Snowflake,
         region: String,
-        afk_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+        afk_channel_id: Snowflake?,
         afk_timeout: Int32?,
         verification_level: UInt8,
         roles: Array(Role),
@@ -187,10 +187,10 @@ module Discord
         members: Array(GuildMember),
         channels: Array(Channel),
         presences: Array(Presence),
-        widget_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+        widget_channel_id: Snowflake?,
         default_message_notifications: UInt8,
         explicit_content_filter: UInt8,
-        system_channel_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
+        system_channel_id: Snowflake?
       )
 
       {% unless flag?(:correct_english) %}
@@ -202,7 +202,7 @@ module Discord
 
     struct GuildDeletePayload
       JSON.mapping(
-        id: {type: UInt64, converter: SnowflakeConverter},
+        id: Snowflake,
         unavailable: Bool?
       )
     end
@@ -210,13 +210,13 @@ module Discord
     struct GuildBanPayload
       JSON.mapping(
         user: User,
-        guild_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake
       )
     end
 
     struct GuildEmojiUpdatePayload
       JSON.mapping(
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        guild_id: Snowflake,
         emoji: {type: Array(Emoji), key: "emojis"}
       )
 
@@ -229,7 +229,7 @@ module Discord
 
     struct GuildIntegrationsUpdatePayload
       JSON.mapping(
-        guild_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake
       )
     end
 
@@ -237,64 +237,64 @@ module Discord
       JSON.mapping(
         user: User,
         nick: String?,
-        roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+        roles: Array(Snowflake),
         joined_at: {type: Time?, converter: TimestampConverter},
         deaf: Bool,
         mute: Bool,
-        guild_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake
       )
     end
 
     struct GuildMemberUpdatePayload
       JSON.mapping(
         user: User,
-        roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+        roles: Array(Snowflake),
         nick: {type: String, nilable: true},
-        guild_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake
       )
     end
 
     struct GuildMemberRemovePayload
       JSON.mapping(
         user: User,
-        guild_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake
       )
     end
 
     struct GuildMembersChunkPayload
       JSON.mapping(
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        guild_id: Snowflake,
         members: Array(GuildMember)
       )
     end
 
     struct GuildRolePayload
       JSON.mapping(
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        guild_id: Snowflake,
         role: Role
       )
     end
 
     struct GuildRoleDeletePayload
       JSON.mapping(
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
-        role_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake,
+        role_id: Snowflake
       )
     end
 
     struct MessageReactionPayload
       JSON.mapping(
-        user_id: {type: UInt64, converter: SnowflakeConverter},
-        channel_id: {type: UInt64, converter: SnowflakeConverter},
-        message_id: {type: UInt64, converter: SnowflakeConverter},
+        user_id: Snowflake,
+        channel_id: Snowflake,
+        message_id: Snowflake,
         emoji: ReactionEmoji
       )
     end
 
     struct MessageReactionRemoveAllPayload
       JSON.mapping(
-        channel_id: {type: UInt64, converter: SnowflakeConverter},
-        message_id: {type: UInt64, converter: SnowflakeConverter}
+        channel_id: Snowflake,
+        message_id: Snowflake
       )
     end
 
@@ -302,14 +302,14 @@ module Discord
       JSON.mapping(
         type: UInt8?,
         content: String?,
-        id: {type: UInt64, converter: SnowflakeConverter},
-        channel_id: {type: UInt64, converter: SnowflakeConverter},
+        id: Snowflake,
+        channel_id: Snowflake,
         author: User?,
         timestamp: {type: Time?, converter: TimestampConverter},
         tts: Bool?,
         mention_everyone: Bool?,
         mentions: Array(User)?,
-        mention_roles: {type: Array(UInt64)?, converter: SnowflakeArrayConverter},
+        mention_roles: Array(Snowflake),
         attachments: Array(Attachment)?,
         embeds: Array(Embed)?,
         pinned: Bool?
@@ -318,33 +318,33 @@ module Discord
 
     struct MessageDeletePayload
       JSON.mapping(
-        id: {type: UInt64, converter: SnowflakeConverter},
-        channel_id: {type: UInt64, converter: SnowflakeConverter}
+        id: Snowflake,
+        channel_id: Snowflake
       )
     end
 
     struct MessageDeleteBulkPayload
       JSON.mapping(
-        ids: {type: Array(UInt64), converter: SnowflakeArrayConverter},
-        channel_id: {type: UInt64, converter: SnowflakeConverter}
+        ids: Array(Snowflake),
+        channel_id: Snowflake
       )
     end
 
     struct PresenceUpdatePayload
       JSON.mapping(
         user: PartialUser,
-        roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+        roles: Array(Snowflake),
         game: GamePlaying?,
         nick: String?,
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        guild_id: Snowflake,
         status: String
       )
     end
 
     struct TypingStartPayload
       JSON.mapping(
-        channel_id: {type: UInt64, converter: SnowflakeConverter},
-        user_id: {type: UInt64, converter: SnowflakeConverter},
+        channel_id: Snowflake,
+        user_id: Snowflake,
         timestamp: {type: Time, converter: Time::EpochConverter}
       )
     end
@@ -352,22 +352,22 @@ module Discord
     struct VoiceServerUpdatePayload
       JSON.mapping(
         token: String,
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        guild_id: Snowflake,
         endpoint: String
       )
     end
 
     struct WebhooksUpdatePayload
       JSON.mapping(
-        guild_id: {type: UInt64, converter: SnowflakeConverter},
-        channel_id: {type: UInt64, converter: SnowflakeConverter}
+        guild_id: Snowflake,
+        channel_id: Snowflake
       )
     end
 
     struct ChannelPinsUpdatePayload
       JSON.mapping(
         last_pin_timestamp: {type: Time, converter: TimestampConverter},
-        channel_id: {type: UInt64, converter: SnowflakeConverter}
+        channel_id: Snowflake
       )
     end
   end
