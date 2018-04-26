@@ -27,7 +27,11 @@ module Discord
     # a voice client, for example
     getter session : Gateway::Session?
 
-    @websocket : Discord::WebSocket
+    # The internal websocket the client is currently using
+    getter websocket : Discord::WebSocket do
+      initialize_websocket
+    end
+
     @backoff : Float64
 
     # Default analytics properties sent in IDENTIFY
@@ -69,7 +73,6 @@ module Discord
                    @large_threshold : Int32 = 100,
                    @compress : Bool = false,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES)
-      @websocket = initialize_websocket
       @backoff = 1.0
 
       # Set some default value for the heartbeat interval. This should never
@@ -98,7 +101,7 @@ module Discord
     def run
       loop do
         begin
-          @websocket.run
+          websocket.run
         rescue ex
           LOGGER.error <<-LOG
             Received exception from WebSocket#run:
@@ -182,7 +185,7 @@ module Discord
           when OP_HEARTBEAT
             # We got a received heartbeat, reply with the same sequence
             LOGGER.debug "Heartbeat received"
-            @websocket.send({op: 1, d: packet.sequence}.to_json)
+            websocket.send({op: 1, d: packet.sequence}.to_json)
           when OP_HEARTBEAT_ACK
             handle_heartbeat_ack
           else
@@ -249,7 +252,7 @@ module Discord
 
             begin
               seq = @session.try &.sequence || 0
-              @websocket.send({op: 1, d: seq}.to_json)
+              websocket.send({op: 1, d: seq}.to_json)
               @last_heartbeat_acked = false
             rescue ex
               LOGGER.error <<-LOG
@@ -270,7 +273,7 @@ module Discord
       end
 
       packet = Gateway::IdentifyPacket.new(@token, @properties, @compress, @large_threshold, shard_tuple)
-      @websocket.send(packet.to_json)
+      websocket.send(packet.to_json)
     end
 
     # Sends a resume packet from the given *sequence* number, or alternatively
@@ -281,7 +284,7 @@ module Discord
       sequence ||= session.sequence
 
       packet = Gateway::ResumePacket.new(@token, session.session_id, sequence)
-      @websocket.send(packet.to_json)
+      websocket.send(packet.to_json)
     end
 
     # Reconnects the websocket connection entirely. If *should_suspend* is set,
@@ -293,7 +296,7 @@ module Discord
     def reconnect(should_suspend = false, backoff_override = nil)
       @backoff = backoff_override if backoff_override
       @send_heartbeats = false
-      @websocket.close
+      websocket.close
 
       # Suspend the session so we resume, if desired
       @session.try &.suspend if should_suspend
@@ -307,7 +310,7 @@ module Discord
     # purpose.
     def status_update(status : String? = nil, game : GamePlaying? = nil, afk : Bool = false, since : Int64? = nil)
       packet = Gateway::StatusUpdatePacket.new(status, game, afk, since)
-      @websocket.send(packet.to_json)
+      websocket.send(packet.to_json)
     end
 
     # Sends a voice state update to Discord. This will create a new voice
@@ -319,7 +322,7 @@ module Discord
     # connections yet - this will have to be done externally until that happens.
     def voice_state_update(guild_id : UInt64, channel_id : UInt64?, self_mute : Bool, self_deaf : Bool)
       packet = Gateway::VoiceStateUpdatePacket.new(guild_id, channel_id, self_mute, self_deaf)
-      @websocket.send(packet.to_json)
+      websocket.send(packet.to_json)
     end
 
     # Requests a full list of members to be sent for a specific guild. This is
@@ -332,7 +335,7 @@ module Discord
     # is set up, arriving members will be cached automatically.
     def request_guild_members(guild_id : UInt64, query : String = "", limit : Int32 = 0)
       packet = Gateway::RequestGuildMembersPacket.new(guild_id, query, limit)
-      @websocket.send(packet.to_json)
+      websocket.send(packet.to_json)
     end
 
     # :nodoc:
