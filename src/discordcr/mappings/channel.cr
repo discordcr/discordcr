@@ -1,9 +1,20 @@
 require "./converters"
 
 module Discord
+  enum MessageType : UInt8
+    Default              = 0
+    RecipientAdd         = 1
+    RecipientRemove      = 2
+    Call                 = 3
+    ChannelNameChange    = 4
+    ChannelIconChange    = 5
+    ChannelPinnedMessage = 6
+    GuildMemberJoin      = 7
+  end
+
   struct Message
     JSON.mapping(
-      type: UInt8?,
+      type: {type: MessageType, converter: MessageTypeConverter},
       content: String,
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
@@ -35,6 +46,13 @@ module Discord
     )
   end
 
+  enum ChannelType : UInt8
+    GuildText = 0
+    DM        = 1
+    Voice     = 2
+    GroupDM   = 3
+  end
+
   struct Channel
     # :nodoc:
     def initialize(private_channel : PrivateChannel)
@@ -46,7 +64,7 @@ module Discord
 
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
-      type: UInt8,
+      type: {type: ChannelType, converter: ChannelTypeConverter},
       guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       name: String?,
       permission_overwrites: Array(Overwrite)?,
@@ -67,7 +85,7 @@ module Discord
   struct PrivateChannel
     JSON.mapping(
       id: {type: UInt64, converter: SnowflakeConverter},
-      type: UInt8,
+      type: {type: ChannelType, converter: ChannelTypeConverter},
       recipients: Array(User),
       last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
     )
