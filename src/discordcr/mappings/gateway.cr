@@ -363,5 +363,12 @@ module Discord
         channel_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
+
+    struct ChannelPinsUpdatePayload
+      JSON.mapping(
+        last_pin_timestamp: {type: Time, converter: TimestampConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter}
+      )
+    end
   end
 end

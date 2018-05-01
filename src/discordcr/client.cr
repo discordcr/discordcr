@@ -428,6 +428,9 @@ module Discord
         @cache.try &.remove_guild_channel(guild_id, payload.id) if guild_id
 
         call_event channel_delete, payload
+      when "CHANNEL_PINS_UPDATE"
+        payload = Gateway::ChannelPinsUpdatePayload.from_json(data)
+        call_event channel_pins_update, payload
       when "GUILD_CREATE"
         payload = Gateway::GuildCreatePayload.from_json(data)
 
@@ -645,6 +648,12 @@ module Discord
     #
     # [API docs for this event](https://discordapp.com/developers/docs/topics/gateway#channel-delete)
     event channel_delete, Channel
+
+    # Called when a channel's pinned messages are updated, where a pin was
+    # either added or removed.
+    #
+    # [API docs for this event](https://discordapp.com/developers/docs/topics/gateway#channel-pins-update)
+    event channel_pins_update, Gateway::ChannelPinsUpdatePayload
 
     # Called when the bot is added to a guild, a guild unavailable due to an
     # outage becomes available again, or the guild is streamed after READY.
