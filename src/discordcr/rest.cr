@@ -775,27 +775,20 @@ module Discord
       )
     end
 
-    # Modifies a guild channel's position. Requires the "Manage Channels"
-    # permission.
+    # Modifies the position of channels within a guild. Requires the
+    # "Manage Channels" permission.
     #
-    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-channel)
-    def modify_guild_channel(guild_id : UInt64, channel_id : UInt64,
-                             position : UInt64)
-      json = encode_tuple(
-        id: channel_id,
-        position: position
-      )
-
-      response = request(
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-channel-positions)
+    def modify_guild_channel_positions(guild_id : UInt64,
+                                       positions : Array(ModifyChannelPositionPayload))
+      request(
         :guilds_gid_channels,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/channels",
         HTTP::Headers{"Content-Type" => "application/json"},
-        json
+        positions.to_json
       )
-
-      Channel.from_json(response.body)
     end
 
     # Gets a specific member by both IDs.
