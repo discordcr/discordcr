@@ -16,7 +16,22 @@ module Discord
       attachments: Array(Attachment),
       embeds: Array(Embed),
       pinned: Bool?,
-      reactions: Array(Reaction)?
+      reactions: Array(Reaction)?,
+      activity: Activity?
+    )
+  end
+
+  enum ActivityType : UInt8
+    Join        = 1
+    Spectate    = 2
+    Listen      = 3
+    JoinRequest = 5
+  end
+
+  struct Activity
+    JSON.mapping(
+      type: ActivityType,
+      party_id: String?
     )
   end
 
