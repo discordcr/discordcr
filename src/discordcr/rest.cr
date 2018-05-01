@@ -723,7 +723,7 @@ module Discord
     # permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-channel)
-    def create_guild_channel(guild_id : UInt64, name : String, type : UInt8,
+    def create_guild_channel(guild_id : UInt64, name : String, type : ChannelType,
                              bitrate : UInt32?, user_limit : UInt32?)
       json = encode_tuple(
         name: name,
