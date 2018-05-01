@@ -9,6 +9,14 @@ module Discord
       )
     end
 
+    # A response to the Get Gateway Bot REST API call.
+    struct GatewayBotResponse
+      JSON.mapping(
+        url: String,
+        shards: Int32
+      )
+    end
+
     # A response to the Get Guild Prune Count REST API call.
     struct PruneCountResponse
       JSON.mapping(
