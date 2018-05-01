@@ -47,6 +47,12 @@ describe Discord do
       obj = StructWithTime.from_json(json)
       obj.data.should be_a Time
     end
+
+    it "serializes" do
+      json = %({"data":"2017-11-16T13:09:18.291+00:00"})
+      obj = StructWithTime.from_json(json)
+      obj.to_json.should eq json
+    end
   end
 
   describe Discord::SnowflakeConverter do
