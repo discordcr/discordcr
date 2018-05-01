@@ -16,8 +16,6 @@ module Discord
   #
   # With this client, REST requests can now be sent. (See the `Discord::REST`
   # module.) A gateway connection can also be started using the `#run` method.
-  #
-  # test
   class Client
     include REST
 
