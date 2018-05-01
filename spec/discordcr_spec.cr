@@ -19,11 +19,33 @@ struct StructWithSnowflakeArray
   )
 end
 
+struct StructWithTime
+  JSON.mapping(
+    data: {type: Time, converter: Discord::TimestampConverter}
+  )
+end
+
 describe Discord do
   describe "VERSION" do
     it "matches shards.yml" do
       version = YAML.parse(File.read(File.join(__DIR__, "..", "shard.yml")))["version"].as_s
       version.should eq(Discord::VERSION)
+    end
+  end
+
+  describe Discord::TimestampConverter do
+    it "parses a time with floating point accuracy" do
+      json = %({"data":"2017-11-16T13:09:18.291000+00:00"})
+
+      obj = StructWithTime.from_json(json)
+      obj.data.should be_a Time
+    end
+
+    it "parses a time without floating point accuracy" do
+      json = %({"data":"2017-11-15T02:23:35+00:00"})
+
+      obj = StructWithTime.from_json(json)
+      obj.data.should be_a Time
     end
   end
 

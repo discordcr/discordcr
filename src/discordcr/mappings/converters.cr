@@ -2,7 +2,18 @@ require "json"
 require "time/format"
 
 module Discord
-  DATE_FORMAT = Time::Format.new("%FT%T.%L%:z")
+  # :nodoc:
+  module TimestampConverter
+    def self.from_json(parser : JSON::PullParser)
+      time_str = parser.read_string
+
+      begin
+        Time::Format.new("%FT%T.%L%:z", Time::Kind::Utc).parse(time_str)
+      rescue Time::Format::Error
+        Time::Format.new("%FT%T%:z", Time::Kind::Utc).parse(time_str)
+      end
+    end
+  end
 
   # :nodoc:
   module EmbedTimestampConverter

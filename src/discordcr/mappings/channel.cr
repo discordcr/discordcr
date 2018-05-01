@@ -8,7 +8,7 @@ module Discord
       id: {type: UInt64, converter: SnowflakeConverter},
       channel_id: {type: UInt64, converter: SnowflakeConverter},
       author: User,
-      timestamp: {type: Time, converter: DATE_FORMAT},
+      timestamp: {type: Time, converter: TimestampConverter},
       tts: Bool,
       mention_everyone: Bool,
       mentions: Array(User),
@@ -34,7 +34,6 @@ module Discord
       type: UInt8,
       guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
       name: String?,
-      is_private: Bool?,
       permission_overwrites: Array(Overwrite)?,
       topic: String?,
       last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
@@ -44,7 +43,9 @@ module Discord
       nsfw: Bool?,
       icon: Bool?,
       owner_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      application_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
+      application_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      position: Int32?,
+      parent_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
     )
   end
 

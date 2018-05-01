@@ -12,7 +12,7 @@ function doCompile {
 }
 
 # Pull requests and commits to other branches shouldn't try to deploy, just build to verify
-if [ "$TRAVIS_PULL_REQUEST" != "false" -o ["$TRAVIS_BRANCH" != "$SOURCE_BRANCH" && -z "$TRAVIS_TAG" ] ]; then
+if [ "$TRAVIS_PULL_REQUEST" != "false" ] || { [ "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ] && [ -z "$TRAVIS_TAG" ]; }; then
     echo "Skipping deploy; just doing a build."
     doCompile
     exit 0
@@ -43,7 +43,7 @@ rm -rf out/doc/$SOURCE_BRANCH/**/* || exit 0
 doCompile
 
 # Move results
-mv doc/* out/doc/$SOURCE_BRANCH/
+mv docs/* out/doc/$SOURCE_BRANCH/
 
 # Now let's go have some fun with the cloned repo
 cd out
@@ -51,7 +51,7 @@ git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
-$DIFF_RESULT = `git diff --exit-code`
+DIFF_RESULT=`git diff --exit-code`
 if [ -z "$DIFF_RESULT" ]; then
     echo "No changes to the output on this push; exiting."
     exit 0

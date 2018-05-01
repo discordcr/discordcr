@@ -209,11 +209,7 @@ module Discord
 
     struct GuildBanPayload
       JSON.mapping(
-        username: String,
-        id: {type: UInt64, converter: SnowflakeConverter},
-        discriminator: String,
-        avatar: String,
-        bot: Bool?,
+        user: User,
         guild_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
@@ -242,7 +238,7 @@ module Discord
         user: User,
         nick: String?,
         roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
-        joined_at: {type: Time?, converter: DATE_FORMAT},
+        joined_at: {type: Time?, converter: TimestampConverter},
         deaf: Bool,
         mute: Bool,
         guild_id: {type: UInt64, converter: SnowflakeConverter}
@@ -309,7 +305,7 @@ module Discord
         id: {type: UInt64, converter: SnowflakeConverter},
         channel_id: {type: UInt64, converter: SnowflakeConverter},
         author: User?,
-        timestamp: {type: Time?, converter: DATE_FORMAT},
+        timestamp: {type: Time?, converter: TimestampConverter},
         tts: Bool?,
         mention_everyone: Bool?,
         mentions: Array(User)?,
@@ -358,6 +354,13 @@ module Discord
         token: String,
         guild_id: {type: UInt64, converter: SnowflakeConverter},
         endpoint: String
+      )
+    end
+
+    struct WebhooksUpdatePayload
+      JSON.mapping(
+        guild_id: {type: UInt64, converter: SnowflakeConverter},
+        channel_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
   end

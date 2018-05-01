@@ -96,6 +96,18 @@ module Discord
       response
     end
 
+    # :nodoc:
+    def encode_tuple(**tuple)
+      JSON.build do |builder|
+        builder.object do
+          tuple.each do |key, value|
+            next if value.nil?
+            builder.field(key) { value.to_json(builder) }
+          end
+        end
+      end
+    end
+
     # Gets the gateway URL to connect to.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/topics/gateway#get-gateway)
@@ -148,15 +160,16 @@ module Discord
     # permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#modify-channel)
-    def modify_channel(channel_id : UInt64, name : String?, position : UInt32?,
-                       topic : String?, bitrate : UInt32?, user_limit : UInt32?)
-      json = {
-        name:       name,
-        position:   position,
-        topic:      topic,
-        bitrate:    bitrate,
-        user_limit: user_limit,
-      }.to_json
+    def modify_channel(channel_id : UInt64, name : String? = nil, position : UInt32? = nil,
+                       topic : String? = nil, bitrate : UInt32? = nil, user_limit : UInt32? = nil,
+                       nsfw : Bool? = nil)
+      json = encode_tuple(
+        name: name,
+        position: position,
+        topic: topic,
+        bitrate: bitrate,
+        user_limit: user_limit
+      )
 
       response = request(
         :channels_cid,
@@ -174,7 +187,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#deleteclose-channel)
     def delete_channel(channel_id : UInt64)
-      response = request(
+      request(
         :channels_cid,
         channel_id,
         "DELETE",
@@ -288,7 +301,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-own-reaction)
     def delete_own_reaction(channel_id : UInt64, message_id : UInt64, emoji : String)
-      response = request(
+      request(
         :channels_cid_messages_mid_reactions_emoji_me,
         channel_id,
         "DELETE",
@@ -305,7 +318,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-user-reaction)
     def delete_user_reaction(channel_id : UInt64, message_id : UInt64, emoji : String, user_id : UInt64)
-      response = request(
+      request(
         :channels_cid_messages_mid_reactions_emoji_uid,
         channel_id,
         "DELETE",
@@ -336,7 +349,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#delete-all-reactions)
     def delete_all_reactions(channel_id : UInt64, message_id : UInt64)
-      response = request(
+      request(
         :channels_cid_messages_mid_reactions,
         channel_id,
         "DELETE",
@@ -439,11 +452,11 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions)
     def edit_channel_permissions(channel_id : UInt64, overwrite_id : UInt64,
                                  type : String, allow : Permissions, deny : Permissions)
-      json = {
+      json = encode_tuple(
         allow: allow,
-        deny:  deny,
-        type:  type,
-      }.to_json
+        deny: deny,
+        type: type
+      )
 
       response = request(
         :channels_cid_permissions_oid,
@@ -476,13 +489,13 @@ module Discord
     # permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-channel-invite)
-    def create_channel_invite(channel_id : UInt64, max_age : UInt32 = 0,
-                              max_uses : UInt32 = 0, temporary : Bool = false)
-      json = {
-        max_age:   max_age,
-        max_uses:  max_uses,
-        temporary: temporary,
-      }.to_json
+    def create_channel_invite(channel_id : UInt64, max_age : UInt32 = 0_u32,
+                              max_uses : UInt32 = 0_u32, temporary : Bool = false)
+      json = encode_tuple(
+        max_age: max_age,
+        max_uses: max_uses,
+        temporary: temporary
+      )
 
       response = request(
         :channels_cid_invites,
@@ -591,22 +604,23 @@ module Discord
 
     # Modifies an existing guild with new properties. Requires the "Manage
     # Server" permission.
+    # NOTE: To remove a guild's icon, you can send an empty string for the `icon` argument.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild)
-    def modify_guild(guild_id : UInt64, name : String?, region : String?,
-                     verification_level : UInt8?, afk_channel_id : UInt64?,
-                     afk_timeout : Int32?, icon : String?, owner_id : UInt64?,
-                     splash : String?)
-      json = {
-        name:               name,
-        region:             region,
+    def modify_guild(guild_id : UInt64, name : String? = nil, region : String? = nil,
+                     verification_level : UInt8? = nil, afk_channel_id : UInt64? = nil,
+                     afk_timeout : Int32? = nil, icon : String? = nil, owner_id : UInt64? = nil,
+                     splash : String? = nil)
+      json = encode_tuple(
+        name: name,
+        region: region,
         verification_level: verification_level,
-        afk_channel_id:     afk_channel_id,
-        afk_timeout:        afk_timeout,
-        icon:               icon,
-        owner_id:           owner_id,
-        splash:             splash,
-      }.to_json
+        afk_channel_id: afk_channel_id,
+        afk_timeout: afk_timeout,
+        icon: icon,
+        owner_id: owner_id,
+        splash: splash
+      )
 
       response = request(
         :guilds_gid,
@@ -672,10 +686,10 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/emoji#create-guild-emoji)
     def create_guild_emoji(guild_id : UInt64, name : String, image : String)
-      json = {
-        name:  name,
+      json = encode_tuple(
+        name: name,
         image: image,
-      }.to_json
+      )
 
       response = request(
         :guild_gid_emojis,
@@ -697,7 +711,7 @@ module Discord
         :guilds_gid_channels,
         guild_id,
         "GET",
-        "/guilds/#{channel_id}/channels",
+        "/guilds/#{guild_id}/channels",
         HTTP::Headers.new,
         nil
       )
@@ -711,12 +725,12 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-channel)
     def create_guild_channel(guild_id : UInt64, name : String, type : UInt8,
                              bitrate : UInt32?, user_limit : UInt32?)
-      json = {
-        name:       name,
-        type:       type,
-        bitrate:    bitrate,
-        user_limit: user_limit,
-      }.to_json
+      json = encode_tuple(
+        name: name,
+        type: type,
+        bitrate: bitrate,
+        user_limit: user_limit
+      )
 
       response = request(
         :guilds_gid_channels,
@@ -751,7 +765,7 @@ module Discord
     #
     # There are no API docs for this method.
     def modify_guild_vanity_url(guild_id : UInt64, code : String)
-      response = request(
+      request(
         :guilds_gid_vanityurl,
         guild_id,
         "PATCH",
@@ -798,7 +812,7 @@ module Discord
     # to specify what ID to start at.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#list-guild-members)
-    def list_guild_members(guild_id : UInt64, limit : UInt8 = 1, after : UInt64 = 0)
+    def list_guild_members(guild_id : UInt64, limit : Int32 = 1000, after : UInt64 = 0_u64)
       path = "/guilds/#{guild_id}/members?limit=#{limit}&after=#{after}"
 
       response = request(
@@ -823,19 +837,21 @@ module Discord
     #  - and the "Move Members" permission as well as the "Connect" permission
     #    to the new channel when changing voice channel ID.
     #
+    # NOTE: To remove a member's nickname, you can send an empty string for the `nick` argument.
+    #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-member)
-    def modify_guild_member(guild_id : UInt64, user_id : UInt64, nick : String?,
-                            roles : Array(UInt64)?, mute : Bool?, deaf : Bool?,
-                            channel_id : UInt64?)
-      json = {
-        nick:       nick,
-        roles:      roles,
-        mute:       mute,
-        deaf:       deaf,
-        channel_id: channel_id,
-      }.to_json
+    def modify_guild_member(guild_id : UInt64, user_id : UInt64, nick : String? = nil,
+                            roles : Array(UInt64)? = nil, mute : Bool? = nil, deaf : Bool? = nil,
+                            channel_id : UInt64? = nil)
+      json = encode_tuple(
+        nick: nick,
+        roles: roles,
+        mute: mute,
+        deaf: deaf,
+        channel_id: channel_id
+      )
 
-      response = request(
+      request(
         :guilds_gid_members_uid,
         guild_id,
         "PATCH",
@@ -849,7 +865,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#remove-guild-member)
     def remove_guild_member(guild_id : UInt64, user_id : UInt64)
-      response = request(
+      request(
         :guilds_gid_members_uid,
         guild_id,
         "DELETE",
@@ -873,14 +889,14 @@ module Discord
         nil
       )
 
-      Array(User).from_json(response.body)
+      Array(GuildBan).from_json(response.body)
     end
 
     # Bans a member from the guild. Requires the "Ban Members" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-ban)
     def create_guild_ban(guild_id : UInt64, user_id : UInt64)
-      response = request(
+      request(
         :guilds_gid_bans_uid,
         guild_id,
         "PUT",
@@ -894,7 +910,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#remove-guild-ban)
     def remove_guild_ban(guild_id : UInt64, user_id : UInt64)
-      response = request(
+      request(
         :guilds_gid_bans_uid,
         guild_id,
         "DELETE",
@@ -924,15 +940,15 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-role)
     def create_guild_role(guild_id : UInt64, name : String? = nil,
-                          permissions : Permissions? = nil, colour : UInt32 = 0,
+                          permissions : Permissions? = nil, colour : UInt32 = 0_u32,
                           hoist : Bool = false, mentionable : Bool = false)
-      json = {
-        name:        name,
+      json = encode_tuple(
+        name: name,
         permissions: permissions,
-        color:       colour,
-        hoist:       hoist,
-        mentionable: mentionable,
-      }.to_json
+        color: colour,
+        hoist: hoist,
+        mentionable: mentionable
+      )
 
       response = request(
         :get_guild_roles,
@@ -950,16 +966,16 @@ module Discord
     # well as the role to be lower than the bot's highest role.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-role)
-    def modify_guild_role(guild_id : UInt64, role_id : UInt64, name : String?,
-                          permissions : Permissions, colour : UInt32?,
-                          position : Int32?, hoist : Bool?)
-      json = {
-        name:        name,
+    def modify_guild_role(guild_id : UInt64, role_id : UInt64, name : String? = nil,
+                          permissions : Permissions? = nil, colour : UInt32? = nil,
+                          position : Int32? = nil, hoist : Bool? = nil)
+      json = encode_tuple(
+        name: name,
         permissions: permissions,
-        color:       colour,
-        position:    position,
-        hoist:       hoist,
-      }.to_json
+        color: colour,
+        position: position,
+        hoist: hoist
+      )
 
       response = request(
         :guilds_gid_roles_rid,
@@ -1063,12 +1079,12 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-integration)
     def create_guild_integration(guild_id : UInt64, type : String, id : UInt64)
-      json = {
+      json = encode_tuple(
         type: type,
-        id:   id,
-      }.to_json
+        id: id
+      )
 
-      response = request(
+      request(
         :guilds_gid_integrations,
         guild_id,
         "POST",
@@ -1086,13 +1102,13 @@ module Discord
                                  expire_behaviour : UInt8,
                                  expire_grace_period : Int32,
                                  enable_emoticons : Bool)
-      json = {
-        expire_behavior:     expire_behaviour,
+      json = encode_tuple(
+        expire_behavior: expire_behaviour,
         expire_grace_period: expire_grace_period,
-        enable_emoticons:    enable_emoticons,
-      }.to_json
+        enable_emoticons: enable_emoticons
+      )
 
-      response = request(
+      request(
         :guilds_gid_integrations_iid,
         guild_id,
         "PATCH",
@@ -1106,7 +1122,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#delete-guild-integration)
     def delete_guild_integration(guild_id : UInt64, integration_id : UInt64)
-      response = request(
+      request(
         :guilds_gid_integrations_iid,
         guild_id,
         "DELETE",
@@ -1120,7 +1136,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#sync-guild-integration)
     def sync_guild_integration(guild_id : UInt64, integration_id : UInt64)
-      response = request(
+      request(
         :guilds_gid_integrations_iid_sync,
         guild_id,
         "POST",
@@ -1151,10 +1167,10 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-embed)
     def modify_guild_embed(guild_id : UInt64, enabled : Bool,
                            channel_id : UInt64)
-      json = {
-        enabled:    enabled,
-        channel_id: channel_id,
-      }.to_json
+      json = encode_tuple(
+        enabled: enabled,
+        channel_id: channel_id
+      )
 
       response = request(
         :guilds_gid_embed,
@@ -1201,13 +1217,14 @@ module Discord
     end
 
     # Modifies the current bot user, changing the username and avatar.
+    # NOTE: To remove the current user's avatar, you can send an empty string for the `avatar` argument.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#modify-current-user)
-    def modify_current_user(username : String, avatar : String)
-      json = {
+    def modify_current_user(username : String? = nil, avatar : String? = nil)
+      json = encode_tuple(
         username: username,
-        avatar:   avatar,
-      }.to_json
+        avatar: avatar
+      )
 
       response = request(
         :users_me,
@@ -1224,12 +1241,25 @@ module Discord
     # Gets a list of user guilds the current user is on.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
-    def get_current_user_guilds
+    def get_current_user_guilds(limit : UInt8 = 100_u8, before : UInt64 = 0_u64, after : UInt64 = 0_u64)
+      params = HTTP::Params.build do |form|
+        form.add "limit", limit.to_s
+
+        if before > 0
+          form.add "before", before.to_s
+        end
+
+        if after > 0
+          form.add "after", after.to_s
+        end
+      end
+
+      path = "/users/@me/guilds?#{params}"
       response = request(
         :users_me_guilds,
         nil,
         "GET",
-        "/users/@me/guilds",
+        path,
         HTTP::Headers.new,
         nil
       )
@@ -1241,7 +1271,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#leave-guild)
     def leave_guild(guild_id : UInt64)
-      response = request(
+      request(
         :users_me_guilds_gid,
         nil,
         "DELETE",
@@ -1369,6 +1399,177 @@ module Discord
       )
 
       Array(VoiceRegion).from_json(response.body)
+    end
+
+    # Get a webhook.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-webhook).
+    def get_webhook(webhook_id : UInt64)
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "GET",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers.new,
+        nil
+      )
+      Webhook.from_json(response.body)
+    end
+
+    # Get a webhook, with a token.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-webhook-with-token).
+    def get_webhook(webhook_id : UInt64, token : String)
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "GET",
+        "/webhooks/#{webhook_id}/#{token}",
+        HTTP::Headers.new,
+        nil
+      )
+      Webhook.from_json(response.body)
+    end
+
+    # Get an array of guild webhooks.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-guild-webhooks).
+    def get_guild_webhooks(guild_id : UInt64)
+      response = request(
+        :guilds_gid_webhooks,
+        guild_id,
+        "GET",
+        "/guilds/#{guild_id}/webhooks",
+        HTTP::Headers.new,
+        nil
+      )
+      Array(Webhook).from_json(response.body)
+    end
+
+    # Create a channel webhook.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#create-webhook).
+    def create_channel_webhook(channel_id : UInt64, name : String,
+                               avatar : String)
+      json = {
+        name:   name,
+        avatar: avatar,
+      }.to_json
+
+      response = request(
+        :channels_cid_webhooks,
+        channel_id,
+        "POST",
+        "/channels/#{channel_id}/webhooks",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Webhook.from_json(response.body)
+    end
+
+    # Get an array of channel webhooks.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#get-channel-webhooks).
+    def get_channel_webhooks(channel_id : UInt64)
+      response = request(
+        :channels_cid_webhooks,
+        channel_id,
+        "GET",
+        "/channels/#{channel_id}/webhooks",
+        HTTP::Headers.new,
+        nil
+      )
+
+      Array(Webhook).from_json(response.body)
+    end
+
+    # Modify a webhook. Accepts optional parameters `name`, `avatar`, and `channel_id`.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#modify-webhook).
+    def modify_webhook(webhook_id : UInt64, name : String? = nil, avatar : String? = nil,
+                       channel_id : UInt64? = nil)
+      json = ModifyWebhookPayload.new(name, avatar, channel_id).to_json
+
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "PATCH",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Webhook.from_json(response.body)
+    end
+
+    # Modify a webhook, with a token. Accepts optional parameters `name`, `avatar`, and `channel_id`.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#modify-webhook-with-token).
+    def modify_webhook_with_token(webhook_id : UInt64, token : String, name : String? = nil,
+                                  avatar : String? = nil, channel_id : UInt64? = nil)
+      json = ModifyWebhookPayload.new(name, avatar, channel_id).to_json
+
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "PATCH",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      Webhook.from_json(response.body)
+    end
+
+    # Deletes a webhook. User must be owner.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#delete-webhook)
+    def delete_webhook(webhook_id : UInt64)
+      request(
+        :webhooks_wid,
+        webhook_id,
+        "DELETE",
+        "/webhooks/#{webhook_id}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Deletes a webhook with a token. Does not require authentication.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#delete-webhook-with-token)
+    def delete_webhook(webhook_id : UInt64, token : String)
+      request(
+        :webhooks_wid,
+        webhook_id,
+        "DELETE",
+        "/webhooks/#{webhook_id}/#{token}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
+    # Executes a webhook, with a token.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#execute-webhook)
+    def execute_webhook(webhook_id : UInt64, token : String, content : String? = nil,
+                        file : String? = nil, embeds : Array(Embed)? = nil,
+                        tts : Bool? = nil, avatar_url : String? = nil,
+                        username : String? = nil, wait : Bool? = false)
+      json = ExecuteWebhookPayload.new(content, file, embeds, tts,
+        avatar_url, username).to_json
+      response = request(
+        :webhooks_wid,
+        webhook_id,
+        "POST",
+        "/webhooks/#{webhook_id}/#{token}?wait=#{wait}",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        json
+      )
+
+      # Expecting response
+      Message.from_json(response.body) if wait
     end
   end
 end
