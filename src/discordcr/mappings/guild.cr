@@ -165,6 +165,13 @@ module Discord
     {% end %}
   end
 
+  struct GuildBan
+    JSON.mapping(
+      user: User,
+      reason: String?
+    )
+  end
+
   struct GamePlaying
     def initialize(@name = nil, @type = nil, @url = nil)
     end

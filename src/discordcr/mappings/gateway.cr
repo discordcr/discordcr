@@ -209,11 +209,7 @@ module Discord
 
     struct GuildBanPayload
       JSON.mapping(
-        username: String,
-        id: {type: UInt64, converter: SnowflakeConverter},
-        discriminator: String,
-        avatar: String,
-        bot: Bool?,
+        user: User,
         guild_id: {type: UInt64, converter: SnowflakeConverter}
       )
     end
