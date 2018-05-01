@@ -892,6 +892,22 @@ module Discord
       )
     end
 
+    # Modifies the nickname of the current user in a guild.
+    #
+    # NOTE: To remove a nickname, you can send an empty string for the `nick` argument.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-current-user-nick)
+    def modify_current_user_nick(guild_id : UInt64, nick : String)
+      request(
+        :guilds_gid_members_me,
+        guild_id,
+        "PATCH",
+        "/guilds/#{guild_id}/members/@me/nick",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        {nick: nick}.to_json
+      )
+    end
+
     # Kicks a member from the server. Requires the "Kick Members" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#remove-guild-member)
