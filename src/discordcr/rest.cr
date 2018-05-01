@@ -1517,7 +1517,11 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#modify-webhook).
     def modify_webhook(webhook_id : UInt64, name : String? = nil, avatar : String? = nil,
                        channel_id : UInt64? = nil)
-      json = ModifyWebhookPayload.new(name, avatar, channel_id).to_json
+      json = encode_tuple(
+        name: name,
+        avatar: avatar,
+        channel_id: channel_id
+      )
 
       response = request(
         :webhooks_wid,
@@ -1535,14 +1539,17 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/webhook#modify-webhook-with-token).
     def modify_webhook_with_token(webhook_id : UInt64, token : String, name : String? = nil,
-                                  avatar : String? = nil, channel_id : UInt64? = nil)
-      json = ModifyWebhookPayload.new(name, avatar, channel_id).to_json
+                                  avatar : String? = nil)
+      json = encode_tuple(
+        name: name,
+        avatar: avatar
+      )
 
       response = request(
         :webhooks_wid,
         webhook_id,
         "PATCH",
-        "/webhooks/#{webhook_id}",
+        "/webhooks/#{webhook_id}/#{token}",
         HTTP::Headers{"Content-Type" => "application/json"},
         json
       )
@@ -1585,8 +1592,15 @@ module Discord
                         file : String? = nil, embeds : Array(Embed)? = nil,
                         tts : Bool? = nil, avatar_url : String? = nil,
                         username : String? = nil, wait : Bool? = false)
-      json = ExecuteWebhookPayload.new(content, file, embeds, tts,
-        avatar_url, username).to_json
+      json = encode_tuple(
+        content: content,
+        file: file,
+        embeds: embeds,
+        tts: tts,
+        avatar_url: avatar_url,
+        username: username
+      )
+
       response = request(
         :webhooks_wid,
         webhook_id,
