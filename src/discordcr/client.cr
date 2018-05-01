@@ -85,6 +85,9 @@ module Discord
       # try to reconnect at the next heartbeat.
       @last_heartbeat_acked = true
 
+      # If the websocket is closed, whether we should immediately try and reconnect
+      @should_reconnect = true
+
       setup_heartbeats
     end
 
@@ -112,11 +115,19 @@ module Discord
         @send_heartbeats = false
         @session.try &.suspend
 
+        break unless @should_reconnect
+
         wait_for_reconnect
 
         LOGGER.info "Reconnecting"
         @websocket = initialize_websocket
       end
+    end
+
+    # Closes the gateway connection permanently
+    def stop(message = nil)
+      @should_reconnect = false
+      @websocket.close(message)
     end
 
     # Separate method to wait an ever-increasing amount of time before reconnecting after being disconnected in an
