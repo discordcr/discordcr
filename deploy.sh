@@ -4,6 +4,8 @@
 
 set -e # Exit with nonzero exit code if anything fails
 
+git --version
+
 SOURCE_BRANCH="travis-tests"
 TARGET_BRANCH="gh-pages"
 
@@ -58,6 +60,8 @@ mv docs/* out/doc/$SOURCE_BRANCH/
 cd out
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
+
+git add -N doc/$SOURCE_BRANCH
 
 # If there are no changes to the compiled out (e.g. this is a README update) then just bail.
 DIFF_RESULT=`git diff --exit-code`
