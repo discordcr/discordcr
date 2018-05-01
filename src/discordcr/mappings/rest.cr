@@ -51,7 +51,7 @@ module Discord
         end
       end
     end
-  
+
     # A request to the Modify Webhook REST API call.
     class ModifyWebhookPayload
       JSON.mapping(
