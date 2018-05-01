@@ -266,14 +266,14 @@ module Discord
     #
     # For more details on the format of the `embed` object, look at the
     # [relevant documentation](https://discordapp.com/developers/docs/resources/channel#embed-object).
-    def create_message(channel_id : UInt64, content : String, embed : Embed? = nil)
+    def create_message(channel_id : UInt64, content : String, embed : Embed? = nil, tts : Bool = false)
       response = request(
         :channels_cid_messages,
         channel_id,
         "POST",
         "/channels/#{channel_id}/messages",
         HTTP::Headers{"Content-Type" => "application/json"},
-        {content: content, embed: embed}.to_json
+        {content: content, tts: tts, embed: embed}.to_json
       )
 
       Message.from_json(response.body)
