@@ -127,7 +127,7 @@ module Discord
     # Closes the gateway connection permanently
     def stop(message = nil)
       @should_reconnect = false
-      @websocket.close(message)
+      websocket.close(message)
     end
 
     # Separate method to wait an ever-increasing amount of time before reconnecting after being disconnected in an
