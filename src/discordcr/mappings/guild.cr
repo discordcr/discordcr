@@ -69,11 +69,6 @@ module Discord
   struct GuildMember
     # :nodoc:
     def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(UInt64), nick : String?)
-      # This redundant assignment is necessary because Crystal would otherwise
-      # erroneously assume @roles can be nil.
-      # TODO: Remove in Crystal 0.24.0 (crystal-lang/crystal#4830)
-      @roles = payload.roles
-
       initialize(payload)
       @nick = nick
       @roles = roles
