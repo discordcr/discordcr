@@ -68,6 +68,16 @@ module Discord
 
   struct GuildMember
     # :nodoc:
+    def initialize(user : User, partial_member : PartialGuildMember)
+      @user = user
+      @roles = partial_member.roles
+      @nick = partial_member.nick
+      @joined_at = partial_member.joined_at
+      @mute = partial_member.mute
+      @deaf = partial_member.deaf
+    end
+
+    # :nodoc:
     def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(Snowflake), nick : String?)
       initialize(payload)
       @nick = nick

@@ -536,6 +536,15 @@ module Discord
         call_event guild_role_delete, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
+
+        cache payload.author
+        guild_id = payload.guild_id
+        partial_member = payload.member
+        if guild_id && partial_member
+          member = GuildMember.new(payload.author, partial_member)
+          @cache.try &.cache(member, guild_id)
+        end
+
         call_event message_create, payload
       when "MESSAGE_REACTION_ADD"
         payload = Gateway::MessageReactionPayload.from_json(data)
