@@ -102,6 +102,16 @@ module Discord
     )
   end
 
+  struct PartialGuildMember
+    JSON.mapping(
+      nick: String?,
+      roles: Array(Snowflake),
+      joined_at: {type: Time, converter: TimestampConverter},
+      deaf: Bool,
+      mute: Bool
+    )
+  end
+
   struct Integration
     JSON.mapping(
       id: Snowflake,
