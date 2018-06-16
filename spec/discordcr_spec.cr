@@ -61,7 +61,7 @@ describe Discord do
     end
 
     it "serializes" do
-      json = %({"data":"2017-11-16T13:09:18.291+00:00"})
+      json = %({"data":"2017-11-16T13:09:18.291000+00:00"})
       obj = StructWithTime.from_json(json)
       obj.to_json.should eq json
     end
