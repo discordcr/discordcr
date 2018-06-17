@@ -20,7 +20,7 @@ module Discord
       max_uses: UInt32,
       max_age: UInt32,
       temporary: Bool,
-      created_at: {type: Time, converter: Time::Format::ISO_8601_DATE},
+      created_at: {type: Time, converter: TimestampConverter},
       revoked: Bool
     )
   end
