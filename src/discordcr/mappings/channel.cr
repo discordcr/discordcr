@@ -129,7 +129,7 @@ module Discord
       type: String,
       description: String?,
       url: String?,
-      timestamp: {type: Time?, converter: EmbedTimestampConverter},
+      timestamp: {type: Time?, converter: TimestampConverter},
       colour: {type: UInt32?, key: "color"},
       footer: EmbedFooter?,
       image: EmbedImage?,

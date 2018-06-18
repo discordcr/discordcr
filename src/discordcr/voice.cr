@@ -291,7 +291,7 @@ module Discord
   # there will be no delay: the next iteration follows immediately, with no
   # attempt to get in sync.
   def self.every(time_span : Time::Span)
-    loop do |i|
+    loop do
       timed_run(time_span) { yield }
     end
   end

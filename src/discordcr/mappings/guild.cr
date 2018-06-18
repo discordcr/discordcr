@@ -96,7 +96,7 @@ module Discord
       user: User,
       nick: String?,
       roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
-      joined_at: {type: Time?, converter: Time::Format::ISO_8601_DATE},
+      joined_at: {type: Time?, converter: TimestampConverter},
       deaf: Bool?,
       mute: Bool?
     )

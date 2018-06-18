@@ -8,28 +8,14 @@ module Discord
       time_str = parser.read_string
 
       begin
-        Time::Format.new("%FT%T.%L%:z", Time::Kind::Utc).parse(time_str)
+        Time::Format.new("%FT%T.%6N%:z").parse(time_str)
       rescue Time::Format::Error
-        Time::Format.new("%FT%T%:z", Time::Kind::Utc).parse(time_str)
+        Time::Format.new("%FT%T%:z").parse(time_str)
       end
     end
 
     def self.to_json(value : Time, builder : JSON::Builder)
-      Time::Format.new("%FT%T.%L%:z").to_json(value, builder)
-    end
-  end
-
-  # :nodoc:
-  module EmbedTimestampConverter
-    SEND_FORMAT    = Time::Format.new("%FT%T%:z")
-    RECEIVE_FORMAT = Time::Format.new("%FT%TZ")
-
-    def self.from_json(parser : JSON::PullParser) : Time
-      SEND_FORMAT.from_json(parser)
-    end
-
-    def self.to_json(value : Time, builder : JSON::Builder)
-      RECEIVE_FORMAT.to_json(value.to_utc, builder)
+      Time::Format.new("%FT%T.%6N%:z").to_json(value, builder)
     end
   end
 
