@@ -44,7 +44,9 @@ module Discord
     # user ID of the account on which the voice client is created. (It is
     # received as part of the gateway READY dispatch, for example)
     def initialize(payload : Discord::Gateway::VoiceServerUpdatePayload,
-                   session : Discord::Gateway::Session, user_id : UInt64 | Snowflake)
+                   session : Discord::Gateway::Session,
+                   user_id : UInt64 | Snowflake, @logger = Logger.new(STDOUT))
+      @logger.progname = "discordcr"
       @user_id = user_id.to_u64
       @endpoint = payload.endpoint.gsub(":80", "")
 
@@ -56,7 +58,8 @@ module Discord
         host: @endpoint,
         path: "/",
         port: 443,
-        tls: true
+        tls: true,
+        logger: @logger
       )
 
       @websocket.on_message(&->on_message(Discord::WebSocket::Packet))
@@ -110,7 +113,7 @@ module Discord
     end
 
     private def on_message(packet : Discord::WebSocket::Packet)
-      LOGGER.debug("VWS packet received: #{packet} #{packet.data.to_s}")
+      @logger.debug("VWS packet received: #{packet} #{packet.data.to_s}")
 
       case packet.opcode
       when OP_READY
@@ -127,13 +130,13 @@ module Discord
 
     private def on_close(message : String)
       if message.bytesize < 2
-        LOGGER.warn("VWS closed with data: #{message.bytes}")
+        @logger.warn("VWS closed with data: #{message.bytes}")
         return nil
       end
 
       code = IO::Memory.new(message.byte_slice(0, 2)).read_bytes(UInt16, IO::ByteFormat::BigEndian)
       reason = message.byte_slice(2, message.bytesize - 2)
-      LOGGER.warn("VWS closed with code #{code}, reason: #{reason}")
+      @logger.warn("VWS closed with code #{code}, reason: #{reason}")
       nil
     end
 

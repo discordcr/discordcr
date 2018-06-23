@@ -24,7 +24,7 @@ module Discord
       end
     end
 
-    def initialize(@host : String, @path : String, @port : Int32, @tls : Bool)
+    def initialize(@host : String, @path : String, @port : Int32, @tls : Bool, @logger : Logger)
       @websocket = HTTP::WebSocket.new(
         host: @host,
         path: @path,
@@ -35,6 +35,7 @@ module Discord
 
     def on_message(&handler : Packet ->)
       @websocket.on_message do |message|
+        @logger.debug "[WS IN] #{message}" if @logger.debug?
         payload = parse_message(message)
         handler.call(payload)
       end
@@ -44,7 +45,12 @@ module Discord
       @websocket.on_close(&handler)
     end
 
-    delegate run, close, send, to: @websocket
+    delegate run, close, to: @websocket
+
+    def send(message)
+      @logger.debug "[WS OUT] #{message}" if @logger.debug?
+      @websocket.send(message)
+    end
 
     private def parse_message(message : String)
       parser = JSON::PullParser.new(message)
