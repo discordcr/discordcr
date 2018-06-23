@@ -86,26 +86,31 @@ module Discord
 
     # Resolves a user by its *ID*. If the requested object is not cached, it
     # will do an API call.
-    def resolve_user(id : UInt64) : User
+    def resolve_user(id : UInt64 | Snowflake) : User
+      id = id.to_u64
       @users.fetch(id) { @users[id] = @client.get_user(id) }
     end
 
     # Resolves a channel by its *ID*. If the requested object is not cached, it
     # will do an API call.
-    def resolve_channel(id : UInt64) : Channel
+    def resolve_channel(id : UInt64 | Snowflake) : Channel
+      id = id.to_u64
       @channels.fetch(id) { @channels[id] = @client.get_channel(id) }
     end
 
     # Resolves a guild by its *ID*. If the requested object is not cached, it
     # will do an API call.
-    def resolve_guild(id : UInt64) : Guild
+    def resolve_guild(id : UInt64 | Snowflake) : Guild
+      id = id.to_u64
       @guilds.fetch(id) { @guilds[id] = @client.get_guild(id) }
     end
 
     # Resolves a member by the *guild_id* of the guild the member is on, and the
     # *user_id* of the member itself. An API request will be performed if the
     # object is not cached.
-    def resolve_member(guild_id : UInt64, user_id : UInt64) : GuildMember
+    def resolve_member(guild_id : UInt64 | Snowflake, user_id : UInt64 | Snowflake) : GuildMember
+      guild_id = guild_id.to_u64
+      user_id = user_id.to_u64
       local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
       local_members.fetch(user_id) { local_members[user_id] = @client.get_guild_member(guild_id, user_id) }
     end
@@ -113,13 +118,14 @@ module Discord
     # Resolves a role by its *ID*. No API request will be performed if the role
     # is not cached, because there is no endpoint for individual roles; however
     # all roles should be cached at all times so it won't be a problem.
-    def resolve_role(id : UInt64) : Role
-      @roles[id] # There is no endpoint for getting an individual role, so we will have to ignore that case for now.
+    def resolve_role(id : UInt64 | Snowflake) : Role
+      @roles[id.to_u64] # There is no endpoint for getting an individual role, so we will have to ignore that case for now.
     end
 
     # Resolves the ID of a DM channel with a particular user by the recipient's
     # *recipient_id*. If there is no such channel cached, one will be created.
-    def resolve_dm_channel(recipient_id : UInt64) : UInt64
+    def resolve_dm_channel(recipient_id : UInt64 | Snowflake) : UInt64
+      recipient_id = recipient_id.to_u64
       @dm_channels.fetch(recipient_id) do
         channel = @client.create_dm(recipient_id)
         cache(Channel.new(channel))
@@ -135,34 +141,36 @@ module Discord
     end
 
     # Deletes a user from the cache given its *ID*.
-    def delete_user(id : UInt64)
-      @users.delete(id)
+    def delete_user(id : UInt64 | Snowflake)
+      @users.delete(id.to_u64)
     end
 
     # Deletes a channel from the cache given its *ID*.
-    def delete_channel(id : UInt64)
-      @channels.delete(id)
+    def delete_channel(id : UInt64 | Snowflake)
+      @channels.delete(id.to_u64)
     end
 
     # Deletes a guild from the cache given its *ID*.
-    def delete_guild(id : UInt64)
-      @guilds.delete(id)
+    def delete_guild(id : UInt64 | Snowflake)
+      @guilds.delete(id.to_u64)
     end
 
     # Deletes a member from the cache given its *user_id* and the *guild_id* it
     # is on.
-    def delete_member(guild_id : UInt64, user_id : UInt64)
+    def delete_member(guild_id : UInt64 | Snowflake, user_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
+      user_id = user_id.to_u64
       @members[guild_id]?.try &.delete(user_id)
     end
 
     # Deletes a role from the cache given its *ID*.
-    def delete_role(id : UInt64)
-      @roles.delete(id)
+    def delete_role(id : UInt64 | Snowflake)
+      @roles.delete(id.to_u64)
     end
 
     # Deletes a DM channel with a particular user given the *recipient_id*.
-    def delete_dm_channel(recipient_id : UInt64)
-      @dm_channels.delete(recipient_id)
+    def delete_dm_channel(recipient_id : UInt64 | Snowflake)
+      @dm_channels.delete(recipient_id.to_u64)
     end
 
     # Deletes the current user from the cache, if that will ever be necessary.
@@ -172,33 +180,36 @@ module Discord
 
     # Adds a specific *user* to the cache.
     def cache(user : User)
-      @users[user.id] = user
+      @users[user.id.to_u64] = user
     end
 
     # Adds a specific *channel* to the cache.
     def cache(channel : Channel)
-      @channels[channel.id] = channel
+      @channels[channel.id.to_u64] = channel
     end
 
     # Adds a specific *guild* to the cache.
     def cache(guild : Guild)
-      @guilds[guild.id] = guild
+      @guilds[guild.id.to_u64] = guild
     end
 
     # Adds a specific *member* to the cache, given the *guild_id* it is on.
-    def cache(member : GuildMember, guild_id : UInt64)
+    def cache(member : GuildMember, guild_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
       local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
-      local_members[member.user.id] = member
+      local_members[member.user.id.to_u64] = member
     end
 
     # Adds a specific *role* to the cache.
     def cache(role : Role)
-      @roles[role.id] = role
+      @roles[role.id.to_u64] = role
     end
 
     # Adds a particular DM channel to the cache, given the *channel_id* and the
     # *recipient_id*.
-    def cache_dm_channel(channel_id : UInt64, recipient_id : UInt64)
+    def cache_dm_channel(channel_id : UInt64 | Snowflake, recipient_id : UInt64 | Snowflake)
+      channel_id = channel_id.to_u64
+      recipient_id = recipient_id.to_u64
       @dm_channels[recipient_id] = channel_id
     end
 
@@ -208,44 +219,53 @@ module Discord
     # Adds multiple *members* at once to the cache, given the *guild_id* they
     # all share. This method exists to slightly reduce the overhead of
     # processing chunks; outside of that it is likely not of much use.
-    def cache_multiple_members(members : Array(GuildMember), guild_id : UInt64)
+    def cache_multiple_members(members : Array(GuildMember), guild_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
       local_members = @members[guild_id] ||= Hash(UInt64, GuildMember).new
       members.each do |member|
-        local_members[member.user.id] = member
+        local_members[member.user.id.to_u64] = member
       end
     end
 
     # Returns all roles of a guild, identified by its *guild_id*.
-    def guild_roles(guild_id : UInt64) : Array(UInt64)
-      @guild_roles[guild_id]
+    def guild_roles(guild_id : UInt64 | Snowflake) : Array(UInt64)
+      @guild_roles[guild_id.to_u64]
     end
 
     # Marks a role, identified by the *role_id*, as belonging to a particular
     # guild, identified by the *guild_id*.
-    def add_guild_role(guild_id : UInt64, role_id : UInt64)
+    def add_guild_role(guild_id : UInt64 | Snowflake, role_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
+      role_id = role_id.to_u64
       local_roles = @guild_roles[guild_id] ||= [] of UInt64
       local_roles << role_id
     end
 
     # Marks a role as not belonging to a particular guild anymore.
-    def remove_guild_role(guild_id : UInt64, role_id : UInt64)
+    def remove_guild_role(guild_id : UInt64 | Snowflake, role_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
+      role_id = role_id.to_u64
       @guild_roles[guild_id]?.try { |local_roles| local_roles.delete(role_id) }
     end
 
     # Returns all channels of a guild, identified by its *guild_id*.
-    def guild_channels(guild_id : UInt64) : Array(UInt64)
-      @guild_channels[guild_id]
+    def guild_channels(guild_id : UInt64 | Snowflake) : Array(UInt64)
+      @guild_channels[guild_id.to_u64]
     end
 
     # Marks a channel, identified by the *channel_id*, as belonging to a particular
     # guild, identified by the *guild_id*.
-    def add_guild_channel(guild_id : UInt64, channel_id : UInt64)
+    def add_guild_channel(guild_id : UInt64 | Snowflake, channel_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
+      channel_id = channel_id.to_u64
       local_channels = @guild_channels[guild_id] ||= [] of UInt64
       local_channels << channel_id
     end
 
     # Marks a channel as not belonging to a particular guild anymore.
-    def remove_guild_channel(guild_id : UInt64, channel_id : UInt64)
+    def remove_guild_channel(guild_id : UInt64 | Snowflake, channel_id : UInt64 | Snowflake)
+      guild_id = guild_id.to_u64
+      channel_id = channel_id.to_u64
       @guild_channels[guild_id]?.try { |local_channels| local_channels.delete(channel_id) }
     end
   end

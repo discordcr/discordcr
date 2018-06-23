@@ -16,14 +16,14 @@ module Discord
     JSON.mapping(
       type: {type: MessageType, converter: MessageTypeConverter},
       content: String,
-      id: {type: UInt64, converter: SnowflakeConverter},
-      channel_id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
+      channel_id: Snowflake,
       author: User,
       timestamp: {type: Time, converter: TimestampConverter},
       tts: Bool,
       mention_everyone: Bool,
       mentions: Array(User),
-      mention_roles: {type: Array(UInt64), converter: SnowflakeArrayConverter},
+      mention_roles: Array(Snowflake),
       attachments: Array(Attachment),
       embeds: Array(Embed),
       pinned: Bool?,
@@ -63,37 +63,37 @@ module Discord
     end
 
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       type: {type: ChannelType, converter: ChannelTypeConverter},
-      guild_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      guild_id: Snowflake?,
       name: String?,
       permission_overwrites: Array(Overwrite)?,
       topic: String?,
-      last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      last_message_id: Snowflake?,
       bitrate: UInt32?,
       user_limit: UInt32?,
       recipients: Array(User)?,
       nsfw: Bool?,
       icon: Bool?,
-      owner_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
-      application_id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      owner_id: Snowflake?,
+      application_id: Snowflake?,
       position: Int32?,
-      parent_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
+      parent_id: Snowflake?
     )
   end
 
   struct PrivateChannel
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       type: {type: ChannelType, converter: ChannelTypeConverter},
       recipients: Array(User),
-      last_message_id: {type: UInt64?, converter: MaybeSnowflakeConverter}
+      last_message_id: Snowflake?
     )
   end
 
   struct Overwrite
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       type: String,
       allow: Permissions,
       deny: Permissions
@@ -110,7 +110,7 @@ module Discord
 
   struct ReactionEmoji
     JSON.mapping(
-      id: {type: UInt64?, converter: MaybeSnowflakeConverter},
+      id: Snowflake?,
       name: String
     )
   end
@@ -222,7 +222,7 @@ module Discord
 
   struct Attachment
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       filename: String,
       size: UInt32,
       url: String,

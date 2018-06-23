@@ -33,22 +33,24 @@ module Discord
 
     # A request payload to rearrange channels in a `Guild` by a REST API call.
     struct ModifyChannelPositionPayload
-      def initialize(@id : UInt64, @position : Int32,
-                     @parent_id : UInt64 | ChannelParent = ChannelParent::Unchanged,
+      @id : Snowflake
+
+      def initialize(id : UInt64 | Snowflake, @position : Int32,
+                     @parent_id : UInt64 | Snowflake | ChannelParent = ChannelParent::Unchanged,
                      @lock_permissions : Bool? = nil)
+        id = Snowflake.new(id) unless id.is_a?(Snowflake)
+        @id = id
       end
 
       def to_json(builder : JSON::Builder)
         builder.object do
-          builder.field("id") do
-            SnowflakeConverter.to_json(@id, builder)
-          end
+          builder.field("id") { @id.to_json(builder) }
 
           builder.field("position", @position)
 
           case parent = @parent_id
-          when UInt64
-            SnowflakeConverter.to_json(parent, builder)
+          when UInt64, Snowflake
+            parent.to_json(builder)
           when ChannelParent::None
             builder.field("parent_id", nil)
           when ChannelParent::Unchanged

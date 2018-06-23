@@ -27,7 +27,7 @@ module Discord
 
   struct InviteGuild
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       splash_hash: String?
     )
@@ -35,7 +35,7 @@ module Discord
 
   struct InviteChannel
     JSON.mapping(
-      id: {type: UInt64, converter: SnowflakeConverter},
+      id: Snowflake,
       name: String,
       type: UInt8
     )
