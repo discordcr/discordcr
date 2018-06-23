@@ -879,7 +879,11 @@ module Discord
         json
       )
 
-      GuildMember.from_json(response.body)
+      if response.status_code == 201
+        GuildMember.from_json(response.body)
+      else
+        nil
+      end
     end
 
     # Changes a specific member's properties. Requires:
