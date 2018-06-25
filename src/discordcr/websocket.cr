@@ -1,4 +1,5 @@
 require "http"
+require "zlib"
 
 module Discord
   # Internal wrapper around HTTP::WebSocket to decode the Discord-specific
@@ -53,6 +54,12 @@ module Discord
     end
 
     private def parse_message(message : String)
+      if message.byte_at(0) == 'x'
+        # The message is compressed
+        io = IO::Memory.new(message)
+        Zlib::Reader.open(io, sync_close = true) { |reader| message = reader.gets_to_end }
+      end
+
       parser = JSON::PullParser.new(message)
 
       opcode = nil
