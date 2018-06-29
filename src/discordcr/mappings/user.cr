@@ -20,7 +20,8 @@ module Discord
       email: String?,
       bot: Bool?,
       mfa_enabled: Bool?,
-      verified: Bool?
+      verified: Bool?,
+      member: PartialGuildMember?
     )
   end
 
