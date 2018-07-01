@@ -157,6 +157,7 @@ module Discord
       )
 
       websocket.on_message(&->on_message(Discord::WebSocket::Packet))
+      websocket.on_binary(&->on_message(Discord::WebSocket::Packet))
       websocket.on_close(&->on_close(String))
 
       websocket

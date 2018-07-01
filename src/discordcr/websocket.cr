@@ -34,6 +34,16 @@ module Discord
       )
     end
 
+    def on_binary(&handler : Packet ->)
+      @websocket.on_binary do |binary|
+        message = IO::Memory.new(binary)
+        Zlib::Reader.open(message, sync_close = true) do |reader|
+          payload = parse_message(reader)
+          handler.call(payload)
+        end
+      end
+    end
+
     def on_message(&handler : Packet ->)
       @websocket.on_message do |message|
         @logger.debug "[WS IN] #{message}" if @logger.debug?
@@ -53,13 +63,7 @@ module Discord
       @websocket.send(message)
     end
 
-    private def parse_message(message : String)
-      if message.byte_at(0) == 'x'
-        # The message is compressed
-        io = IO::Memory.new(message)
-        Zlib::Reader.open(io, sync_close = true) { |reader| message = reader.gets_to_end }
-      end
-
+    private def parse_message(message : String | IO)
       parser = JSON::PullParser.new(message)
 
       opcode = nil
