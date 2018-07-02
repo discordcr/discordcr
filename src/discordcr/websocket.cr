@@ -36,8 +36,8 @@ module Discord
 
     def on_binary(&handler : Packet ->)
       @websocket.on_binary do |binary|
-        message = IO::Memory.new(binary)
-        Zlib::Reader.open(message, sync_close = true) do |reader|
+        io = IO::Memory.new(binary)
+        Zlib::Reader.open(io) do |reader|
           payload = parse_message(reader)
           handler.call(payload)
         end
