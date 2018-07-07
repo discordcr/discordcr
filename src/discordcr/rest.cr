@@ -225,7 +225,7 @@ module Discord
     # Message History" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel-messages)
-    def get_channel_messages(channel_id : UInt64 | Snowflake, limit : UInt8 = 50, before : UInt64 | Snowflake | Nil = nil, after : UInt64 | Snowflak | Nil = nil, around : UInt64 | Snowflake | Nil = nil)
+    def get_channel_messages(channel_id : UInt64 | Snowflake, limit : UInt8 = 50, before : UInt64 | Snowflake | Nil = nil, after : UInt64 | Snowflake | Nil = nil, around : UInt64 | Snowflake | Nil = nil)
       path = "/channels/#{channel_id}/messages?limit=#{limit}"
       path += "&before=#{before}" if before
       path += "&after=#{after}" if after

@@ -31,6 +31,10 @@ module Discord
       @value
     end
 
+    def to_s(io : IO)
+      io << @value
+    end
+
     # The time at which this snowflake was created
     def creation_time
       ms = (value >> 22) + DISCORD_EPOCH
