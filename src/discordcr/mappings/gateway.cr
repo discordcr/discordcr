@@ -238,7 +238,7 @@ module Discord
         user: User,
         nick: String?,
         roles: Array(Snowflake),
-        joined_at: {type: Time?, converter: TimestampConverter},
+        joined_at: {type: Time?, converter: MaybeTimestampConverter},
         deaf: Bool,
         mute: Bool,
         guild_id: Snowflake
@@ -305,7 +305,7 @@ module Discord
         id: Snowflake,
         channel_id: Snowflake,
         author: User?,
-        timestamp: {type: Time?, converter: TimestampConverter},
+        timestamp: {type: Time?, converter: MaybeTimestampConverter},
         tts: Bool?,
         mention_everyone: Bool?,
         mentions: Array(User)?,

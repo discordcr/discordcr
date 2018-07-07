@@ -96,7 +96,7 @@ module Discord
       user: User,
       nick: String?,
       roles: Array(Snowflake),
-      joined_at: {type: Time?, converter: TimestampConverter},
+      joined_at: {type: Time?, converter: MaybeTimestampConverter},
       deaf: Bool?,
       mute: Bool?
     )
