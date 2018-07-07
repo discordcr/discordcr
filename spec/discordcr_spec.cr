@@ -9,13 +9,13 @@ end
 
 struct StructWithMessageType
   JSON.mapping(
-    data: {type: Discord::MessageType, converter: Discord::MessageTypeConverter}
+    data: Discord::MessageType
   )
 end
 
 struct StructWithChannelType
   JSON.mapping(
-    data: {type: Discord::ChannelType, converter: Discord::ChannelTypeConverter}
+    data: Discord::ChannelType
   )
 end
 
@@ -67,7 +67,7 @@ describe Discord do
     end
   end
 
-  describe Discord::MessageTypeConverter do
+  describe Discord::MessageType do
     it "converts an integer into a MessageType" do
       json = %({"data": 0})
 
@@ -79,7 +79,7 @@ describe Discord do
       it "raises" do
         json = %({"data":"foo"})
 
-        expect_raises(Exception, %(Unexpected message type value: "foo")) do
+        expect_raises(ArgumentError, "Unknown enum Discord::MessageType value: foo") do
           StructWithMessageType.from_json(json)
         end
       end
@@ -93,7 +93,7 @@ describe Discord do
     end
   end
 
-  describe Discord::ChannelTypeConverter do
+  describe Discord::ChannelType do
     it "converts an integer into a ChannelType" do
       json = %({"data": 0})
 
@@ -105,7 +105,7 @@ describe Discord do
       it "raises" do
         json = %({"data":"foo"})
 
-        expect_raises(Exception, %(Unexpected channel type value: "foo")) do
+        expect_raises(ArgumentError, "Unknown enum Discord::ChannelType value: foo") do
           StructWithChannelType.from_json(json)
         end
       end
