@@ -40,4 +40,10 @@ describe Discord::Snowflake do
       snowflake.creation_time.should eq time
     end
   end
+
+  it "compares to uint64" do
+    snowflake = Discord::Snowflake.new(1_u64)
+    (snowflake == 1_u64).should be_true
+    (snowflake == 0_u64).should be_false
+  end
 end
