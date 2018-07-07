@@ -7,18 +7,6 @@ struct StructWithTime
   )
 end
 
-struct StructWithMessageType
-  JSON.mapping(
-    data: Discord::MessageType
-  )
-end
-
-struct StructWithChannelType
-  JSON.mapping(
-    data: Discord::ChannelType
-  )
-end
-
 describe Discord do
   describe "VERSION" do
     it "matches shards.yml" do
@@ -67,48 +55,10 @@ describe Discord do
     end
   end
 
-  describe Discord::MessageType do
-    it "converts an integer into a MessageType" do
-      json = %({"data": 0})
-
-      obj = StructWithMessageType.from_json(json)
-      obj.data.should eq Discord::MessageType::Default
-    end
-
-    context "with an invalid json value" do
-      it "raises" do
-        json = %({"data":"foo"})
-
-        expect_raises(ArgumentError, "Unknown enum Discord::MessageType value: foo") do
-          StructWithMessageType.from_json(json)
-        end
-      end
-    end
-  end
-
   describe Discord::WebSocket::Packet do
     it "inspects" do
       packet = Discord::WebSocket::Packet.new(0_i64, 1_i64, IO::Memory.new("foo"), "test")
       packet.inspect.should eq %(Discord::WebSocket::Packet(@opcode=0_i64 @sequence=1_i64 @data="foo" @event_type="test"))
-    end
-  end
-
-  describe Discord::ChannelType do
-    it "converts an integer into a ChannelType" do
-      json = %({"data": 0})
-
-      obj = StructWithChannelType.from_json(json)
-      obj.data.should eq Discord::ChannelType::GuildText
-    end
-
-    context "with an invalid json value" do
-      it "raises" do
-        json = %({"data":"foo"})
-
-        expect_raises(ArgumentError, "Unknown enum Discord::ChannelType value: foo") do
-          StructWithChannelType.from_json(json)
-        end
-      end
     end
   end
 end
