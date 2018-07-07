@@ -4,6 +4,7 @@ module Discord
   # Struct representing a Discord ID
   struct Snowflake
     include Comparable(Snowflake)
+    include Comparable(UInt64)
 
     getter value : UInt64
 
@@ -47,6 +48,10 @@ module Discord
 
     def <=>(other : Snowflake)
       value <=> other.value
+    end
+
+    def <=>(int : UInt64)
+      value <=> int
     end
   end
 end
