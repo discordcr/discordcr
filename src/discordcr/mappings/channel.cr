@@ -14,7 +14,7 @@ module Discord
 
   struct Message
     JSON.mapping(
-      type: {type: MessageType, converter: MessageTypeConverter},
+      type: MessageType,
       content: String,
       id: Snowflake,
       channel_id: Snowflake,
@@ -64,7 +64,7 @@ module Discord
 
     JSON.mapping(
       id: Snowflake,
-      type: {type: ChannelType, converter: ChannelTypeConverter},
+      type: ChannelType,
       guild_id: Snowflake?,
       name: String?,
       permission_overwrites: Array(Overwrite)?,
@@ -85,7 +85,7 @@ module Discord
   struct PrivateChannel
     JSON.mapping(
       id: Snowflake,
-      type: {type: ChannelType, converter: ChannelTypeConverter},
+      type: ChannelType,
       recipients: Array(User),
       last_message_id: Snowflake?
     )
