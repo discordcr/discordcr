@@ -137,7 +137,8 @@ module Discord
       name: String,
       roles: Array(Snowflake),
       require_colons: Bool,
-      managed: Bool
+      managed: Bool,
+      animated: Bool
     )
   end
 
