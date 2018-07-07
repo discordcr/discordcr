@@ -20,6 +20,25 @@ module Discord
   end
 
   # :nodoc:
+  module MaybeTimestampConverter
+    def self.from_json(parser : JSON::PullParser)
+      if parser.kind == :null
+        parser.read_null
+        return nil
+      end
+      TimestampConverter.from_json(parser)
+    end
+
+    def self.to_json(value : Time?, builder : JSON::Builder)
+      if value
+        TimestampConverter.to_json(value, builder)
+      else
+        builder.null
+      end
+    end
+  end
+
+  # :nodoc:
   module MessageTypeConverter
     def self.from_json(parser : JSON::PullParser)
       if value = parser.read?(UInt8)
