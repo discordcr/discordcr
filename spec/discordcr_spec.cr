@@ -7,6 +7,12 @@ struct StructWithTime
   )
 end
 
+struct StructWithMaybeTime
+  JSON.mapping(
+    data: {type: Time?, converter: Discord::MaybeTimestampConverter, emit_null: true}
+  )
+end
+
 struct StructWithMessageType
   JSON.mapping(
     data: {type: Discord::MessageType, converter: Discord::MessageTypeConverter}
@@ -45,6 +51,37 @@ describe Discord do
     it "serializes" do
       json = %({"data":"2017-11-16T13:09:18.291000+00:00"})
       obj = StructWithTime.from_json(json)
+      obj.to_json.should eq json
+    end
+
+    it "raises on null" do
+      json = %({"data":null})
+      expect_raises(JSON::ParseException) do
+        StructWithTime.from_json(json)
+      end
+    end
+  end
+
+  describe Discord::MaybeTimestampConverter do
+    it "parses a time" do
+      json = %({"data":"2017-11-16T13:09:18.291000+00:00"})
+      StructWithMaybeTime.from_json(json).data.should be_a Time
+    end
+
+    it "parses null" do
+      json = %({"data":null})
+      StructWithMaybeTime.from_json(json).data.should be_nil
+    end
+
+    it "serializes a time" do
+      json = %({"data":"2017-11-16T13:09:18.291000+00:00"})
+      obj = StructWithMaybeTime.from_json(json)
+      obj.to_json.should eq json
+    end
+
+    it "serializes null" do
+      json = %({"data":null})
+      obj = StructWithMaybeTime.from_json(json)
       obj.to_json.should eq json
     end
   end
