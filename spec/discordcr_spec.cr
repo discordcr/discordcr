@@ -47,6 +47,13 @@ describe Discord do
       obj = StructWithTime.from_json(json)
       obj.to_json.should eq json
     end
+
+    it "raises on null" do
+      json = %({"data":null})
+      expect_raises(JSON::ParseException) do
+        StructWithTime.from_json(json)
+      end
+    end
   end
 
   describe Discord::REST::ModifyChannelPositionPayload do
