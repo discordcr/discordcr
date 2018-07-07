@@ -366,7 +366,7 @@ module Discord
 
     struct ChannelPinsUpdatePayload
       JSON.mapping(
-        last_pin_timestamp: {type: Time, converter: TimestampConverter},
+        last_pin_timestamp: {type: Time?, converter: MaybeTimestampConverter},
         channel_id: Snowflake
       )
     end
