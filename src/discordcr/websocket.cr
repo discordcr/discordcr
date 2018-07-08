@@ -25,7 +25,7 @@ module Discord
       end
 
       @[JSON::Field(key: "op")]
-      getter opcode : Int64?
+      getter opcode : Int64
 
       @[JSON::Field(key: "s")]
       getter sequence : Int64?
@@ -36,7 +36,7 @@ module Discord
       @[JSON::Field(key: "t")]
       getter event_type : String?
 
-      def initialize(@opcode : Int64?, @sequence : Int64?, @data : IO::Memory, @event_type : String?)
+      def initialize(@opcode : Int64, @sequence : Int64?, @data : IO::Memory, @event_type : String?)
       end
 
       def inspect(io : IO)
