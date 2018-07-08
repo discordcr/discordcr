@@ -1,4 +1,5 @@
 require "http"
+require "json"
 require "zlib"
 
 module Discord
@@ -7,7 +8,33 @@ module Discord
   class WebSocket
     # :nodoc:
     struct Packet
-      getter opcode, sequence, data, event_type
+      include JSON::Serializable
+
+      module DataConverter
+        def self.from_json(parser)
+          data = IO::Memory.new
+          JSON.build(data) do |builder|
+            parser.read_raw(builder)
+          end
+          data.rewind
+        end
+
+        def self.to_json(value, builder)
+          builder.raw(value.to_s)
+        end
+      end
+
+      @[JSON::Field(key: "op")]
+      getter opcode : Int64?
+
+      @[JSON::Field(key: "s")]
+      getter sequence : Int64?
+
+      @[JSON::Field(key: "d", converter: Discord::WebSocket::Packet::DataConverter)]
+      getter data : IO::Memory
+
+      @[JSON::Field(key: "t")]
+      getter event_type : String?
 
       def initialize(@opcode : Int64?, @sequence : Int64?, @data : IO::Memory, @event_type : String?)
       end
@@ -38,7 +65,8 @@ module Discord
       @websocket.on_binary do |binary|
         io = IO::Memory.new(binary)
         Zlib::Reader.open(io) do |reader|
-          payload = parse_message(reader)
+          payload = Packet.from_json(reader)
+          @logger.debug "[WS IN] (compressed, #{binary.size}) #{payload.to_json}"
           handler.call(payload)
         end
       end
@@ -47,7 +75,7 @@ module Discord
     def on_message(&handler : Packet ->)
       @websocket.on_message do |message|
         @logger.debug "[WS IN] #{message}" if @logger.debug?
-        payload = parse_message(message)
+        payload = Packet.from_json(message)
         handler.call(payload)
       end
     end
@@ -61,39 +89,6 @@ module Discord
     def send(message)
       @logger.debug "[WS OUT] #{message}" if @logger.debug?
       @websocket.send(message)
-    end
-
-    private def parse_message(message : String | IO)
-      parser = JSON::PullParser.new(message)
-
-      opcode = nil
-      sequence = nil
-      event_type = nil
-      data = IO::Memory.new
-
-      parser.read_object do |key|
-        case key
-        when "op"
-          opcode = parser.read_int
-        when "d"
-          # Read the raw JSON into memory
-          JSON.build(data) do |builder|
-            parser.read_raw(builder)
-          end
-        when "s"
-          sequence = parser.read_int_or_null
-        when "t"
-          event_type = parser.read_string_or_null
-        else
-          # Unknown field
-          parser.skip
-        end
-      end
-
-      # Rewind to beginning of JSON
-      data.rewind
-
-      Packet.new(opcode, sequence, data, event_type)
     end
   end
 end
