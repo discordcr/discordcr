@@ -1,5 +1,4 @@
 require "http"
-require "json"
 require "zlib"
 
 module Discord
