@@ -66,7 +66,7 @@ module Discord
         io = IO::Memory.new(binary)
         Zlib::Reader.open(io) do |reader|
           payload = Packet.from_json(reader)
-          @logger.debug "[WS IN] (compressed, #{binary.size}) #{payload.to_json}"
+          @logger.debug "[WS IN] (compressed, #{binary.size}) #{payload.to_json}" if @logger.debug?
           handler.call(payload)
         end
       end

@@ -61,9 +61,6 @@ module Discord
     # the `#request_guild_members` method can be used.
     #
     # If *compress* is true, packets will be sent in a compressed manner.
-    # discordcr doesn't currently handle packet decompression, so until that is
-    # implemented, setting this to true will cause the client to fail to parse
-    # anything.
     #
     # The *properties* define what values are sent to Discord as analytics
     # properties. It's not recommended to change these from the default values,
@@ -71,7 +68,7 @@ module Discord
     def initialize(@token : String, @client_id : UInt64? = nil,
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
-                   @compress : Bool = false,
+                   @compress : Bool = true,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES,
                    @logger = Logger.new(STDOUT))
       @logger.progname = "discordcr"
