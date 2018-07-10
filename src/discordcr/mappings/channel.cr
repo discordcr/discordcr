@@ -47,10 +47,11 @@ module Discord
   end
 
   enum ChannelType : UInt8
-    GuildText = 0
-    DM        = 1
-    Voice     = 2
-    GroupDM   = 3
+    GuildText     = 0
+    DM            = 1
+    Voice         = 2
+    GroupDM       = 3
+    GuildCategory = 4
   end
 
   struct Channel
