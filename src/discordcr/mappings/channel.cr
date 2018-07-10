@@ -49,7 +49,7 @@ module Discord
   enum ChannelType : UInt8
     GuildText     = 0
     DM            = 1
-    Voice         = 2
+    GuildVoice    = 2
     GroupDM       = 3
     GuildCategory = 4
   end
