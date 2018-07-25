@@ -17,6 +17,7 @@ module Discord
       owner:                  User,
     })
 
+    # Produces a CDN URL for this application's icon in the given `format` and `size`
     def icon_url(format : CDN::ApplicationIconFormat = CDN::ApplicationIconFormat::WebP,
                  size : Int32 = 128)
       if icon = @icon

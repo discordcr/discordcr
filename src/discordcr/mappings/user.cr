@@ -23,6 +23,10 @@ module Discord
       verified: Bool?
     )
 
+    # Produces a CDN URL to this user's avatar in the given `size`.
+    # If the user has an avatar a WebP will be returned, or a GIF
+    # if the avatar is animated. If the user has no avatar, a default
+    # avatar URL is returned.
     def avatar_url(size : Int32 = 128)
       if avatar = @avatar
         CDN.user_avatar(id, avatar, size)
@@ -31,6 +35,8 @@ module Discord
       end
     end
 
+    # Produces a CDN URL to this user's avatar, in the given `format` and
+    # `size`. If the user has no avatar, a default avatar URL is returned.
     def avatar_url(format : CDN::UserAvatarFormat, size : Int32 = 128)
       if avatar = @avatar
         CDN.user_avatar(id, avatar, format, size)

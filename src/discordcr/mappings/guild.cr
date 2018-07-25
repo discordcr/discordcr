@@ -51,6 +51,8 @@ module Discord
       end
     {% end %}
 
+    # Produces a CDN URL to this guild's icon in the given `format` and `size`,
+    # or `nil` if no icon is set.
     def icon_url(format : CDN::GuildIconFormat = CDN::GuildIconFormat::WebP,
                  size : Int32 = 128)
       if icon = @icon
@@ -58,6 +60,8 @@ module Discord
       end
     end
 
+    # Produces a CDN URL to this guild's splash in the given `format` and `size`,
+    # or `nil` if no splash is set.
     def splash_url(format : CDN::GuildSplashFormat = CDN::GuildSplashFormat::WebP,
                    size : Int32 = 128)
       if splash = @splash
@@ -155,6 +159,8 @@ module Discord
       animated: Bool
     )
 
+    # Produces a CDN URL to this emoji's image in the given `size`. Will return
+    # a PNG, or GIF if the emoji is animated.
     def image_url(size : Int32 = 128)
       if animated
         image_url(:gif, size)
@@ -163,6 +169,7 @@ module Discord
       end
     end
 
+    # Produces a CDN URL to this emoji's image in the given `format` and `size`
     def image_url(format : CDN::CustomEmojiFormat, size : Int32 = 128)
       CDN.custom_emoji(id, format, size)
     end
