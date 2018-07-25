@@ -50,6 +50,20 @@ module Discord
         emoji
       end
     {% end %}
+
+    def icon_url(format : CDN::GuildIconFormat = CDN::GuildIconFormat::WebP,
+                 size : Int32 = 128)
+      if icon = @icon
+        CDN.guild_icon(id, icon, format, size)
+      end
+    end
+
+    def splash_url(format : CDN::GuildSplashFormat = CDN::GuildSplashFormat::WebP,
+                   size : Int32 = 128)
+      if splash = @splash
+        CDN.guild_splash(id, splash, format, size)
+      end
+    end
   end
 
   struct UnavailableGuild
@@ -140,6 +154,18 @@ module Discord
       managed: Bool,
       animated: Bool
     )
+
+    def image_url(size : Int32 = 128)
+      if animated
+        image_url(:gif, size)
+      else
+        image_url(:png, size)
+      end
+    end
+
+    def image_url(format : CDN::CustomEmojiFormat, size : Int32 = 128)
+      CDN.custom_emoji(id, format, size)
+    end
   end
 
   struct Role
