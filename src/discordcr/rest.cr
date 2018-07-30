@@ -1123,7 +1123,7 @@ module Discord
         nil
       )
 
-      PruneCountResponse.new(response.body)
+      PruneCountResponse.from_json(response.body)
     end
 
     # Prunes all members from this guild which haven't been seen for more than
@@ -1140,7 +1140,7 @@ module Discord
         nil
       )
 
-      PruneCountResponse.new(response.body)
+      PruneCountResponse.from_json(response.body)
     end
 
     # Gets a list of voice regions available for this guild. This may include
