@@ -225,7 +225,7 @@ module Discord
     # Message History" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#get-channel-messages)
-    def get_channel_messages(channel_id : UInt64 | Snowflake, limit : UInt8 = 50, before : UInt64 | Snowflake | Nil = nil, after : UInt64 | Snowflake | Nil = nil, around : UInt64 | Snowflake | Nil = nil)
+    def get_channel_messages(channel_id : UInt64 | Snowflake, limit : Int32 = 50, before : UInt64 | Snowflake | Nil = nil, after : UInt64 | Snowflake | Nil = nil, around : UInt64 | Snowflake | Nil = nil)
       path = "/channels/#{channel_id}/messages?limit=#{limit}"
       path += "&before=#{before}" if before
       path += "&after=#{after}" if after
@@ -241,6 +241,27 @@ module Discord
       )
 
       Array(Message).from_json(response.body)
+    end
+
+    # Returns a `Paginator` over a channel's message history. Requires the
+    # "Read Message History" permission. See `get_channel_messages`.
+    #
+    # Will yield a channels message history in the given `direction` starting at
+    # `start_id` until `limit` number of messages are observed, or the channel has
+    # no further history. Setting `limit` to `nil` will have the paginator continue
+    # to make requests until all messages are fetched in the given `direction`.
+    def page_channel_messages(channel_id : UInt64 | Snowflake, start_id : UInt64 | Snowflake = 0_u64,
+                              limit : Int32? = 100, direction : Paginator::Direction = Paginator::Direction::Down,
+                              page_size : Int32 = 100)
+      Paginator(Message).new(limit, direction ^ Paginator::Direction::Down) do |last_page|
+        if direction.up?
+          next_id = last_page.try &.last.id || start_id
+          get_channel_messages(channel_id, page_size, before: next_id)
+        else
+          next_id = last_page.try &.first.id || start_id
+          get_channel_messages(channel_id, page_size, after: next_id)
+        end
+      end
     end
 
     # Gets a single message from the channel's history. Requires the "Read
@@ -851,6 +872,20 @@ module Discord
       Array(GuildMember).from_json(response.body)
     end
 
+    # Returns a `Paginator` over the given guilds members.
+    #
+    # Will yield members starting at `start_id` until  `limit` number of members
+    # guilds are observed, or the user has no further guilds. Setting `limit`
+    # to `nil` will have the paginator continue to make requests until all members
+    # are fetched.
+    def page_guild_members(guild_id : UInt64 | Snowflake, start_id : UInt64 | Snowflake = 0_u64,
+                           limit : Int32? = 1000, page_size : Int32 = 1000)
+      Paginator(GuildMember).new(limit, Paginator::Direction::Down) do |last_page|
+        next_id = last_page.try &.last.user.id || start_id
+        list_guild_members(guild_id, page_size, next_id)
+      end
+    end
+
     # Adds a user to the guild, provided you have a valid OAuth2 access token
     # for the user with the `guilds.join` scope.
     #
@@ -1344,15 +1379,15 @@ module Discord
     # Gets a list of user guilds the current user is on.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-current-user-guilds)
-    def get_current_user_guilds(limit : UInt8 = 100_u8, before : UInt64 | Snowflake = 0_u64, after : UInt64 | Snowflake = 0_u64)
+    def get_current_user_guilds(limit : Int32 = 100, before : UInt64 | Snowflake = 0_u64, after : UInt64 | Snowflake = 0_u64)
       params = HTTP::Params.build do |form|
         form.add "limit", limit.to_s
 
-        if before > 0
+        if before > 0_u64
           form.add "before", before.to_s
         end
 
-        if after > 0
+        if after > 0_u64
           form.add "after", after.to_s
         end
       end
@@ -1368,6 +1403,26 @@ module Discord
       )
 
       Array(UserGuild).from_json(response.body)
+    end
+
+    # Returns a `Paginator` over the current users guilds.
+    #
+    # Will yield guilds in the given `direction` starting at `start_id` until
+    # `limit` number of guilds are observed, or the user has no further guilds.
+    # Setting `limit` to `nil` will have the paginator continue to make requests
+    # until all guilds are fetched in the given `direction`.
+    def page_current_user_guilds(start_id : UInt64 | Snowflake = 0_u64, limit : Int32? = 100,
+                                 direction : Paginator::Direction = Paginator::Direction::Down,
+                                 page_size : Int32 = 100)
+      Paginator(UserGuild).new(limit, direction) do |last_page|
+        if direction.up?
+          next_id = last_page.try &.first.id || start_id
+          get_current_user_guilds(page_size, before: next_id)
+        else
+          next_id = last_page.try &.last.id || start_id
+          get_current_user_guilds(page_size, after: next_id)
+        end
+      end
     end
 
     # Makes the bot leave a guild.
