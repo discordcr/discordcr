@@ -97,5 +97,20 @@ describe Discord do
       packet = Discord::WebSocket::Packet.new(0_i64, 1_i64, IO::Memory.new("foo"), "test")
       packet.inspect.should eq %(Discord::WebSocket::Packet(@opcode=0_i64 @sequence=1_i64 @data="foo" @event_type="test"))
     end
+
+    it "serializes" do
+      json = %({"op":0,"s":1,"d":"foo","t":"test"})
+      packet = Discord::WebSocket::Packet.new(0_i64, 1_i64, IO::Memory.new(%("foo")), "test")
+      packet.to_json.should eq json
+    end
+
+    it "parses" do
+      json = %({"op":0,"s":1,"d":"foo","t":"test"})
+      packet = Discord::WebSocket::Packet.from_json(json)
+      packet.opcode.should eq 0
+      packet.sequence.should eq 1
+      packet.data.to_s.should eq %("foo")
+      packet.event_type.should eq "test"
+    end
   end
 end
