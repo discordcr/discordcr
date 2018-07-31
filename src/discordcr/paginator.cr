@@ -1,4 +1,3 @@
-# :nodoc:
 module Discord
   class Paginator(T)
     include ::Enumerable(T)
