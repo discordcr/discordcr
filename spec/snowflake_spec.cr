@@ -47,3 +47,11 @@ describe Discord::Snowflake do
     (snowflake == 0_u64).should be_false
   end
 end
+
+describe UInt64 do
+  it "compares to snowflake" do
+    snowflake = Discord::Snowflake.new(1_u64)
+    (1_u64 == snowflake).should be_true
+    (0_u64 == snowflake).should be_false
+  end
+end

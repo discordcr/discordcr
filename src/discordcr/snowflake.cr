@@ -55,3 +55,11 @@ module Discord
     end
   end
 end
+
+struct UInt64
+  include Comparable(Discord::Snowflake)
+
+  def <=>(snowflake : Discord::Snowflake)
+    self <=> snowflake.value
+  end
+end
