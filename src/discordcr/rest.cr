@@ -1030,6 +1030,23 @@ module Discord
       Array(GuildBan).from_json(response.body)
     end
 
+    # Returns information about a banned user in a guild. Requires the "Ban Members"
+    # permission.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-ban)
+    def get_guild_ban(guild_id : UInt64 | Snowflake, user_id : UInt64 | Snowflake)
+      response = request(
+        :guilds_gid_bans_uid,
+        guild_id,
+        "GET",
+        "/guilds/#{guild_id}/bans/#{user_id}",
+        HTTP::Headers.new,
+        nil
+      )
+
+      GuildBan.from_json(response.body)
+    end
+
     # Bans a member from the guild. Requires the "Ban Members" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-ban)
