@@ -44,6 +44,11 @@ module Discord
         CDN.default_user_avatar(discriminator)
       end
     end
+
+    # Produces a string to mention this user in a message
+    def mention
+      "<@#{id}>"
+    end
   end
 
   struct PartialUser
