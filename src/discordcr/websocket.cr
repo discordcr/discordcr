@@ -51,6 +51,11 @@ module Discord
       end
     end
 
+    ZLIB_SUFFIX = Bytes[0x0, 0x0, 0xFF, 0xFF]
+
+    @zlib_reader : Zlib::Reader?
+    @buffer : Bytes
+
     def initialize(@host : String, @path : String, @port : Int32, @tls : Bool, @logger : Logger)
       @websocket = HTTP::WebSocket.new(
         host: @host,
@@ -58,9 +63,15 @@ module Discord
         port: @port,
         tls: @tls
       )
+
+      # 10MB buffer for zlib-stream
+      @buffer_memory = Bytes.new(10 * 1024 * 1024)
+      @buffer = @buffer_memory[0, 0]
+      @zlib_io = IO::Memory.new
+      @zlib_reader = nil
     end
 
-    def on_binary(&handler : Packet ->)
+    def on_compressed(&handler : Packet ->)
       @websocket.on_binary do |binary|
         io = IO::Memory.new(binary)
         Zlib::Reader.open(io) do |reader|
@@ -68,6 +79,25 @@ module Discord
           @logger.debug "[WS IN] (compressed, #{binary.size} bytes) #{payload.to_json}" if @logger.debug?
           handler.call(payload)
         end
+      end
+    end
+
+    def on_compressed_stream(&handler : Packet ->)
+      @websocket.on_binary do |binary|
+        @zlib_io.write binary
+        next if binary.size < 4 || binary[binary.size - 4, 4] != ZLIB_SUFFIX
+        @zlib_io.rewind
+
+        zlib_reader = (@zlib_reader ||= Zlib::Reader.new(@zlib_io))
+
+        read_size = zlib_reader.read(@buffer_memory)
+        @buffer = @buffer_memory[0, read_size]
+
+        payload = Packet.from_json(IO::Memory.new(@buffer))
+        @logger.debug "[WS IN] (compressed, #{binary.size} bytes) #{payload.to_json}" if @logger.debug?
+        handler.call(payload)
+
+        @zlib_io.clear
       end
     end
 
