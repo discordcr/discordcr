@@ -186,13 +186,14 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#modify-channel)
     def modify_channel(channel_id : UInt64 | Snowflake, name : String? = nil, position : UInt32? = nil,
                        topic : String? = nil, bitrate : UInt32? = nil, user_limit : UInt32? = nil,
-                       nsfw : Bool? = nil)
+                       nsfw : Bool? = nil, rate_limit_per_user : Int32? = nil)
       json = encode_tuple(
         name: name,
         position: position,
         topic: topic,
         bitrate: bitrate,
-        user_limit: user_limit
+        user_limit: user_limit,
+        rate_limit_per_user: rate_limit_per_user
       )
 
       response = request(
