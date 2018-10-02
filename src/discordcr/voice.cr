@@ -134,7 +134,7 @@ module Discord
         return nil
       end
 
-      code = IO::Memory.new(message.byte_slice(0, 2)).read_bytes(UInt16, IO::ByteFormat::BigEndian)
+      code = IO::ByteFormat::BigEndian.decode(UInt16, message.to_slice[0, 2])
       reason = message.byte_slice(2, message.bytesize - 2)
       @logger.warn("VWS closed with code #{code}, reason: #{reason}")
       nil
@@ -184,6 +184,7 @@ module Discord
   class VoiceUDP
     @secret_key : Bytes?
     property secret_key
+    getter socket
 
     def initialize
       @socket = UDPSocket.new
@@ -197,12 +198,9 @@ module Discord
     # Sends a discovery packet to Discord, telling them that we want to know our
     # IP so we can select the protocol on the VWS
     def send_discovery
-      io = IO::Memory.new(70)
-
-      io.write_bytes(@ssrc.not_nil!, IO::ByteFormat::BigEndian)
-      io.write(Bytes.new(70 - sizeof(UInt32), 0_u8))
-
-      @socket.write(io.to_slice)
+      data = Bytes.new(70)
+      IO::ByteFormat::BigEndian.encode(@ssrc.not_nil!, data[0, 4])
+      @socket.write(data)
     end
 
     # Awaits a response to the discovery request and returns our local IP and
@@ -210,11 +208,11 @@ module Discord
     def receive_discovery_reply : {String, UInt16}
       buf = Bytes.new(70)
       @socket.receive(buf)
-      io = IO::Memory.new(buf)
 
-      io.seek(4) # The first four bytes are just the SSRC again, we don't care about that
-      ip = io.read_string(64).delete("\0")
-      port = io.read_bytes(UInt16, IO::ByteFormat::BigEndian)
+      # The first four bytes are just the SSRC again, we don't care about that
+      data = buf[4, buf.size - 4]
+      ip = String.new(data[0, 64]).delete("\0")
+      port = IO::ByteFormat::BigEndian.decode(UInt16, data[64, 2])
 
       {ip, port}
     end
@@ -233,19 +231,19 @@ module Discord
       @socket.write(new_buf)
     end
 
-    private def create_header(sequence : UInt16, time : UInt32) : Bytes
-      io = IO::Memory.new(12)
+    # :nodoc:
+    def create_header(sequence : UInt16, time : UInt32) : Bytes
+      bytes = Bytes.new(12)
 
       # Write the magic bytes required by Discord
-      io.write_byte(0x80_u8)
-      io.write_byte(0x78_u8)
+      bytes[0] = 0x80_u8
+      bytes[1] = 0x78_u8
 
-      # Write the actual information in the header
-      io.write_bytes(sequence, IO::ByteFormat::BigEndian)
-      io.write_bytes(time, IO::ByteFormat::BigEndian)
-      io.write_bytes(@ssrc.not_nil!, IO::ByteFormat::BigEndian)
+      IO::ByteFormat::BigEndian.encode(sequence, bytes[2, 2])
+      IO::ByteFormat::BigEndian.encode(time, bytes[4, 4])
+      IO::ByteFormat::BigEndian.encode(@ssrc.not_nil!, bytes[8, 4])
 
-      io.to_slice
+      bytes
     end
 
     private def encrypt_audio(header : Bytes, buf : Bytes) : Bytes
