@@ -56,7 +56,8 @@ module Discord
     @zlib_reader : Zlib::Reader?
     @buffer : Bytes
 
-    def initialize(@host : String, @path : String, @port : Int32, @tls : Bool, @logger : Logger)
+    def initialize(@host : String, @path : String, @port : Int32, @tls : Bool, @logger : Logger,
+                   @zlib_buffer_size : Int32 = 10 * 1024 * 1024)
       @websocket = HTTP::WebSocket.new(
         host: @host,
         path: @path,
@@ -64,8 +65,8 @@ module Discord
         tls: @tls
       )
 
-      # 10MB buffer for zlib-stream
-      @buffer_memory = Bytes.new(10 * 1024 * 1024)
+      # Buffer for zlib-stream
+      @buffer_memory = Bytes.empty
       @buffer = @buffer_memory[0, 0]
       @zlib_io = IO::Memory.new
       @zlib_reader = nil
@@ -83,6 +84,7 @@ module Discord
     end
 
     def on_compressed_stream(&handler : Packet ->)
+      @buffer_memory = Bytes.new(@zlib_buffer_size)
       @websocket.on_binary do |binary|
         @zlib_io.write binary
         next if binary.size < 4 || binary[binary.size - 4, 4] != ZLIB_SUFFIX

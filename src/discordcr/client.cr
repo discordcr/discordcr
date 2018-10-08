@@ -78,6 +78,9 @@ module Discord
     # compressed. Compression can be disabled with `CompressMode::None`, but this
     # is not recommended for production bots.
     #
+    # When using `Compress::Stream` compression, the buffer size can be configured
+    # by passing `zlib_buffer_size`.
+    #
     # The *properties* define what values are sent to Discord as analytics
     # properties. It's not recommended to change these from the default values,
     # but if you desire to do so, you can.
@@ -85,6 +88,7 @@ module Discord
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
                    @compress : CompressMode = CompressMode::Stream,
+                   @zlib_buffer_size : Int32 = 10 * 1024 * 1024,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES,
                    @logger = Logger.new(STDOUT))
       @logger.progname = "discordcr"
@@ -173,7 +177,8 @@ module Discord
         path: path,
         port: 443,
         tls: true,
-        logger: @logger
+        logger: @logger,
+        zlib_buffer_size: @zlib_buffer_size
       )
 
       websocket.on_message(&->on_message(Discord::WebSocket::Packet))
