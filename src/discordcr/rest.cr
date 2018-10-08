@@ -1156,7 +1156,7 @@ module Discord
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#delete-guild-role)
     def delete_guild_role(guild_id : UInt64 | Snowflake, role_id : UInt64 | Snowflake)
-      response = request(
+      request(
         :guilds_gid_roles_rid,
         guild_id,
         "DELETE",
@@ -1164,8 +1164,6 @@ module Discord
         HTTP::Headers.new,
         nil
       )
-
-      Role.from_json(response.body)
     end
 
     # Get a number of members that would be pruned with the given number of
