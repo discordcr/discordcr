@@ -79,7 +79,8 @@ module Discord
       owner_id: Snowflake?,
       application_id: Snowflake?,
       position: Int32?,
-      parent_id: Snowflake?
+      parent_id: Snowflake?,
+      rate_limit_per_user: Int32?
     )
 
     # Produces a string to mention this channel in a message
