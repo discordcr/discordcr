@@ -81,6 +81,11 @@ module Discord
       position: Int32?,
       parent_id: Snowflake?
     )
+
+    # Produces a string to mention this channel in a message
+    def mention
+      "<##{id}>"
+    end
   end
 
   struct PrivateChannel

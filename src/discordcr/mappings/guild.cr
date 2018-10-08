@@ -118,6 +118,15 @@ module Discord
       deaf: Bool?,
       mute: Bool?
     )
+
+    # Produces a string to mention this member in a message
+    def mention
+      if nick
+        "<@!#{user.id}>"
+      else
+        "<@#{user.id}>"
+      end
+    end
   end
 
   struct Integration
@@ -173,6 +182,15 @@ module Discord
     def image_url(format : CDN::CustomEmojiFormat, size : Int32 = 128)
       CDN.custom_emoji(id, format, size)
     end
+
+    # Produces a string to mention this emoji in a message
+    def mention
+      if animated
+        "<a:#{name}:#{id}>"
+      else
+        "<:#{name}:#{id}>"
+      end
+    end
   end
 
   struct Role
@@ -192,6 +210,11 @@ module Discord
         colour
       end
     {% end %}
+
+    # Produces a string to mention this role in a message
+    def mention
+      "<@&#{id}>"
+    end
   end
 
   struct GuildBan
