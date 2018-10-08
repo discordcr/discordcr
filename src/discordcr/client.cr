@@ -43,6 +43,18 @@ module Discord
       referring_domain: ""
     )
 
+    # Available gateway compression modes that can be requested
+    enum CompressMode
+      # Discord won't send any compressed data
+      None
+
+      # Large payloads (typically `GUILD_CREATE`) will be received compressed
+      Large
+
+      # All data will be received in a compressed stream
+      Stream
+    end
+
     # Creates a new bot with the given *token* and optionally the *client_id*.
     # Both of these things can be found on a bot's application page; the token
     # will need to be revealed using the "click to reveal" thing on the token
@@ -60,7 +72,14 @@ module Discord
     # uses; the maximum value is 250. To get a list of offline members as well,
     # the `#request_guild_members` method can be used.
     #
-    # If *compress* is true, packets will be sent in a compressed manner.
+    # `compress` can be set to any value of `CompressMode`. `CompressMode::Stream`
+    # is the default and will save the most bandwidth. You can optionally change
+    # this to `CompressMode::Large` to request that only large payloads be received
+    # compressed. Compression can be disabled with `CompressMode::None`, but this
+    # is not recommended for production bots.
+    #
+    # When using `Compress::Stream` compression, the buffer size can be configured
+    # by passing `zlib_buffer_size`.
     #
     # The *properties* define what values are sent to Discord as analytics
     # properties. It's not recommended to change these from the default values,
@@ -68,7 +87,8 @@ module Discord
     def initialize(@token : String, @client_id : UInt64? = nil,
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
-                   @compress : Bool = true,
+                   @compress : CompressMode = CompressMode::Stream,
+                   @zlib_buffer_size : Int32 = 10 * 1024 * 1024,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES,
                    @logger = Logger.new(STDOUT))
       @logger.progname = "discordcr"
@@ -145,16 +165,31 @@ module Discord
 
     private def initialize_websocket : Discord::WebSocket
       url = URI.parse(get_gateway.url)
+
+      if @compress.stream?
+        path = "#{url.path}/?encoding=json&v=6&compress=zlib-stream"
+      else
+        path = "#{url.path}/?encoding=json&v=6"
+      end
+
       websocket = Discord::WebSocket.new(
         host: url.host.not_nil!,
-        path: "#{url.path}/?encoding=json&v=6",
+        path: path,
         port: 443,
         tls: true,
-        logger: @logger
+        logger: @logger,
+        zlib_buffer_size: @zlib_buffer_size
       )
 
       websocket.on_message(&->on_message(Discord::WebSocket::Packet))
-      websocket.on_binary(&->on_message(Discord::WebSocket::Packet))
+
+      case @compress
+      when .large?
+        websocket.on_compressed(&->on_message(Discord::WebSocket::Packet))
+      when .stream?
+        websocket.on_compressed_stream(&->on_message(Discord::WebSocket::Packet))
+      end
+
       websocket.on_close(&->on_close(String))
 
       websocket
@@ -285,7 +320,8 @@ module Discord
         shard_tuple = shard.values
       end
 
-      packet = Gateway::IdentifyPacket.new(@token, @properties, @compress, @large_threshold, shard_tuple)
+      compress = @compress.large?
+      packet = Gateway::IdentifyPacket.new(@token, @properties, compress, @large_threshold, shard_tuple)
       websocket.send(packet.to_json)
     end
 
