@@ -35,6 +35,7 @@ module Discord
     @token : String
 
     @heartbeat_interval : Int32?
+    @send_heartbeats = false
 
     # Creates a new voice client. The *payload* should be a payload received
     # from Discord as part of a VOICE_SERVER_UPDATE dispatch, received after
@@ -70,12 +71,16 @@ module Discord
 
     # Initiates the connection process and blocks forever afterwards.
     def run
+      @send_heartbeats = true
       spawn { heartbeat_loop }
       @websocket.run
     end
 
     # Closes the VWS connection, in effect disconnecting from voice.
-    delegate close, to: @websocket
+    def close
+      @send_heartbeats = false
+      @websocket.close
+    end
 
     # Sets the handler that should be run once the voice client has connected
     # successfully.
@@ -102,7 +107,7 @@ module Discord
     end
 
     private def heartbeat_loop
-      loop do
+      while @send_heartbeats
         if @heartbeat_interval
           @websocket.send(HEARTBEAT_JSON)
           sleep @heartbeat_interval.not_nil!.milliseconds
