@@ -53,7 +53,7 @@ module Discord
             # the reset header which represents when the rate limit will get
             # reset.
             origin_time = HTTP.parse_time(response.headers["Date"]).not_nil!
-            reset_time = Time.epoch(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
+            reset_time = Time.unix(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
             retry_after = reset_time - origin_time
           end
 

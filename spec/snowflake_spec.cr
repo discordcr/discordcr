@@ -4,7 +4,7 @@ describe Discord::Snowflake do
   describe Discord::DISCORD_EPOCH do
     it "is 2015-01-01" do
       expected = Time.new(2015, 1, 1, location: Time::Location::UTC)
-      Discord::DISCORD_EPOCH.should eq expected.epoch_ms
+      Discord::DISCORD_EPOCH.should eq expected.to_unix_ms
     end
   end
 
