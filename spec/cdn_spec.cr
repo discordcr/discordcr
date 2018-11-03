@@ -32,12 +32,12 @@ describe Discord::CDN do
 
     context "without format" do
       it "detects an animated avatar" do
-        url = Discord::CDN.user_avatar(1, "a_hash", 16)
+        url = Discord::CDN.user_avatar(1_u64, "a_hash", 16)
         url.should eq "https://cdn.discordapp.com/avatars/1/a_hash.gif?size=16"
       end
 
       it "defaults to webp" do
-        url = Discord::CDN.user_avatar(1, "hash", 16)
+        url = Discord::CDN.user_avatar(1_u64, "hash", 16)
         url.should eq "https://cdn.discordapp.com/avatars/1/hash.webp?size=16"
       end
     end
