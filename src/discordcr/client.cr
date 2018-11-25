@@ -570,6 +570,15 @@ module Discord
         call_event guild_role_delete, payload
       when "MESSAGE_CREATE"
         payload = Message.from_json(data)
+
+        cache payload.author
+        guild_id = payload.guild_id
+        partial_member = payload.member
+        if guild_id && partial_member
+          member = GuildMember.new(payload.author, partial_member)
+          @cache.try &.cache(member, guild_id)
+        end
+
         call_event message_create, payload
       when "MESSAGE_REACTION_ADD"
         payload = Gateway::MessageReactionPayload.from_json(data)
@@ -600,12 +609,26 @@ module Discord
         call_event presence_update, payload
       when "TYPING_START"
         payload = Gateway::TypingStartPayload.from_json(data)
+
+        guild_id = payload.guild_id
+        member = payload.member
+        if guild_id && member
+          @cache.try &.cache(member, guild_id)
+        end
+
         call_event typing_start, payload
       when "USER_UPDATE"
         payload = User.from_json(data)
         call_event user_update, payload
       when "VOICE_STATE_UPDATE"
         payload = VoiceState.from_json(data)
+
+        guild_id = payload.guild_id
+        member = payload.member
+        if guild_id && member
+          @cache.try &.cache(member, guild_id)
+        end
+
         call_event voice_state_update, payload
       when "VOICE_SERVER_UPDATE"
         payload = Gateway::VoiceServerUpdatePayload.from_json(data)

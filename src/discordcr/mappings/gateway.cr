@@ -287,6 +287,7 @@ module Discord
         user_id: Snowflake,
         channel_id: Snowflake,
         message_id: Snowflake,
+        guild_id: Snowflake?,
         emoji: ReactionEmoji
       )
     end
@@ -294,7 +295,8 @@ module Discord
     struct MessageReactionRemoveAllPayload
       JSON.mapping(
         channel_id: Snowflake,
-        message_id: Snowflake
+        message_id: Snowflake,
+        guild_id: Snowflake?
       )
     end
 
@@ -304,6 +306,7 @@ module Discord
         content: String?,
         id: Snowflake,
         channel_id: Snowflake,
+        guild_id: Snowflake?,
         author: User?,
         timestamp: {type: Time?, converter: MaybeTimestampConverter},
         tts: Bool?,
@@ -319,14 +322,16 @@ module Discord
     struct MessageDeletePayload
       JSON.mapping(
         id: Snowflake,
-        channel_id: Snowflake
+        channel_id: Snowflake,
+        guild_id: Snowflake?
       )
     end
 
     struct MessageDeleteBulkPayload
       JSON.mapping(
         ids: Array(Snowflake),
-        channel_id: Snowflake
+        channel_id: Snowflake,
+        guild_id: Snowflake?
       )
     end
 
@@ -345,6 +350,8 @@ module Discord
       JSON.mapping(
         channel_id: Snowflake,
         user_id: Snowflake,
+        guild_id: Snowflake?,
+        member: GuildMember?,
         timestamp: {type: Time, converter: Time::EpochConverter}
       )
     end

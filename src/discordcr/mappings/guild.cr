@@ -86,6 +86,16 @@ module Discord
 
   struct GuildMember
     # :nodoc:
+    def initialize(user : User, partial_member : PartialGuildMember)
+      @user = user
+      @roles = partial_member.roles
+      @nick = partial_member.nick
+      @joined_at = partial_member.joined_at
+      @mute = partial_member.mute
+      @deaf = partial_member.deaf
+    end
+
+    # :nodoc:
     def initialize(payload : Gateway::GuildMemberAddPayload | GuildMember, roles : Array(Snowflake), nick : String?)
       initialize(payload)
       @nick = nick
@@ -127,6 +137,16 @@ module Discord
         "<@#{user.id}>"
       end
     end
+  end
+
+  struct PartialGuildMember
+    JSON.mapping(
+      nick: String?,
+      roles: Array(Snowflake),
+      joined_at: {type: Time, converter: TimestampConverter},
+      deaf: Bool,
+      mute: Bool
+    )
   end
 
   struct Integration
