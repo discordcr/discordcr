@@ -72,7 +72,7 @@ puts user.username
 ```
 
 Apart from this, API documentation is also available, at
-https://meew0.github.io/discordcr/doc/v0.1.0/.
+https://meew0.github.io/discordcr/doc/v0.4.0/.
 
 ## Contributing
 
