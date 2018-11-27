@@ -113,4 +113,10 @@ describe Discord do
       packet.event_type.should eq "test"
     end
   end
+
+  it ".shard_id" do
+    part = 3_u64 << 22
+    shard = Discord.shard_id(part, 2)
+    shard.should eq 1
+  end
 end
