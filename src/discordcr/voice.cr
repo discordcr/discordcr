@@ -284,9 +284,7 @@ module Discord
   # one frame every 20 ms, and if the processing and sending takes a certain
   # amount of time, then noticeable choppiness can be heard.
   def self.timed_run(total_time : Time::Span)
-    time = Time.monotonic
-    yield
-    delta = Time.monotonic - time
+    delta = Time.measure { yield }
 
     sleep_time = {total_time - delta, Time::Span.zero}.max
     sleep sleep_time
