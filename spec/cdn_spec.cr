@@ -48,6 +48,11 @@ describe Discord::CDN do
     url.should eq "https://cdn.discordapp.com/app-icons/1/hash.png?size=16"
   end
 
+  it "builds an application asset URL" do
+    url = Discord::CDN.application_asset(1, 2, :png, 16)
+    url.should eq "https://cdn.discordapp.com/app-assets/1/2.png?size=16"
+  end
+
   it "raises on an invalid size" do
     expect_raises(ArgumentError, "Size 17 is not between 16 and 2048 and a power of 2") do
       Discord::CDN.custom_emoji(1, :png, 17)

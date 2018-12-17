@@ -124,6 +124,23 @@ module Discord::CDN
     end
   end
 
+  enum ApplicationAssetFormat
+    PNG
+    JPEG
+    WebP
+
+    def to_s
+      case self
+      when PNG
+        "png"
+      when JPEG
+        "jpeg"
+      when WebP
+        "webp"
+      end
+    end
+  end
+
   private def check_size(value : Int32)
     in_range = (16..2048).includes?(value)
     power_of_two = (value > 0) && ((value & (value - 1)) == 0)
@@ -186,5 +203,13 @@ module Discord::CDN
                        size : Int32 = 128)
     check_size(size)
     "#{BASE_URL}/app-icons/#{id}/#{icon}.#{format}?size=#{size}"
+  end
+
+  # Produces a CDN URL for an application asset in the given `format` and `size`
+  def application_asset(application_id : UInt64 | Snowflake, asset_id : UInt64 | Snowflake,
+                        format : ApplicationAssetFormat = ApplicationAssetFormat::PNG,
+                        size : Int32 = 128)
+    check_size(size)
+    "#{BASE_URL}/app-assets/#{application_id}/#{asset_id}.#{format}?size=#{size}"
   end
 end
