@@ -471,7 +471,7 @@ module Discord
 
     # Edits an existing permission overwrite on a channel with new permissions,
     # or creates a new one. The *overwrite_id* should be either a user or a role
-    # ID. Requires the "Manage Permissions" permission.
+    # ID. Requires the "Manage Roles" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#edit-channel-permissions)
     def edit_channel_permissions(channel_id : UInt64 | Snowflake, overwrite_id : UInt64 | Snowflake,
