@@ -701,7 +701,7 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/emoji#list-guild-emojis)
     def list_guild_emojis(guild_id : UInt64 | Snowflake)
       response = request(
-        :guild_gid_emojis,
+        :guilds_gid_emojis,
         guild_id,
         "GET",
         "/guilds/#{guild_id}/emojis",
@@ -733,7 +733,7 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/emoji#modify-guild-emoji)
     def modify_guild_emoji(guild_id : UInt64 | Snowflake, emoji_id : UInt64 | Snowflake, name : String)
       response = request(
-        :guilds_gid_emojis,
+        :guilds_gid_emojis_eid,
         guild_id,
         "PATCH",
         "/guilds/#{guild_id}/emojis/#{emoji_id}",
@@ -754,7 +754,7 @@ module Discord
       )
 
       response = request(
-        :guild_gid_emojis,
+        :guilds_gid_emojis,
         guild_id,
         "POST",
         "/guilds/#{guild_id}/emojis",
