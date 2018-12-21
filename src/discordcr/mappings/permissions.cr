@@ -8,6 +8,8 @@ module Discord
     ManageChannels      = 1 << 4
     ManageGuild         = 1 << 5
     AddReactions        = 1 << 6
+    ViewAuditLog        = 1 << 7
+    PrioritySpeaker     = 1 << 8
     ReadMessages        = 1 << 10
     SendMessages        = 1 << 11
     SendTTSMessages     = 1 << 12
@@ -30,8 +32,6 @@ module Discord
     ManageEmojis        = 1 << 30
 
     def self.new(pull : JSON::PullParser)
-      # see https://github.com/crystal-lang/crystal/issues/3448
-      # #from_value errors
       Permissions.new(pull.read_int.to_u64)
     end
   end
