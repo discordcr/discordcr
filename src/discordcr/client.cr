@@ -5,6 +5,12 @@ require "./rest"
 require "./cache"
 
 module Discord
+  # Calculates the shard ID that would receive the gateway events from
+  # a guild with the given `guild_id`, based on the total number of shards.
+  def self.shard_id(guild_id : UInt64 | Snowflake, total_shards : Int32)
+    (guild_id.to_u64 >> 22) % total_shards
+  end
+
   # The basic client class that is used to connect to Discord, send REST
   # requests, or send or receive gateway messages. It is required for doing any
   # sort of interaction with Discord.
