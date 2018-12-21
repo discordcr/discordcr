@@ -453,7 +453,7 @@ module Discord
         recipients = payload.recipients
         if guild_id
           @cache.try &.add_guild_channel(guild_id, payload.id)
-        elsif payload.type == 1 && recipients
+        elsif payload.type.dm? && recipients
           @cache.try &.cache_dm_channel(payload.id, recipients[0].id)
         end
 
