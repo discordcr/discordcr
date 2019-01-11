@@ -37,4 +37,15 @@ module Discord
       end
     end
   end
+
+  # :nodoc:
+  module TimeSpanMillisecondsConverter
+    def self.from_json(parser : JSON::PullParser)
+      parser.read_int.milliseconds
+    end
+
+    def self.to_json(value : Time::Span, builder : JSON::Builder)
+      builder.scalar(value.milliseconds)
+    end
+  end
 end

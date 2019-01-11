@@ -114,6 +114,21 @@ describe Discord do
     end
   end
 
+  describe Discord::TimeSpanMillisecondsConverter do
+    it ".from_json" do
+      parser = JSON::PullParser.new("300")
+      span = Discord::TimeSpanMillisecondsConverter.from_json(parser)
+      span.should eq 300.milliseconds
+    end
+
+    it ".to_json" do
+      json = JSON.build do |builder|
+        Discord::TimeSpanMillisecondsConverter.to_json(300.milliseconds, builder)
+      end
+      json.should eq "300"
+    end
+  end
+
   it ".shard_id" do
     part = 3_u64 << 22
     shard = Discord.shard_id(part, 2)

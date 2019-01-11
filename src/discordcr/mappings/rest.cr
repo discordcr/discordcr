@@ -13,7 +13,17 @@ module Discord
     struct GatewayBotResponse
       JSON.mapping(
         url: String,
-        shards: Int32
+        shards: Int32,
+        session_start_limit: SessionStartLimit
+      )
+    end
+
+    # Session start limit details included in the Get Gateway Bot REST API call.
+    struct SessionStartLimit
+      JSON.mapping(
+        total: Int32,
+        remaining: Int32,
+        reset_after: {type: Time::Span, converter: TimeSpanMillisecondsConverter}
       )
     end
 
