@@ -54,7 +54,7 @@ module Discord::Mention
 
               if next_char.ascii_number?
                 snowflake = scan_snowflake(pos)
-                yield Role.new(snowflake, start, pos - start) if has_next? && current_char == '>'
+                yield Role.new(snowflake, start, pos - start + 1) if has_next? && current_char == '>'
               end
             when .ascii_number?, '!'
               next_char                        # Skip mention indicator

@@ -19,7 +19,7 @@ describe Discord::Mention do
 
     it_parses_message(
       "<@&123>",
-      into: [Discord::Mention::Role.new(123_u64, 0, 6)])
+      into: [Discord::Mention::Role.new(123_u64, 0, 7)])
 
     it_parses_message(
       "<#123>",
