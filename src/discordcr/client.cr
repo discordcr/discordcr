@@ -836,7 +836,7 @@ module Discord
     event message_delete, Gateway::MessageDeletePayload
 
     # Called when multiple messages are deleted at once, due to a bot using the
-    # bulk_delete endpoint.
+    # bulk-delete endpoint, or other actions.
     #
     # [API docs for this event](https://discordapp.com/developers/docs/topics/gateway#message-delete-bulk)
     event message_delete_bulk, Gateway::MessageDeleteBulkPayload

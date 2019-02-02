@@ -489,7 +489,7 @@ module Discord
         :channels_cid_messages_bulk_delete,
         channel_id,
         "POST",
-        "/channels/#{channel_id}/messages/bulk_delete",
+        "/channels/#{channel_id}/messages/bulk-delete",
         HTTP::Headers{"Content-Type" => "application/json"},
         {messages: message_ids}.to_json
       )
@@ -1570,27 +1570,6 @@ module Discord
         :invites_code,
         nil,
         "DELETE",
-        "/invites/#{code}",
-        HTTP::Headers.new,
-        nil
-      )
-
-      Invite.from_json(response.body)
-    end
-
-    # Makes a user accept an invite. Will not work for bots.
-    # For example, this can be used with a `Client` instantiated with an OAuth2
-    # `Bearer` token that has been granted the `guilds.join` scope.
-    # ```
-    # client = Discord::Client.new token: "Bearer XYZ"
-    # client.accept_invite("ABCdef")
-    # ```
-    # [API docs for this method](https://discordapp.com/developers/docs/resources/invite#accept-invite)
-    def accept_invite(code : String)
-      response = request(
-        :invites_code,
-        nil,
-        "POST",
         "/invites/#{code}",
         HTTP::Headers.new,
         nil
