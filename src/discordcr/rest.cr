@@ -415,7 +415,7 @@ module Discord
     # [API docs for this method](https://discordapp.com/developers/docs/resources/channel#create-message)
     # (same as `#create_message` -- this method implements form data bodies
     # while `#create_message` implements JSON bodies)
-    def upload_file(channel_id : UInt64 | Snowflake, content : String?, file : IO, filename : String? = nil)
+    def upload_file(channel_id : UInt64 | Snowflake, content : String?, file : IO, filename : String? = nil, spoiler : Bool = false)
       io = IO::Memory.new
 
       unless filename
@@ -424,6 +424,10 @@ module Discord
         else
           filename = ""
         end
+      end
+
+      if spoiler && !filename.starts_with?("SPOILER_")
+        filename = "SPOILER_" + filename
       end
 
       builder = HTTP::FormData::Builder.new(io)
