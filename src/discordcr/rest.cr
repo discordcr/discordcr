@@ -1530,8 +1530,8 @@ module Discord
 
     # Gets a list of connections the user has set up (Twitch, YouTube, etc.)
     #
-    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-users-connections)
-    def get_users_connections
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/user#get-user-connections)
+    def get_user_connections
       response = request(
         :users_me_connections,
         nil,
