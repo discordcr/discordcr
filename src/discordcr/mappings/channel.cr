@@ -79,7 +79,7 @@ module Discord
       user_limit: UInt32?,
       recipients: Array(User)?,
       nsfw: Bool?,
-      icon: Bool?,
+      icon: String?,
       owner_id: Snowflake?,
       application_id: Snowflake?,
       position: Int32?,
