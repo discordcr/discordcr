@@ -95,7 +95,7 @@ describe Discord do
   describe Discord::WebSocket::Packet do
     it "inspects" do
       packet = Discord::WebSocket::Packet.new(0_i64, 1_i64, IO::Memory.new("foo"), "test")
-      packet.inspect.should eq %(Discord::WebSocket::Packet(@opcode=0_i64 @sequence=1_i64 @data="foo" @event_type="test"))
+      packet.inspect.should eq %(Discord::WebSocket::Packet(@opcode=0 @sequence=1 @data="foo" @event_type="test"))
     end
 
     it "serializes" do

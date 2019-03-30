@@ -28,7 +28,7 @@ client.on_message_create do |payload|
     suffix = command.split(' ')[1..-1].join(" ")
     client.create_message(payload.channel_id, suffix)
   when PREFIX + "date"
-    client.create_message(payload.channel_id, Time.now.to_s("%D"))
+    client.create_message(payload.channel_id, Time.utc.to_s("%D"))
   end
 end
 

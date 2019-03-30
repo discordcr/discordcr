@@ -22,7 +22,7 @@ module Discord
   # :nodoc:
   module MaybeTimestampConverter
     def self.from_json(parser : JSON::PullParser)
-      if parser.kind == :null
+      if parser.kind.null?
         parser.read_null
         return nil
       end

@@ -3,7 +3,7 @@ require "./spec_helper"
 describe Discord::Snowflake do
   describe Discord::DISCORD_EPOCH do
     it "is 2015-01-01" do
-      expected = Time.new(2015, 1, 1, location: Time::Location::UTC)
+      expected = Time.utc(2015, 1, 1)
       Discord::DISCORD_EPOCH.should eq expected.to_unix_ms
     end
   end
@@ -35,7 +35,7 @@ describe Discord::Snowflake do
 
   describe "#creation_time" do
     it "returns the time the snowflake was created" do
-      time = Time.new(2018, 4, 18)
+      time = Time.utc(2018, 4, 18)
       snowflake = Discord::Snowflake.new(time)
       snowflake.creation_time.should eq time
     end
