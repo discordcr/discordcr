@@ -1185,6 +1185,24 @@ module Discord
       Role.from_json(response.body)
     end
 
+    # Changes the position of roles. Requires the "Manage Roles" permission
+    # and you cannot raise roles above the bot's highest role.
+    #
+    # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#modify-guild-role-positions)
+    def modify_guild_role_positions(guild_id : UInt64 | Snowflake,
+                                    positions : Array(ModifyRolePositionPayload))
+      response = request(
+        :guilds_gid_roles,
+        guild_id,
+        "PATCH",
+        "/guilds/#{guild_id}/roles",
+        HTTP::Headers{"Content-Type" => "application/json"},
+        positions.to_json
+      )
+
+      Array(Role).from_json(response.body)
+    end
+
     # Deletes a role. Requires the "Manage Roles" permission as well as the role
     # to be lower than the bot's highest role.
     #

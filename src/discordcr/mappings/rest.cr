@@ -71,5 +71,18 @@ module Discord
         end
       end
     end
+
+    # A request payload to rearrange roles in a `Guild` by a REST API call.
+    struct ModifyRolePositionPayload
+      JSON.mapping(
+        id: Snowflake,
+        position: Int32
+      )
+
+      def initialize(id : UInt64 | Snowflake, @position : Int32)
+        id = Snowflake.new(id) unless id.is_a?(Snowflake)
+        @id = id
+      end
+    end
   end
 end
