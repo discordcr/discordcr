@@ -1116,7 +1116,7 @@ module Discord
       )
     end
 
-    # Get a list of roles on the guild. Requires the "Manage Roles" permission.
+    # Get a list of roles on the guild.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#get-guild-roles)
     def get_guild_roles(guild_id : UInt64 | Snowflake)
