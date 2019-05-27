@@ -245,12 +245,20 @@ module Discord
   end
 
   struct GamePlaying
-    def initialize(@name = nil, @type = nil, @url = nil)
+    def initialize(@name = nil, @type : Type? = nil, @url = nil)
+    end
+
+    enum Type : UInt8
+      Playing   = 0
+      Streaming = 1
+      Listening = 2
+      Watching  = 3
+      Custom    = 4
     end
 
     JSON.mapping(
       name: String?,
-      type: Int64? | String?,
+      type: Type?,
       url: String?
     )
   end
