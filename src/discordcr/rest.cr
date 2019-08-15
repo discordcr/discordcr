@@ -193,6 +193,7 @@ module Discord
         topic: topic,
         bitrate: bitrate,
         user_limit: user_limit,
+        nsfw: nsfw,
         rate_limit_per_user: rate_limit_per_user
       )
 
@@ -805,13 +806,19 @@ module Discord
     # permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#create-guild-channel)
-    def create_guild_channel(guild_id : UInt64 | Snowflake, name : String, type : ChannelType,
-                             bitrate : UInt32?, user_limit : UInt32?)
+    def create_guild_channel(guild_id : UInt64 | Snowflake, name : String, type : ChannelType, topic : String?,
+                             bitrate : UInt32?, user_limit : UInt32?, rate_limit_per_user : Int32?,
+                             position : UInt32?, parent_id : UInt64? | Snowflake?, nsfw : Bool?)
       json = encode_tuple(
         name: name,
         type: type,
+        topic: topic,
         bitrate: bitrate,
-        user_limit: user_limit
+        user_limit: user_limit,
+        rate_limit_per_user: rate_limit_per_user,
+        position: position,
+        parent_id: parent_id,
+        nsfw: nsfw
       )
 
       response = request(
