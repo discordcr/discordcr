@@ -10,6 +10,7 @@ module Discord
     AddReactions        = 1 << 6
     ViewAuditLog        = 1 << 7
     PrioritySpeaker     = 1 << 8
+    Stream              = 1 << 9
     ReadMessages        = 1 << 10
     SendMessages        = 1 << 11
     SendTTSMessages     = 1 << 12
