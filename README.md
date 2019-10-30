@@ -1,4 +1,4 @@
-[![docs](https://img.shields.io/badge/docs-latest-green.svg?style=flat-square)](https://meew0.github.io/discordcr/doc/v0.4.0/)
+[![docs](https://img.shields.io/badge/docs-latest-green.svg?style=flat-square)](https://discordcr.github.io/discordcr/doc/v0.4.0/)
 
 # discordcr
 
@@ -6,13 +6,13 @@
 
 discordcr is a minimalist [Discord](https://discordapp.com/) API library for
 [Crystal](https://crystal-lang.org/), designed to be a complement to
-[discordrb](https://github.com/meew0/discordrb) for users who want more control
+[discordrb](https://github.com/discordrb/discordrb) for users who want more control
 and performance and who care less about ease-of-use.
 
 discordcr isn't designed for beginners to the Discord API - while experience
 with making bots isn't *required*, it's certainly recommended. If you feel
 overwhelmed by the complex documentation, try
-[discordrb](https://github.com/meew0/discordrb) first and then check back.
+[discordrb](https://github.com/discordrb/discordrb) first and then check back.
 
 Unlike many other libs which handle a lot of stuff, like caching or resolving,
 themselves automatically, discordcr requires the user to do such things
@@ -29,13 +29,13 @@ Add this to your application's `shard.yml`:
 ```yaml
 dependencies:
   discordcr:
-    github: meew0/discordcr
+    github: discordcr/discordcr
 ```
 
 ## Usage
 
 An example bot can be found
-[here](https://github.com/meew0/discordcr/blob/master/examples/ping.cr). More
+[here](https://github.com/discordcr/discordcr/blob/master/examples/ping.cr). More
 examples will come in the future.
 
 A short overview of library structure: the `Client` class includes the `REST`
@@ -72,11 +72,11 @@ puts user.username
 ```
 
 Apart from this, API documentation is also available, at
-https://meew0.github.io/discordcr/doc/v0.4.0/.
+https://discordcr.github.io/discordcr/doc/v0.4.0/.
 
 ## Contributing
 
-1. Fork it (https://github.com/meew0/discordcr/fork)
+1. Fork it (https://github.com/discordcr/discordcr/fork)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
