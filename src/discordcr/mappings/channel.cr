@@ -54,6 +54,8 @@ module Discord
     GuildVoice    = 2
     GroupDM       = 3
     GuildCategory = 4
+    GuildNews     = 5
+    GuildStore    = 6
   end
 
   struct Channel
