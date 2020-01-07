@@ -65,13 +65,14 @@ module Discord
         ssrc: Int32,
         port: Int32,
         modes: Array(String),
-        heartbeat_interval: Int32
+        ip: String
       )
     end
 
     struct SessionDescriptionPayload
       JSON.mapping(
-        secret_key: Array(UInt8)
+        secret_key: Array(UInt8),
+        mode: String
       )
     end
 
@@ -99,7 +100,7 @@ module Discord
 
     struct HelloPayload
       JSON.mapping(
-        heartbeat_interval: Int32
+        heartbeat_interval: Float32
       )
     end
   end
