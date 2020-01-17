@@ -10,6 +10,10 @@ module Discord
     ChannelIconChange    = 5
     ChannelPinnedMessage = 6
     GuildMemberJoin      = 7
+
+    def self.new(pull : JSON::PullParser)
+      MessageType.new(pull.read_int.to_u8)
+    end
   end
 
   struct Message
@@ -39,6 +43,10 @@ module Discord
     Spectate    = 2
     Listen      = 3
     JoinRequest = 5
+
+    def self.new(pull : JSON::PullParser)
+      ActivityType.new(pull.read_int.to_u8)
+    end
   end
 
   struct Activity
@@ -56,6 +64,10 @@ module Discord
     GuildCategory = 4
     GuildNews     = 5
     GuildStore    = 6
+
+    def self.new(pull : JSON::PullParser)
+      ChannelType.new(pull.read_int.to_u8)
+    end
   end
 
   struct Channel
