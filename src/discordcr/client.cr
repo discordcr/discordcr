@@ -151,9 +151,11 @@ module Discord
     end
 
     # Closes the gateway connection permanently
-    def stop(message = nil)
+    def stop(code : UInt16 = 1000)
       @should_reconnect = false
-      websocket.close(message)
+      bytes = Bytes.new(sizeof(UInt16))
+      IO::ByteFormat::NetworkEndian.encode(code, bytes)
+      websocket.close(bytes)
     end
 
     # Separate method to wait an ever-increasing amount of time before reconnecting after being disconnected in an
