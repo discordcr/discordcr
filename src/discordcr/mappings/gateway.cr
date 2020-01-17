@@ -22,9 +22,9 @@ module Discord
     end
 
     struct IdentifyPacket
-      def initialize(token, properties, large_threshold, compress, shard)
+      def initialize(token, properties, large_threshold, compress, shard, intents)
         @op = Discord::Client::OP_IDENTIFY
-        @d = IdentifyPayload.new(token, properties, large_threshold, compress, shard)
+        @d = IdentifyPayload.new(token, properties, large_threshold, compress, shard, intents)
       end
 
       JSON.mapping(
@@ -34,7 +34,7 @@ module Discord
     end
 
     struct IdentifyPayload
-      def initialize(@token, @properties, @compress, @large_threshold, @shard)
+      def initialize(@token, @properties, @compress, @large_threshold, @shard, @intents)
       end
 
       JSON.mapping({
@@ -43,6 +43,7 @@ module Discord
         compress:        Bool,
         large_threshold: Int32,
         shard:           Tuple(Int32, Int32)?,
+        intents:         Intents,
       })
     end
 
@@ -57,6 +58,25 @@ module Discord
         referrer: {key: "$referrer", type: String},
         referring_domain: {key: "$referring_domain", type: String}
       )
+    end
+
+    @[Flags]
+    enum Intents
+      Guilds                 = 1 << 0
+      GuildMembers           = 1 << 1
+      GuildBans              = 1 << 2
+      GuildEmojis            = 1 << 3
+      GuildIntegrations      = 1 << 4
+      GuildWebhooks          = 1 << 5
+      GuildInvites           = 1 << 6
+      GuildVoiceStates       = 1 << 7
+      GuildPresences         = 1 << 8
+      GuildMessages          = 1 << 9
+      GuildMessageReactions  = 1 << 10
+      GuildMessageTyping     = 1 << 11
+      DirectMessages         = 1 << 12
+      DirectMessageReactions = 1 << 13
+      DirectMessageTyping    = 1 << 14
     end
 
     struct ResumePacket

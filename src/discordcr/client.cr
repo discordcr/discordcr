@@ -90,12 +90,17 @@ module Discord
     # The *properties* define what values are sent to Discord as analytics
     # properties. It's not recommended to change these from the default values,
     # but if you desire to do so, you can.
+    #
+    # The *intents* value is used to request that only specific events are sent
+    # to this client for the current session. For details on what `Intents` values
+    # correspond to which gateway events, see the [API docs]().
     def initialize(@token : String, @client_id : UInt64 | Snowflake | Nil = nil,
                    @shard : Gateway::ShardKey? = nil,
                    @large_threshold : Int32 = 100,
                    @compress : CompressMode = CompressMode::Stream,
                    @zlib_buffer_size : Int32 = 10 * 1024 * 1024,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES,
+                   @intents : Gateway::Intents = Gateway::Intents::All,
                    @logger = Logger.new(STDOUT))
       @logger.progname = "discordcr"
       @backoff = 1.0
@@ -336,7 +341,7 @@ module Discord
       end
 
       compress = @compress.large?
-      packet = Gateway::IdentifyPacket.new(@token, @properties, compress, @large_threshold, shard_tuple)
+      packet = Gateway::IdentifyPacket.new(@token, @properties, compress, @large_threshold, shard_tuple, @intents)
       websocket.send(packet.to_json)
     end
 
