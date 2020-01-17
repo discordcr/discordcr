@@ -202,12 +202,17 @@ module Discord
     end
 
     private def on_close(message : String)
-      # TODO: make more sophisticated
-      @logger.warn "[#{@client_name}] Closed with: " + message
-
       @send_heartbeats = false
       @session.try &.suspend
-      nil
+
+      bytes = message.to_slice
+      code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
+      if bytes.size > 2
+        reason = String.new(bytes[2..])
+      else
+        reason = "none"
+      end
+      @logger.warn "[#{@client_name}] Websocket closed with code: #{code}, reason: #{reason}"
     end
 
     OP_DISPATCH              =  0
