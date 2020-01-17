@@ -201,7 +201,9 @@ describe Discord::OAuth2Application do
         "id": "1",
         "username": "username",
         "discriminator": "0001"
-      }
+      },
+      "summary": "some summary",
+      "verify_key": "key"
     }
     JSON
 
