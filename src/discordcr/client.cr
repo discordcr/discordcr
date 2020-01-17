@@ -207,14 +207,16 @@ module Discord
       @send_heartbeats = false
       @session.try &.suspend
 
-      bytes = message.to_slice
-      code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
-      if bytes.size > 2
-        reason = String.new(bytes[2..])
-      else
-        reason = "none"
+      code = nil
+      reason = nil
+      unless message.empty?
+        bytes = message.to_slice
+        code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
+        if bytes.size > 2
+          reason = String.new(bytes[..])
+        end
       end
-      @logger.warn "[#{@client_name}] Websocket closed with code: #{code}, reason: #{reason}"
+      @logger.warn "[#{@client_name}] Websocket closed with code: #{code || "none"}, reason: #{reason || "none"}"
     end
 
     OP_DISPATCH              =  0

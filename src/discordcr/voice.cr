@@ -132,14 +132,17 @@ module Discord
 
     private def on_close(message : String)
       @send_heartbeats = false
-      if message.bytesize < 2
-        @logger.warn("VWS closed with data: #{message.bytes}")
-        return nil
-      end
 
-      code = IO::ByteFormat::BigEndian.decode(UInt16, message.to_slice[0, 2])
-      reason = message.byte_slice(2, message.bytesize - 2)
-      @logger.warn("VWS closed with code: #{code}, reason: #{reason}")
+      code = nil
+      reason = nil
+      unless message.empty?
+        bytes = message.to_slice
+        code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
+        if bytes.size > 2
+          reason = String.new(bytes[..])
+        end
+      end
+      @logger.warn "VWS closed with code: #{code || "none"}, reason: #{reason || "none"}"
     end
 
     private def handle_ready(payload : VWS::ReadyPayload)
