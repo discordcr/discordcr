@@ -19,9 +19,11 @@ module Discord
       avatar: String?,
       email: String?,
       bot: Bool?,
+      system: Bool?,
       mfa_enabled: Bool?,
       verified: Bool?,
-      member: PartialGuildMember?
+      member: PartialGuildMember?,
+      flags: UserFlags?,
     )
 
     # Produces a CDN URL to this user's avatar in the given `size`.
@@ -49,6 +51,24 @@ module Discord
     # Produces a string to mention this user in a message
     def mention
       "<@#{id}>"
+    end
+  end
+
+  @[Flags]
+  enum UserFlags : UInt16
+    DiscordEmployee = 1 << 0
+    DiscordPartner  = 1 << 1
+    HypeSquadEvents = 1 << 2
+    BugHunter       = 1 << 3
+    HouseBravery    = 1 << 6
+    HouseBrilliance = 1 << 7
+    HouseBalance    = 1 << 8
+    EarlySupporter  = 1 << 9
+    TeamUser        = 1 << 10
+    System          = 1 << 12
+
+    def self.new(pull : JSON::PullParser)
+      UserFlags.new(pull.read_int.to_u16)
     end
   end
 
