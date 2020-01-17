@@ -989,7 +989,7 @@ module Discord
     # Adds a role to a member. Requires the "Manage Roles" permission.
     #
     # [API docs for this method](https://discordapp.com/developers/docs/resources/guild#add-guild-member-role)
-    def add_guild_member_role(guild_id : UInt64, user_id : UInt64, role_id : UInt64)
+    def add_guild_member_role(guild_id : UInt64 | Snowflake, user_id : UInt64 | Snowflake, role_id : UInt64 | Snowflake)
       request(
         :guilds_gid_members_uid_roles_rid,
         guild_id,
