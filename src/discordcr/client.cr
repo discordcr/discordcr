@@ -100,7 +100,7 @@ module Discord
                    @compress : CompressMode = CompressMode::Stream,
                    @zlib_buffer_size : Int32 = 10 * 1024 * 1024,
                    @properties : Gateway::IdentifyProperties = DEFAULT_PROPERTIES,
-                   @intents : Gateway::Intents = Gateway::Intents::All,
+                   @intents : Gateway::Intents? = nil,
                    @logger = Logger.new(STDOUT))
       @logger.progname = "discordcr"
       @backoff = 1.0

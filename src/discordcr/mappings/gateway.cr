@@ -43,7 +43,7 @@ module Discord
         compress:        Bool,
         large_threshold: Int32,
         shard:           Tuple(Int32, Int32)?,
-        intents:         Intents,
+        intents:         Intents?,
       })
     end
 
