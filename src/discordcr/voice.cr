@@ -139,7 +139,7 @@ module Discord
         bytes = message.to_slice
         code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
         if bytes.size > 2
-          reason = String.new(bytes[..])
+          reason = String.new(bytes[2..])
         end
       end
       @logger.warn "VWS closed with code: #{code || "none"}, reason: #{reason || "none"}"
