@@ -117,7 +117,7 @@ module Discord
 
       # If the websocket is closed, whether we should immediately try and reconnect
       @should_reconnect = true
-      @client_name = shard ? "Client #{shard}" : "Client"
+      @client_name = shard ? "Client #{shard[:shard_id]}/#{shard[:num_shards]}" : "Client"
 
       setup_heartbeats
     end
