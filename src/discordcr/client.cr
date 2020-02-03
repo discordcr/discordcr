@@ -453,6 +453,8 @@ module Discord
         @logger.info "[#{@client_name}] Received READY, v: #{payload.v}"
         call_event ready, payload
       when "RESUMED"
+        @logger.info "[#{@client_name}] Resumed"
+
         # RESUMED also means a connection was achieved, so reset the
         # reconnection backoff here too
         @backoff = 1.0
