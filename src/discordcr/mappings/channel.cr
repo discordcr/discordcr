@@ -34,6 +34,7 @@ module Discord
       embeds: Array(Embed),
       pinned: Bool?,
       reactions: Array(Reaction)?,
+      nonce: String | Int64?,
       activity: Activity?
     )
   end
