@@ -320,6 +320,15 @@ module Discord
       )
     end
 
+    struct MessageReactionRemoveEmojiPayload
+      JSON.mapping(
+        channel_id: Snowflake,
+        guild_id: Snowflake,
+        message_id: Snowflake,
+        emoji: ReactionEmoji
+      )
+    end
+
     struct MessageUpdatePayload
       JSON.mapping(
         type: UInt8?,

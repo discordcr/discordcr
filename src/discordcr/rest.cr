@@ -406,6 +406,21 @@ module Discord
       )
     end
 
+    # Removes all reactions for a given emoji from a message. Requires the "Manage Messages"
+    # permission.
+    #
+    # [API Docs for this method]()
+    def delete_reaction(channel_id : UInt64 | Snowflake, message_id : UInt64 | Snowflake, emoji : String)
+      request(
+        :channels_cid_messages_mid_reactions_emoji,
+        channel_id,
+        "DELETE",
+        "/channels/#{channel_id}/messages/#{message_id}/reactions/#{emoji}",
+        HTTP::Headers.new,
+        nil
+      )
+    end
+
     # Uploads a file to a channel. Requires the "Send Messages" and "Attach
     # Files" permissions.
     #

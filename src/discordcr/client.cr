@@ -611,6 +611,9 @@ module Discord
       when "MESSAGE_REACTION_REMOVE_ALL"
         payload = Gateway::MessageReactionRemoveAllPayload.from_json(data)
         call_event message_reaction_remove_all, payload
+      when "MESSAGE_REACTION_REMOVE_EMOJI"
+        payload = Gateway::MessageReactionRemoveEmojiPayload.from_json(data)
+        call_event message_reaction_remove_emoji, payload
       when "MESSAGE_UPDATE"
         payload = Gateway::MessageUpdatePayload.from_json(data)
         call_event message_update, payload
@@ -831,6 +834,9 @@ module Discord
 
     # Called when all reactions are removed at once from a message.
     event message_reaction_remove_all, Gateway::MessageReactionRemoveAllPayload
+
+    # Called when all reactions of a single emoji are removed at once from a message.
+    event message_reaction_remove_emoji, Gateway::MessageReactionRemoveEmojiPayload
 
     # Called when a message is updated. Most commonly this is done for edited
     # messages, but the event is also sent when embed information for an
