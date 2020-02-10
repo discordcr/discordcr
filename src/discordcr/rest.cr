@@ -22,6 +22,7 @@ module Discord
 
       headers["Authorization"] = @token
       headers["User-Agent"] = USER_AGENT
+      headers["X-RateLimit-Precision"] = "millisecond"
 
       request_done = false
       rate_limit_key = {route_key: route_key, major_parameter: major_parameter.try(&.to_u64)}
@@ -43,19 +44,8 @@ module Discord
         @logger.debug "[HTTP IN] BODY: #{response.body}" if @logger.debug?
 
         if response.status_code == 429 || response.headers["X-RateLimit-Remaining"]? == "0"
-          # We got rate limited!
-          if response.headers["Retry-After"]?
-            # Retry-After is in ms, convert to seconds first
-            retry_after = response.headers["Retry-After"].to_i / 1000.0
-          else
-            # Calculate the difference between the HTTP Date header, which
-            # represents the time the response was sent on Discord's side, and
-            # the reset header which represents when the rate limit will get
-            # reset.
-            origin_time = HTTP.parse_time(response.headers["Date"]).not_nil!
-            reset_time = Time.unix(response.headers["X-RateLimit-Reset"].to_u64) # gotta prevent that Y2k38
-            retry_after = reset_time - origin_time
-          end
+          retry_after_value = response.headers["X-RateLimit-Reset-After"]? || response.headers["Retry-After"]?
+          retry_after = retry_after_value.not_nil!.to_f
 
           if response.headers["X-RateLimit-Global"]?
             @logger.warn "Global rate limit exceeded! Pausing all requests for #{retry_after}"
