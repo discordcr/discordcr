@@ -50,10 +50,10 @@ module Discord
           retry_after = retry_after_value.not_nil!.to_f
 
           if response.headers["X-RateLimit-Global"]?
-            Log.warn  { "Global rate limit exceeded! Pausing all requests for #{retry_after}" }
+            Log.warn { "Global rate limit exceeded! Pausing all requests for #{retry_after}" }
             global_mutex.synchronize { sleep retry_after }
           else
-            Log.warn  { "Pausing requests for #{rate_limit_key[:route_key]} in #{rate_limit_key[:major_parameter]} for #{retry_after}" }
+            Log.warn { "Pausing requests for #{rate_limit_key[:route_key]} in #{rate_limit_key[:major_parameter]} for #{retry_after}" }
             mutexes[rate_limit_key].synchronize { sleep retry_after }
           end
 
