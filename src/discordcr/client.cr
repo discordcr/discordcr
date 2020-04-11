@@ -156,11 +156,9 @@ module Discord
     end
 
     # Closes the gateway connection permanently
-    def stop(code : UInt16 = 1000)
+    def stop(code : HTTP::WebSocket::CloseCode = HTTP::WebSocket::CloseCode::NormalClosure)
       @should_reconnect = false
-      bytes = Bytes.new(sizeof(UInt16))
-      IO::ByteFormat::NetworkEndian.encode(code, bytes)
-      websocket.close(bytes)
+      websocket.close(code)
     end
 
     # Separate method to wait an ever-increasing amount of time before reconnecting after being disconnected in an
@@ -203,25 +201,16 @@ module Discord
         websocket.on_compressed_stream(&->on_message(Discord::WebSocket::Packet))
       end
 
-      websocket.on_close(&->on_close(String))
+      websocket.on_close(&->on_close(HTTP::WebSocket::CloseCode, String))
 
       websocket
     end
 
-    private def on_close(message : String)
+    private def on_close(code : HTTP::WebSocket::CloseCode, message : String)
       @send_heartbeats = false
       @session.try &.suspend
-
-      code = nil
-      reason = nil
-      unless message.empty?
-        bytes = message.to_slice
-        code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
-        if bytes.size > 2
-          reason = String.new(bytes[2..])
-        end
-      end
-      @logger.warn "[#{@client_name}] Websocket closed with code: #{code || "none"}, reason: #{reason || "none"}"
+      reason = message.empty? ? "(none)" : message
+      @logger.warn "[#{@client_name}] Websocket closed with code: #{code}, reason: #{reason}"
     end
 
     OP_DISPATCH              =  0

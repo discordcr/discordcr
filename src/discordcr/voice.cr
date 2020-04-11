@@ -61,7 +61,7 @@ module Discord
       )
 
       @websocket.on_message(&->on_message(Discord::WebSocket::Packet))
-      @websocket.on_close(&->on_close(String))
+      @websocket.on_close(&->on_close(HTTP::WebSocket::CloseCode, String))
 
       @udp = VoiceUDP.new
     end
@@ -130,19 +130,10 @@ module Discord
       end
     end
 
-    private def on_close(message : String)
+    private def on_close(code : HTTP::WebSocket::CloseCode, message : String)
       @send_heartbeats = false
-
-      code = nil
-      reason = nil
-      unless message.empty?
-        bytes = message.to_slice
-        code = IO::ByteFormat::NetworkEndian.decode(UInt16, bytes[0, 2])
-        if bytes.size > 2
-          reason = String.new(bytes[2..])
-        end
-      end
-      @logger.warn "VWS closed with code: #{code || "none"}, reason: #{reason || "none"}"
+      reason = message.empty? ? "(none)" : message
+      @logger.warn "VWS closed with code: #{code}, reason: #{reason}"
     end
 
     private def handle_ready(payload : VWS::ReadyPayload)

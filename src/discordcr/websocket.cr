@@ -111,7 +111,7 @@ module Discord
       end
     end
 
-    def on_close(&handler : String ->)
+    def on_close(&handler : HTTP::WebSocket::CloseCode, String ->)
       @websocket.on_close(&handler)
     end
 
