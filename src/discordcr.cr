@@ -1,5 +1,6 @@
+require "log"
 require "./discordcr/*"
 
 module Discord
-  # TODO Put your code here
+  Log = ::Log.for("discord")
 end

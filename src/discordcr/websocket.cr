@@ -5,6 +5,8 @@ module Discord
   # Internal wrapper around HTTP::WebSocket to decode the Discord-specific
   # payload format used in the gateway and VWS.
   class WebSocket
+    Log = Discord::Log.for("ws")
+
     # :nodoc:
     struct Packet
       include JSON::Serializable
@@ -56,7 +58,7 @@ module Discord
     @zlib_reader : Zlib::Reader?
     @buffer : Bytes
 
-    def initialize(@host : String, @path : String, @port : Int32, @tls : Bool, @logger : Logger,
+    def initialize(@host : String, @path : String, @port : Int32, @tls : Bool,
                    @zlib_buffer_size : Int32 = 10 * 1024 * 1024)
       @websocket = HTTP::WebSocket.new(
         host: @host,
@@ -77,7 +79,7 @@ module Discord
         io = IO::Memory.new(binary)
         Zlib::Reader.open(io) do |reader|
           payload = Packet.from_json(reader)
-          @logger.debug "[WS IN] (compressed, #{binary.size} bytes) #{payload.to_json}" if @logger.debug?
+          Log.debug { "[WS IN] (compressed, #{binary.size} bytes) #{payload.to_json}" }
           handler.call(payload)
         end
       end
@@ -96,7 +98,7 @@ module Discord
         @buffer = @buffer_memory[0, read_size]
 
         payload = Packet.from_json(IO::Memory.new(@buffer))
-        @logger.debug "[WS IN] (compressed, #{binary.size} bytes) #{payload.to_json}" if @logger.debug?
+        Log.debug { "[WS IN] (compressed, #{binary.size} bytes) #{payload.to_json}" }
         handler.call(payload)
 
         @zlib_io.clear
@@ -105,7 +107,7 @@ module Discord
 
     def on_message(&handler : Packet ->)
       @websocket.on_message do |message|
-        @logger.debug "[WS IN] #{message}" if @logger.debug?
+        Log.debug { "[WS IN] #{message}" }
         payload = Packet.from_json(message)
         handler.call(payload)
       end
@@ -118,7 +120,7 @@ module Discord
     delegate run, close, to: @websocket
 
     def send(message)
-      @logger.debug "[WS OUT] #{message}" if @logger.debug?
+      Log.debug { "[WS OUT] #{message}" }
       @websocket.send(message)
     end
   end

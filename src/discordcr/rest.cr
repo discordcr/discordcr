@@ -13,6 +13,8 @@ module Discord
     USER_AGENT  = "DiscordBot (https://github.com/discordcr/discordcr, #{Discord::VERSION})"
     API_BASE    = "https://discordapp.com/api/v6"
 
+    Log = Discord::Log.for("rest")
+
     alias RateLimitKey = {route_key: Symbol, major_parameter: UInt64?}
 
     # Like `#request`, but does not do error checking beyond 429.
@@ -35,23 +37,23 @@ module Discord
         mutexes[rate_limit_key].synchronize { }
         global_mutex.synchronize { }
 
-        @logger.info "[HTTP OUT] #{method} #{path} (#{body.try &.size || 0} bytes)"
-        @logger.debug "[HTTP OUT] BODY: #{body}" if @logger.debug?
+        Log.info { "[HTTP OUT] #{method} #{path} (#{body.try &.size || 0} bytes)" }
+        Log.debug { "[HTTP OUT] BODY: #{body}" }
 
         response = HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
 
-        @logger.info "[HTTP IN] #{response.status_code} #{response.status_message} (#{response.body.size})"
-        @logger.debug "[HTTP IN] BODY: #{response.body}" if @logger.debug?
+        Log.info { "[HTTP IN] #{response.status_code} #{response.status_message} (#{response.body.size})" }
+        Log.debug { "[HTTP IN] BODY: #{response.body}" }
 
         if response.status_code == 429 || response.headers["X-RateLimit-Remaining"]? == "0"
           retry_after_value = response.headers["X-RateLimit-Reset-After"]? || response.headers["Retry-After"]?
           retry_after = retry_after_value.not_nil!.to_f
 
           if response.headers["X-RateLimit-Global"]?
-            @logger.warn "Global rate limit exceeded! Pausing all requests for #{retry_after}"
+            Log.warn { "Global rate limit exceeded! Pausing all requests for #{retry_after}" }
             global_mutex.synchronize { sleep retry_after }
           else
-            @logger.warn "Pausing requests for #{rate_limit_key[:route_key]} in #{rate_limit_key[:major_parameter]} for #{retry_after}"
+            Log.warn { "Pausing requests for #{rate_limit_key[:route_key]} in #{rate_limit_key[:major_parameter]} for #{retry_after}" }
             mutexes[rate_limit_key].synchronize { sleep retry_after }
           end
 
