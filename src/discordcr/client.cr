@@ -136,12 +136,7 @@ module Discord
         begin
           websocket.run
         rescue ex
-          Log.error do
-            <<-LOG
-            [#{@client_name}] Received exception from WebSocket#run:
-            #{ex.inspect_with_backtrace}
-            LOG
-          end
+          Log.error(exception: ex) { "[#{@client_name}] Received exception from WebSocket#run" }
         end
 
         @send_heartbeats = false
@@ -251,21 +246,10 @@ module Discord
             Log.warn { "[#{@client_name}] Unsupported payload: #{packet}" }
           end
         rescue ex : JSON::ParseException
-          Log.error do
-            <<-LOG
-            [#{@client_name}] An exception occurred during message parsing! Please report this.
-            #{ex.inspect_with_backtrace}
-            (pertaining to previous exception) Raised with packet:
-            #{packet}
-            LOG
-          end
+          Log.error(exception: ex) { "[#{@client_name}] An exception occurred during message parsing! Please report this." }
+          Log.error { "Previous exception raised with packet: #{packet}" }
         rescue ex
-          Log.error do
-            <<-LOG
-            [#{@client_name}] A miscellaneous exception occurred during message handling.
-            #{ex.inspect_with_backtrace}
-            LOG
-          end
+          Log.error(exception: ex) { "[#{@client_name}] A miscellaneous exception occurred during message handling." }
         end
 
         # Set the sequence to confirm that we have handled this packet, in case
@@ -410,12 +394,7 @@ module Discord
         begin
           handler.call({{payload}})
         rescue ex
-          Log.error do
-            <<-LOG
-            [#{@client_name}] An exception occurred in a user-defined event handler!
-            #{ex.inspect_with_backtrace}
-            LOG
-          end
+          Log.error(exception: ex) { "[#{@client_name}] An exception occurred in a user-defined event handler!" }
         end
       end
     end
