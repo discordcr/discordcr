@@ -64,6 +64,8 @@ module Discord::Mention
                 snowflake = scan_snowflake(pos)
                 yield User.new(snowflake, start, pos - start + 1) if current_char == '>'
               end
+            else
+              # Continue parsing.
             end
           when '#'
             next_char # Skip channel mention indicator
@@ -86,6 +88,8 @@ module Discord::Mention
               snowflake = scan_snowflake(pos)
               yield Emoji.new(animated, name, snowflake, start, pos - start + 1) if current_char == '>'
             end
+          else
+            # Continue parsing.
           end
         when '@'
           word = scan_word(pos)
@@ -94,6 +98,8 @@ module Discord::Mention
             yield Everyone.new(start)
           when "@here"
             yield Here.new(start)
+          else
+            # Continue parsing.
           end
         else
           next_char

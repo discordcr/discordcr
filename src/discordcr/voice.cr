@@ -127,6 +127,8 @@ module Discord
       when OP_HELLO
         payload = VWS::HelloPayload.from_json(packet.data)
         handle_hello(payload)
+      else
+        # TODO: Debug log unknown opcodes?
       end
     end
 

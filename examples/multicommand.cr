@@ -29,6 +29,8 @@ client.on_message_create do |payload|
     client.create_message(payload.channel_id, suffix)
   when PREFIX + "date"
     client.create_message(payload.channel_id, Time.utc.to_s("%D"))
+  else
+    # Ignore.
   end
 end
 

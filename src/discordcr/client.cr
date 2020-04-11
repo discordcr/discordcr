@@ -199,6 +199,8 @@ module Discord
         websocket.on_compressed(&->on_message(Discord::WebSocket::Packet))
       when .stream?
         websocket.on_compressed_stream(&->on_message(Discord::WebSocket::Packet))
+      when .none?
+        # Nothing to do.
       end
 
       websocket.on_close(&->on_close(HTTP::WebSocket::CloseCode, String))
