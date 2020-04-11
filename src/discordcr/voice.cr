@@ -9,6 +9,8 @@ module Discord
   class VoiceClient
     UDP_PROTOCOL = "udp"
 
+    Log = Discord::Log.for("voice")
+
     # Supported encryption modes. Sorted by preference
     ENCRYPTION_MODES = {"xsalsa20_poly1305_lite", "xsalsa20_poly1305_suffix", "xsalsa20_poly1305"}
 
@@ -42,9 +44,7 @@ module Discord
     # user ID of the account on which the voice client is created. (It is
     # received as part of the gateway READY dispatch, for example)
     def initialize(payload : Discord::Gateway::VoiceServerUpdatePayload,
-                   session : Discord::Gateway::Session,
-                   user_id : UInt64 | Snowflake, @logger = Logger.new(STDOUT))
-      @logger.progname = "discordcr"
+                   session : Discord::Gateway::Session, user_id : UInt64 | Snowflake)
       @user_id = user_id.to_u64
       @endpoint = payload.endpoint.gsub(":80", "")
 
@@ -56,8 +56,7 @@ module Discord
         host: @endpoint,
         path: "/?v=4",
         port: 443,
-        tls: true,
-        logger: @logger
+        tls: true
       )
 
       @websocket.on_message(&->on_message(Discord::WebSocket::Packet))
@@ -115,7 +114,7 @@ module Discord
     end
 
     private def on_message(packet : Discord::WebSocket::Packet)
-      @logger.debug("VWS packet received: #{packet} #{packet.data.to_s}")
+      Log.debug { "VWS packet received: #{packet} #{packet.data.to_s}" }
 
       case packet.opcode
       when OP_READY
@@ -135,7 +134,7 @@ module Discord
     private def on_close(code : HTTP::WebSocket::CloseCode, message : String)
       @send_heartbeats = false
       reason = message.empty? ? "(none)" : message
-      @logger.warn "VWS closed with code: #{code}, reason: #{reason}"
+      Log.warn { "VWS closed with code: #{code}, reason: #{reason}" }
     end
 
     private def handle_ready(payload : VWS::ReadyPayload)
