@@ -42,7 +42,7 @@ module Discord
 
         response = HTTP::Client.exec(method: method, url: API_BASE + path, headers: headers, body: body, tls: SSL_CONTEXT)
 
-        Log.info { "[HTTP IN] #{response.status_code} #{response.status_message} (#{response.body.size})" }
+        Log.info { "[HTTP IN] #{response.status_code} #{response.status_message} (#{response.body.size} bytes)" }
         Log.debug { "[HTTP IN] BODY: #{response.body}" }
 
         if response.status_code == 429 || response.headers["X-RateLimit-Remaining"]? == "0"
