@@ -345,7 +345,7 @@ module Discord
     def reconnect(should_suspend = false, backoff_override = nil)
       @backoff = backoff_override if backoff_override
       @send_heartbeats = false
-      websocket.close
+      websocket.close(4000)
 
       # Suspend the session so we resume, if desired
       @session.try &.suspend if should_suspend
