@@ -60,6 +60,7 @@ module Discord
 
     def initialize(@host : String, @path : String, @port : Int32, @tls : Bool,
                    @zlib_buffer_size : Int32 = 10 * 1024 * 1024)
+      Log.info { "Connecting to #{@host}/#{@path}:#{@port}" }
       @websocket = HTTP::WebSocket.new(
         host: @host,
         path: @path,
@@ -117,7 +118,14 @@ module Discord
       @websocket.on_close(&handler)
     end
 
-    delegate run, close, to: @websocket
+    def run
+      @websocket.run
+    end
+
+    def close(code : HTTP::WebSocket::CloseCode | Int? = nil, message = nil)
+      Log.info { "Closing with code: #{code} #{message || "(no message)"}" }
+      @websocket.close(code, message)
+    end
 
     def send(message)
       Log.debug { "[WS OUT] #{message}" }
