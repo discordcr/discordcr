@@ -294,7 +294,7 @@ module Discord
               # first heartbeat
               @last_heartbeat_acked = true
 
-              reconnect(should_suspend: true)
+              reconnect(should_resume: true)
               next
             end
 
@@ -336,19 +336,26 @@ module Discord
       websocket.send(packet.to_json)
     end
 
-    # Reconnects the websocket connection entirely. If *should_suspend* is set,
+    # Reconnects the websocket connection entirely. If *should_resume* is set,
     # the session will be suspended, which means (unless other factors prevent
     # this) that the session will be resumed after reconnection. If
     # *backoff_override* is set to anything other than `nil`, the reconnection
     # backoff will not use the standard formula and instead wait the value
     # provided; use `0.0` to skip waiting entirely.
-    def reconnect(should_suspend = false, backoff_override = nil)
+    def reconnect(should_resume = false, backoff_override = nil)
       @backoff = backoff_override if backoff_override
       @send_heartbeats = false
-      websocket.close(4000)
 
       # Suspend the session so we resume, if desired
-      @session.try &.suspend if should_suspend
+      @session.try do |session|
+        if should_resume
+          session.suspend
+        else
+          session.invalidate
+        end
+      end
+
+      websocket.close(4000)
     end
 
     # Sends a status update to Discord. The *status* can be `"online"`,
@@ -647,7 +654,7 @@ module Discord
     private def handle_reconnect
       # We want the reconnection to happen instantly, and we want a resume to be
       # attempted, so set the respective parameters
-      reconnect(should_suspend: true, backoff_override: 0.0)
+      reconnect(should_resume: true, backoff_override: 0.0)
     end
 
     private def handle_invalid_session
