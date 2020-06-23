@@ -1,0 +1,68 @@
+version: 2.1
+
+executors:
+  crystal-latest:
+    docker:
+      - image: crystallang/crystal:latest-alpine
+  crystal-nightly:
+    docker:
+      - image: crystallang/crystal:nightly-alpine
+
+jobs:
+  test:
+    executor: crystal-latest
+    steps:
+      - checkout
+      - run:
+          name: Report Crystal version
+          command: crystal --version
+      - run:
+          name: Check format
+          command: crystal tool format --check
+      - run:
+          name: Run specs
+          command: crystal spec
+      - run:
+          name: Compile examples
+          command: find examples -name "*.cr" | xargs -n1 crystal build --no-codegen
+
+  docs:
+    executor: crystal-latest
+    steps:
+      - checkout
+      - run:
+          name: Report Crystal version
+          command: crystal --version
+      - run:
+          name: Compile docs
+          command: crystal docs
+      - run:
+          name: Push updated docs
+          command: |
+            git checkout gh-pages
+
+            git config user.name "Circle CI"
+            git config user.email "circle@circleci.com"
+
+            SOURCE_BRANCH=$CIRCLE_BRANCH
+            if [ -n "$CIRCLE_TAG" ]; then
+              SOURCE_BRANCH=$CIRCLE_TAG
+            fi
+
+            rm -rf $SOURCE_BRANCH/*
+            mv docs/ $SOURCE_BRANCH
+
+            git add $SOURCE_BRANCH
+            git commit --allow-empty -m "[skip ci] Deploy docs"
+            git push -q https://${CIRCLE_GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/discordcr.git
+
+workflows:
+  version: 2.1
+  ci:
+    jobs:
+      - test
+      - docs:
+          requires: [test]
+          filters:
+            branches: {only: master}
+            tags: {only: /^v.*/}
